@@ -1,3 +1,4 @@
 build
 debug.sh
 compile_commands.json
+.cache
