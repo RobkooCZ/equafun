@@ -1,13 +1,13 @@
-# Equafun (Alpha v0.0.1)
+# Equafun (Alpha v0.0.2)
 
 ## Features
-- Nothing yet :P
+- Opens a window and prints some messages into the console
 
 ## Changelog
 - The full changelog for the project can be found [here](docs/changelog.md).
 
 ## Note
-- Only **LINUX** support as of `Alpha v0.0.1`.
+- Only **LINUX** support as of `Alpha v0.0.2`.
 
 ## How to build & run
 
@@ -15,6 +15,7 @@
 
 ### Prerequisites
 - **Required:** *make*, *gcc*, *glfw*
+- **OpenGL version 3.3 or above**
 
 ### Build Using Make
 1. Simply run `make` in the root directory of the project.

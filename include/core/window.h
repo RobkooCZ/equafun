@@ -9,9 +9,9 @@
 #define HEIGHT 600
 #define TITLE "Equafun"
 
-// version of OpenGL im using
-#define GL_VER_MAJOR 4
-#define GL_VER_MINOR 6
+// OpenGL 3.3 due to compatibility
+#define GL_VER_MAJOR 3
+#define GL_VER_MINOR 3
 
 // function declarations
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
