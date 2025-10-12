@@ -18,7 +18,7 @@ void logMsg(enum logLevel severity, const char *restrict msg, ...){
     case WARNING: color = WARNING_CLR; tag = "WARNING"; break;
     case ERROR:   color = ERROR_CLR;   tag = "ERROR";   break;
     case FAILURE: color = FAILURE_CLR; tag = "FAILURE"; break;
-    default:      color = END;     tag = "LOG";     break;
+    default:      color = END;         tag = "LOG";     break;
   }
 
   // print the bracket with colored tag

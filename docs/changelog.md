@@ -1,5 +1,12 @@
 # Changelog
 
+## Alpha v0.0.3
+### Added
+- basic graph render
+- markers to the graph (unmarked)
+- utility functions for shaders and rendering
+- vertex and fragment shader
+
 ## Alpha v0.0.2
 ### Added
 - simple logger

@@ -10,7 +10,7 @@
 #define END           "\e[0m"
 
 // debug mode or no
-// #define _DEBUG_ENABLE
+#define _DEBUG_ENABLE 1
 
 enum logLevel {
   DEBUG = -1, // every little detail
