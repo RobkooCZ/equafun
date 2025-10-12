@@ -5,31 +5,48 @@
 #include "renderer/graph.h"
 #include "utils/renderUtils.h"
 #include "utils/shaderUtils.h"
+#include "core/errorHandler.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
-void setupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
-  // get shader sources
-  const char* vertexShaderSrc = loadShaderSource("data/shaders/lineRender.vert");
-  const char* fragmentShaderSrc = loadShaderSource("data/shaders/basicColor.frag");
-
-  // make sure we didnt get NULL
-  if (vertexShaderSrc == nullptr || fragmentShaderSrc == nullptr){
-    logMsg(ERROR, "%s in 'setupGraph()' is NULL.", (vertexShaderSrc == NULL) ? "vertexShaderSrc" : "fragmentShaderSrc");
-    return;
+enum ErrorCode setupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
+  if (!program || !VAO || !VBO || !EBO){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "One or more output pointers are NULL in setupGraph()");
   }
 
-  // setup the program
-  GLuint vertexShader, fragShader;
-  vertexShader = compileShader(vertexShaderSrc, GL_VERTEX_SHADER);
-  fragShader = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER);
+  char* vertexShaderSrc = nullptr;
+  char* fragmentShaderSrc = nullptr;
 
-  if (vertexShader == 0 || fragShader == 0){
-    logMsg(ERROR, "Compilation of %s in 'setupGraph()' failed.", (vertexShader == 0) ? "vertexShader" : "fragmentShader");
-    return; 
+  CHECK_ERROR_CTX(loadShaderSource("data/shaders/lineRender.vert", &vertexShaderSrc), "Failed to load vertex shader for graph axis");
+
+  CHECK_ERROR_CTX(loadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for graph axis");
+
+  GLuint vertexShader = 0;
+  GLuint fragShader = 0;
+
+  enum ErrorCode err = compileShader(vertexShaderSrc, GL_VERTEX_SHADER, &vertexShader);
+  if (err != ERR_SUCCESS){
+    free(vertexShaderSrc);
+    free(fragmentShaderSrc);
+    ADD_ERROR_CONTEXT_RETURN(err, "Failed to compile vertex shader for graph axis");
   }
 
-  *program = linkShaders(vertexShader, fragShader);
+  err = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, &fragShader);
+  if (err != ERR_SUCCESS){
+    free(vertexShaderSrc);
+    free(fragmentShaderSrc);
+    glDeleteShader(vertexShader);
+    ADD_ERROR_CONTEXT_RETURN(err, "Failed to compile fragment shader for graph axis");
+  }
+
+  err = linkShaders(vertexShader, fragShader, program);
+  free(vertexShaderSrc);
+  free(fragmentShaderSrc);
+  
+  if (err != ERR_SUCCESS){
+    ADD_ERROR_CONTEXT_RETURN(err, "Failed to link shaders for graph axis program");
+  }
 
   float vertices[] = {
     // x axis
@@ -46,117 +63,129 @@ void setupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
     2, 3  // y axis
   };
 
-  size_t verticesSize = sizeof(vertices);
-  size_t indicesSize = sizeof(indices);
+  enum ErrorCode renderErr = setupRenderData(vertices, sizeof(vertices), indices, sizeof(indices), VAO, VBO, EBO);
+  if (renderErr != ERR_SUCCESS){
+    ADD_ERROR_CONTEXT_RETURN(renderErr, "Failed to setup render data for graph axis");
+  }
 
-  setupRenderData(vertices, verticesSize, indices, indicesSize, VAO, VBO, EBO);
-
-  free((void*)vertexShaderSrc);
-  free((void*)fragmentShaderSrc);
+  logMsg(SUCCESS, "Graph axis rendering initialized successfully");
+  return ERR_SUCCESS;
 }
 
-void renderGraph(GLuint *program, GLuint *VAO){
-  if (program == nullptr){
-    logMsg(ERROR, "Shader program passed to 'renderGraph()' is NULL.");
-    return;
+enum ErrorCode renderGraph(GLuint *program, GLuint *VAO){
+  if (!program || *program == 0){
+    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid program in renderGraph()");
   }
-  if (VAO == nullptr || *VAO == 0){
-    logMsg(ERROR, "Invalid VAO passed to 'renderGraph()' (%s).", (VAO == nullptr) ? "NULL" : "0");
-    return;
+
+  if (!VAO || *VAO == 0){
+    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid VAO in renderGraph()");
   }
 
   glUseProgram(*program);
   glBindVertexArray(*VAO);
   gluSet4f(*program, "color", 1.0f, 1.0f, 1.0f, 1.0f);
-  glLineWidth(1.0f);
+  glLineWidth(2.0f);
   glDrawElements(GL_LINES, 4, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
+
+  return ERR_SUCCESS;
 }
 
-void setupMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
-  // get shader sources
-  char* vertexShaderSrc = loadShaderSource("data/shaders/lineRender.vert");
-  char* fragmentShaderSrc = loadShaderSource("data/shaders/basicColor.frag");
-
-  // make sure we didnt get NULL
-  if (vertexShaderSrc == nullptr || fragmentShaderSrc == nullptr){
-    logMsg(ERROR, "%s in 'setupMarkers()' is NULL.", (vertexShaderSrc == NULL) ? "vertexShaderSrc" : "fragmentShaderSrc");
+enum ErrorCode setupMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
+  if (!program || !VAO || !VBO || !EBO){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "One or more output pointers are NULL in setupMarkers()");
   }
 
-  // setup the program
-  GLuint vertexShader, fragShader;
-  vertexShader = compileShader(vertexShaderSrc, GL_VERTEX_SHADER);
-  fragShader = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER);
- 
-  if (vertexShader == 0 || fragShader == 0){
-    logMsg(ERROR, "Compilation of %s in 'setupGraph()' failed.", (vertexShader == 0) ? "vertexShader" : "fragmentShader");
-    return; 
+  char* vertexShaderSrc = nullptr;
+  char* fragmentShaderSrc = nullptr;
+
+  CHECK_ERROR_CTX(loadShaderSource("data/shaders/lineRender.vert", &vertexShaderSrc), "Failed to load vertex shader for graph markers");
+
+  CHECK_ERROR_CTX(loadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for graph markers");
+
+  GLuint vertexShader = 0;
+  GLuint fragShader = 0;
+
+  enum ErrorCode err = compileShader(vertexShaderSrc, GL_VERTEX_SHADER, &vertexShader);
+  if (err != ERR_SUCCESS){
+    free(vertexShaderSrc);
+    free(fragmentShaderSrc);
+    ADD_ERROR_CONTEXT_RETURN(err, "Failed to compile vertex shader for graph markers");
   }
 
-  *program = linkShaders(vertexShader, fragShader);
- 
-  float step = POINT_DISTANCE;
-
-  // holds all the marker data (2 points, each point 3 floats)
-  float vertices[(X_COUNT + Y_COUNT) * 3 * 2];
-
-  // populate the vertices array
-  int v = 0;
-
-  for (int i = 0;i < X_COUNT; ++i){
-    float x = X_MIN + i * step;
-    // first point of the marker
-    vertices[v++] = x;
-    vertices[v++] = 0.0f + POINT_MARKER_HEIGHT;
-    vertices[v++] = 0.0f;
-
-    vertices[v++] = x;
-    vertices[v++] = 0.0f - POINT_MARKER_HEIGHT;
-    vertices[v++] = 0.0f;
+  err = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, &fragShader);
+  if (err != ERR_SUCCESS){
+    free(vertexShaderSrc);
+    free(fragmentShaderSrc);
+    glDeleteShader(vertexShader);
+    ADD_ERROR_CONTEXT_RETURN(err, "Failed to compile fragment shader for graph markers");
   }
 
-  for (int i = 0;i < Y_COUNT; ++i){
-    float y = Y_MIN + i * step;
-    // first point of the marker
-    vertices[v++] = 0.0f + POINT_MARKER_HEIGHT;
-    vertices[v++] = y;
-    vertices[v++] = 0.0f;
-
-    vertices[v++] = 0.0f - POINT_MARKER_HEIGHT;
-    vertices[v++] = y;
-    vertices[v++] = 0.0f;
-  }
-
-  // populate the indices array
-  GLuint indices[(TOTAL_MARKERS * 2)];
-
-  for (int k = 0; k < TOTAL_MARKERS * 2; ++k) indices[k] = k;
-
-  size_t verticesSize = sizeof(vertices);
-  size_t indicesSize = sizeof(indices);
-
-  setupRenderData(vertices, verticesSize, indices, indicesSize, VAO, VBO, EBO);
-
+  err = linkShaders(vertexShader, fragShader, program);
   free(vertexShaderSrc);
   free(fragmentShaderSrc);
+  
+  if (err != ERR_SUCCESS){
+    ADD_ERROR_CONTEXT_RETURN(err, "Failed to link shaders for graph marker program");
+  }
+
+  float step = POINT_DISTANCE;
+  float vertices[(X_COUNT + Y_COUNT) * 3 * 2];
+
+  int v = 0;
+  for (int i = 0; i < X_COUNT; ++i){
+    float x = X_MIN + i * step;
+    vertices[v++] = x;
+    vertices[v++] = 0.0f + POINT_MARKER_HEIGHT;
+    vertices[v++] = 0.0f;
+    
+    vertices[v++] = x;
+    vertices[v++] = 0.0f - POINT_MARKER_HEIGHT;
+    vertices[v++] = 0.0f;
+  }
+
+  for (int i = 0; i < Y_COUNT; ++i){
+    float y = Y_MIN + i * step;
+    vertices[v++] = 0.0f + POINT_MARKER_HEIGHT;
+    vertices[v++] = y;
+    vertices[v++] = 0.0f;
+    
+    vertices[v++] = 0.0f - POINT_MARKER_HEIGHT;
+    vertices[v++] = y;
+    vertices[v++] = 0.0f;
+  }
+
+  GLuint indices[TOTAL_MARKERS * 2];
+  for (int k = 0; k < TOTAL_MARKERS * 2; ++k){
+    indices[k] = k;
+  }
+
+  enum ErrorCode renderErr = setupRenderData(vertices, sizeof(vertices), indices, sizeof(indices), VAO, VBO, EBO);
+  if (renderErr != ERR_SUCCESS){
+    ADD_ERROR_CONTEXT_RETURN(renderErr, "Failed to setup render data for graph markers");
+  }
+
+  logMsg(SUCCESS, "Graph marker rendering initialized successfully");
+  return ERR_SUCCESS;
 }
 
-void renderMarkers(GLuint *program, GLuint *VAO){
-  if (program == nullptr){
-    logMsg(ERROR, "Shader program passed to 'renderMarkers()' is NULL.");
-    return;
+enum ErrorCode renderMarkers(GLuint *program, GLuint *VAO){
+  if (!program || *program == 0){
+    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid program in renderMarkers()");
   }
-  if (VAO == nullptr || *VAO == 0){
-    logMsg(ERROR, "Invalid VAO passed to 'renderMarkers()' (%s).", (VAO == nullptr) ? "NULL" : "0");
-    return;
+
+  if (!VAO || *VAO == 0){
+    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid VAO in renderMarkers()");
   }
 
   int indexCount = TOTAL_MARKERS * 2;
-
+  
   glUseProgram(*program);
   glBindVertexArray(*VAO);
   gluSet4f(*program, "color", 1.0f, 1.0f, 1.0f, 1.0f);
   glLineWidth(2.0f);
   glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
+
+  return ERR_SUCCESS;
 }

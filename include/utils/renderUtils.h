@@ -3,7 +3,9 @@
 
 #include <GLFW/glfw3.h>
 
-void setupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO);
-void setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO);
+#include "core/errorHandler.h"
+
+enum ErrorCode setupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO);
+enum ErrorCode setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO);
 
 #endif // RENDER_UTILS_H

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c23 -Wall -Werror
+CFLAGS = -std=c23 -O2 -g -Wall -Werror -MMD -MP
 
 # Libraries
 LIBS = -lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl
@@ -43,6 +43,6 @@ $(BUILD_DIR)/%.o: $(LIBS_SRC_DIR)/%.c
 
 # Clean rule
 clean:
-	rm -rf $(BUILD_DIR) $(EXEC)
+	rm -rf $(BUILD_DIR)
 
 .PHONY: all clean

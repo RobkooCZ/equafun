@@ -1,1 +1,8 @@
-include/glad/glad.h linguist-vendored
+# Exclude library code from counting
+libs linguist-vendored
+
+# Explicitly mark languages for Linguist
+*.md linguist-documentation
+data/shaders/* linguist-language=GLSL
+*.h linguist-language=C
+*.c linguist-language=C

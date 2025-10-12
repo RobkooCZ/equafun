@@ -1,130 +1,116 @@
-#include "core/logger.h"
-
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
+#include "core/logger.h"
 #include "utils/shaderUtils.h"
+#include "core/errorHandler.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
-FILE *openFile(const char* path){
-  FILE *file = fopen(path, "r");
-  logMsg(DEBUG, "Opened file at path: %s", path);
+enum ErrorCode loadShaderSource(const char *path, char **outSource){
+  if (!path || !outSource){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Invalid parameters: path or outSource is NULL");
+  }
 
-  if (file == nullptr){
-    logMsg(ERROR, "Failed to open file at path: %s", path);
-    return nullptr;
+  FILE* shaderSrcFile = fopen(path, "r");
+  logMsg(DEBUG, "Attempting to open file at path: %s", path);
+
+  if (!shaderSrcFile){
+    char technical[512];
+    snprintf(technical, sizeof(technical), "fopen() failed with errno %d: %s", errno, strerror(errno));
+    SET_ERROR_TECHNICAL_RETURN(ERR_FILE_NOT_FOUND, "Failed to open shader file: %s", technical, path);
   }
 
   logMsg(DEBUG, "Successfully opened file at path: %s", path);
 
-  return file;
-}
+  fseek(shaderSrcFile, 0L, SEEK_END);
+  long fSize = ftell(shaderSrcFile);
+  fseek(shaderSrcFile, 0L, SEEK_SET);
 
-long getFileSize(FILE *file){
-  if (file == nullptr){
-    logMsg(ERROR, "File provided to function 'getFileSize()' is NULL.");
-    return -1;
+  if (fSize < 0){
+    fclose(shaderSrcFile);
+    char technical[512];
+    snprintf(technical, sizeof(technical), "ftell() returned %ld", fSize);
+    SET_ERROR_TECHNICAL_RETURN(ERR_FILE_READ_FAILED, "Failed to determine file size for: %s", technical, path);
   }
 
-  fseek(file, 0L, SEEK_END);
-  long size = ftell(file);
-  logMsg(DEBUG, "Size of read file contents: %ld bytes.", size);
+  logMsg(DEBUG, "Size of read file contents: %ld bytes.", fSize);
 
-  return size;
-}
-
-char* readFileToString(FILE *file, const long fSize){
-  if (file == nullptr){
-    logMsg(ERROR, "File provided to 'readFileToString()' is NULL.");
-    return nullptr;
-  }
-  // fSize + 1 due to the fact we need to append '\0' after the file contents as OpenGL wants null terminated strings
-  char* shaderSrc = (char *)malloc((fSize + 1) * sizeof(char));
-
-  if (shaderSrc == nullptr){
-    logMsg(ERROR, "Pointer to shaderSrc in 'readFileToString' failed to initialize.");
-    return nullptr;
+  char* shaderSrc = (char*)malloc((fSize + 1) * sizeof(char));
+  if (!shaderSrc){
+    fclose(shaderSrcFile);
+    SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate %ld bytes for shader source", fSize + 1);
   }
 
-  // read the file contents into a string
-  fseek(file, 0L, SEEK_SET);
-  fread(shaderSrc, 1, fSize, file);
-  shaderSrc[fSize] = '\0'; // null terminate the string
+  size_t bytesRead = fread(shaderSrc, 1, fSize, shaderSrcFile);
+  fclose(shaderSrcFile);
 
+  if (bytesRead != (size_t)fSize){
+    free(shaderSrc);
+    char technical[512];
+    snprintf(technical, sizeof(technical), "fread() returned %zu bytes, expected %ld", bytesRead, fSize);
+    SET_ERROR_TECHNICAL_RETURN(ERR_FILE_READ_FAILED, "Failed to read complete file: %s", technical, path);
+  }
+
+  shaderSrc[fSize] = '\0';
   logMsg(DEBUG, "Read file's contents:\n%s", shaderSrc);
 
-  return shaderSrc;
+  *outSource = shaderSrc;
+  return ERR_SUCCESS;
 }
 
-char* loadShaderSource(const char* path){
-  FILE *shaderSrcFile = openFile(path);
-
-  // failed to open file
-  if (shaderSrcFile == nullptr){
-    fclose(shaderSrcFile);
-    return nullptr;
+enum ErrorCode compileShader(const char *source, unsigned int shaderType, GLuint *outShader){
+  if (!source){
+    SET_ERROR_RETURN(ERR_SHADER_SOURCE_NULL, "Shader source is NULL");
   }
 
-  long fSize = getFileSize(shaderSrcFile);
-
-  // failed to get size
-  if (fSize == -1){
-    fclose(shaderSrcFile);
-    return nullptr;
-  }
-
-  char* shaderSrc = readFileToString(shaderSrcFile, fSize);
-
-  // failed to read file into the string
-  if (shaderSrc == nullptr){
-    fclose(shaderSrcFile);
-    return nullptr;
-  }
-
-  fclose(shaderSrcFile);
-  return shaderSrc;
-}
-
-GLuint compileShader(const char *source, unsigned int shaderType){
-  // arg checks
-  if (source == nullptr){
-    logMsg(ERROR, "Shader source provided in 'compileShader()' is NULL.");
-    return 0;
+  if (!outShader){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Output shader pointer is NULL");
   }
 
   if (shaderType != GL_VERTEX_SHADER && shaderType != GL_FRAGMENT_SHADER){
-    logMsg(ERROR, "Shader type provided in 'compileShader()' is not valid: %d", shaderType);
-    return 0;
+    SET_ERROR_RETURN(ERR_SHADER_INVALID_TYPE, "Invalid shader type: %u (expected GL_VERTEX_SHADER or GL_FRAGMENT_SHADER)", shaderType);
   }
 
   GLuint shader = glCreateShader(shaderType);
-
-  glShaderSource(shader, 1, &source, NULL);
+  glShaderSource(shader, 1, &source, nullptr);
   glCompileShader(shader);
 
-  // check for errors
   int success;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
-  if (success == false){
+  if (!success){
     char infoLog[512];
-    glGetShaderInfoLog(shader, 512, NULL, infoLog);
-    logMsg(ERROR, "Failed to compile shader:\n%s", infoLog);
-    return 0;
-  }
-  else {
-    logMsg(DEBUG, "Successfully created and compiled shader with type %s.", (shaderType == GL_VERTEX_SHADER)? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER");
+    glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+    glDeleteShader(shader);
+    
+    const char* shaderTypeStr = (shaderType == GL_VERTEX_SHADER) ? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER";
+    SET_ERROR_TECHNICAL_RETURN(ERR_SHADER_COMPILE_FAILED, "Shader compilation failed for %s", infoLog, shaderTypeStr);
   }
 
-  // id of the shader
-  return shader;
+  logMsg(DEBUG, "Successfully created and compiled shader with type %s.", (shaderType == GL_VERTEX_SHADER) ? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER");
+
+  *outShader = shader;
+  return ERR_SUCCESS;
 }
 
-GLuint linkShaders(GLuint vertex, GLuint fragment){
-  GLuint program = glCreateProgram();
+enum ErrorCode linkShaders(GLuint vertex, GLuint fragment, GLuint* outProgram){
+  if (!outProgram){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Output program pointer is NULL");
+  }
 
+  if (vertex == 0){
+    SET_ERROR_RETURN(ERR_SHADER_COMPILE_FAILED, "Invalid vertex shader ID (0)");
+  }
+
+  if (fragment == 0){
+    SET_ERROR_RETURN(ERR_SHADER_COMPILE_FAILED, "Invalid fragment shader ID (0)");
+  }
+
+  GLuint program = glCreateProgram();
   glAttachShader(program, vertex);
   glAttachShader(program, fragment);
   glLinkProgram(program);
@@ -132,43 +118,49 @@ GLuint linkShaders(GLuint vertex, GLuint fragment){
   int success;
   glGetProgramiv(program, GL_LINK_STATUS, &success);
 
-  if (success == false){
+  if (!success){
     char infoLog[512];
-    glGetProgramInfoLog(program, 512, NULL, infoLog);
-    logMsg(ERROR, "Failed to link shaders:\n%s", infoLog);
-    return 0;
+    glGetProgramInfoLog(program, 512, nullptr, infoLog);
+    glDeleteProgram(program);
+    
+    SET_ERROR_TECHNICAL_RETURN(ERR_SHADER_LINK_FAILED, "Failed to link shader program", infoLog);
   }
-  else {
-    logMsg(DEBUG, "Successfully linked shaders.");
-  }
+
+  logMsg(DEBUG, "Successfully linked shaders.");
 
   glDeleteShader(vertex);
   glDeleteShader(fragment);
 
-  return program;
+  *outProgram = program;
+  return ERR_SUCCESS;
 }
 
 void gluSetFloat(GLuint program, const char *name, const float value){
-  if (name == nullptr){
-    logMsg(ERROR, "Name provided in 'gluSetFloat()' is NULL.");
-    return;
-  }
-
-  glUniform1f(glGetUniformLocation(program, name), value);
-}
-
-void gluSet4f(GLuint program, const char *name, const float x, const float y, const float z, const float w){
-  if (name == nullptr){
-    logMsg(ERROR, "Name provided in 'gluSet4f()' is NULL.");
+  if (!name){
+    logMsg(WARNING, "Uniform name is NULL in gluSetFloat()");
     return;
   }
 
   GLint location = glGetUniformLocation(program, name);
   if (location == -1){
-    logMsg(ERROR, "Failed to get uniform %s location.", name);
+    logMsg(WARNING, "Failed to find uniform '%s' in program %u", name, program);
     return;
   }
-  else{
-    glUniform4f(location, x, y, z, w);
+
+  glUniform1f(location, value);
+}
+
+void gluSet4f(GLuint program, const char *name, const float x, const float y, const float z, const float w){
+  if (!name){
+    logMsg(WARNING, "Uniform name is NULL in gluSet4f()");
+    return;
   }
+
+  GLint location = glGetUniformLocation(program, name);
+  if (location == -1){
+    logMsg(WARNING, "Failed to find uniform '%s' in program %u", name, program);
+    return;
+  }
+
+  glUniform4f(location, x, y, z, w);
 }

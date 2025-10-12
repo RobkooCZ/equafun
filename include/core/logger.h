@@ -1,6 +1,8 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include "core/errorHandler.h"
+
 // ASCII codes for colors for the different levels
 #define DEBUG_CLR     "\e[1;36m"
 #define SUCCESS_CLR   "\e[1;32m"
@@ -10,7 +12,7 @@
 #define END           "\e[0m"
 
 // debug mode or no
-#define _DEBUG_ENABLE 1
+#define _DEBUG_ENABLE
 
 enum logLevel {
   DEBUG = -1, // every little detail
@@ -22,4 +24,6 @@ enum logLevel {
 
 void logMsg(enum logLevel severity, const char* __restrict__ msg, ...);
 
+void logError(const ErrorContext *ctx, enum logLevel severity);
+void logLastError(enum logLevel severity);
 #endif // LOGGER_H

@@ -1,13 +1,14 @@
-# Equafun (Alpha v0.0.2)
+# Equafun (Alpha v0.0.4)
 
 ## Features
-- Opens a window and prints some messages into the console
+- Graph render
+- Tons of CLI logging
 
 ## Changelog
 - The full changelog for the project can be found [here](docs/changelog.md).
 
 ## Note
-- Only **LINUX** support as of `Alpha v0.0.2`.
+- Only **LINUX** support as of `Alpha v0.0.4`.
 
 ## How to build & run
 

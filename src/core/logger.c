@@ -1,4 +1,5 @@
 #include "core/logger.h"
+#include "core/errorHandler.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -31,4 +32,21 @@ void logMsg(enum logLevel severity, const char *restrict msg, ...){
   va_end(args);
 
   printf("\n");
+}
+
+void logError(const ErrorContext *ctx, enum logLevel severity){
+  if (!ctx || ctx->code == ERR_SUCCESS) return; // dont log if we dont have context or if there is no error
+
+  // always shown
+  logMsg(severity, "%s", ctx->message);
+
+  // Technical details and location (DEBUG only (check handled in `logMsg()`))
+  logMsg(DEBUG, "\tLocation: %s:%d in %s()", ctx->file, ctx->line, ctx->fnName);
+  if (ctx->technicalDetails[0] != '\0'){ // check if theres anything in the technicalDetails buffer
+    logMsg(DEBUG, "\tTechnical: %s", ctx->technicalDetails);
+  }
+}
+
+void logLastError(enum logLevel severity){
+  logError(getLastError(), severity);
 }

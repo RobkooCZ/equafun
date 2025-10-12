@@ -23,12 +23,11 @@
 #define TOTAL_MARKERS (X_COUNT + Y_COUNT)
 
 // prototypes
-GLuint graphVertexInput(void);
 
-void setupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO);
-void renderGraph(GLuint *program, GLuint *VAO);
+enum ErrorCode setupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO);
+enum ErrorCode renderGraph(GLuint *program, GLuint *VAO);
 
-void setupMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO);
-void renderMarkers(GLuint *program, GLuint *VAO);
+enum ErrorCode setupMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO);
+enum ErrorCode renderMarkers(GLuint *program, GLuint *VAO);
 
 #endif // GRAPH_H
