@@ -1,14 +1,14 @@
-# Equafun (Alpha v0.0.4)
+# Equafun (Alpha v0.0.5)
 
 ## Features
-- Graph render
+- Graph render with labeled markers
 - Tons of CLI logging
 
 ## Changelog
 - The full changelog for the project can be found [here](docs/changelog.md).
 
 ## Note
-- Only **LINUX** support as of `Alpha v0.0.4`.
+- Only **LINUX** support as of `Alpha v0.0.5`.
 
 ## How to build & run
 

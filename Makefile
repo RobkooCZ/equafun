@@ -2,10 +2,10 @@ CC = gcc
 CFLAGS = -std=c23 -O2 -g -Wall -Werror -MMD -MP
 
 # Libraries
-LIBS = -lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+LIBS = -lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl -lfreetype -lm 
 
 # Include paths for internal includes and external includes
-INCLUDE_PATHS = -Iinclude -Ilibs/include
+INCLUDE_PATHS = -Iinclude -Ilibs/include $(shell pkg-config --cflags freetype2 | awk '{print $1}')
 
 # Directories
 SRC_DIR = src
@@ -40,6 +40,8 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 $(BUILD_DIR)/%.o: $(LIBS_SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDE_PATHS) -c $< -o $@
+
+-include $(OBJS:.o=.d)
 
 # Clean rule
 clean:

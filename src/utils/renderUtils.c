@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-enum ErrorCode setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO){
+enum reh_error_code_e setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO){
   if (!indices){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Indices pointer is NULL in setupEBO()");
   }
@@ -61,7 +61,7 @@ enum ErrorCode setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO){
   return ERR_SUCCESS;
 }
 
-enum ErrorCode setupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO){
+enum reh_error_code_e setupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO){
   if (!vertices){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Vertices pointer is NULL in setupRenderData()");
   }
@@ -187,7 +187,7 @@ enum ErrorCode setupRenderData(float *vertices, size_t verticesSize, GLuint *ind
   }
 
   // Setup EBO (BEFORE unbinding VBO)
-  enum ErrorCode eboErr = setupEBO(indices, indicesSize, EBO);
+  enum reh_error_code_e eboErr = setupEBO(indices, indicesSize, EBO);
   if (eboErr != ERR_SUCCESS){
     glDeleteBuffers(1, VBO);
     glDeleteVertexArrays(1, VAO);

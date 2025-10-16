@@ -1,8 +1,10 @@
 #ifndef ERROR_HANDLER_H
 #define ERROR_HANDLER_H
 
+#include <stdio.h> // for snprintf() and similar, to avoid excess inclusion in every file using this handler
+
 // error codes enum
-enum ErrorCode {
+enum reh_error_code_e {
   ERR_SUCCESS = 0,
 
   // File I/O errors (1xx)
@@ -37,13 +39,29 @@ enum ErrorCode {
   ERR_MARKER_SETUP_FAILED = 501,
   ERR_RENDER_INVALID_PARAMS = 502,
 
+  // Font/Text errors (6xx)
+  ERR_FT_FAILED_TO_INIT = 600,
+  ERR_FT_FACE_FAILED_TO_INIT = 601,
+  ERR_FT_FACE_UNKNOWN_FILE_FORMAT = 602,
+  ERR_FT_FACE_FAILED_TO_SET_FONT_SIZE = 603,
+  ERR_FT_FAILED_TO_LOAD_CHAR = 604,
+
+  // Math errors (7xx)
+  ERR_DIVISION_BY_ZERO = 700,
+  ERR_INVALID_SQRT = 701,
+  ERR_OVERFLOW = 702,
+  ERR_UNDERFLOW = 703,
+  ERR_VALUE_IS_NAN = 704,
+  ERR_OUT_OF_BOUNDS = 705,
+
   // Generic errors (9xx)
+  ERR_INVALID_INPUT = 900,
   ERR_UNKNOWN = 999
 };
 
 // error context struct
-typedef struct errorContext_t {
-  enum ErrorCode code;        // Error code of the error
+typedef struct reh_error_context_t {
+  enum reh_error_code_e code; // Error code of the error
   const char* file;           // File where it happened (__FILE__)
   int line;                   // Line where it happened (__LINE__)
   const char* fnName;         // Name of the function (__func__)
@@ -52,6 +70,7 @@ typedef struct errorContext_t {
 } ErrorContext;
 
 // macros to remove boilerplate from code
+
 // Set error and return error code
 #define SET_ERROR_RETURN(code, msg, ...)                             \
   do {                                                               \
@@ -83,7 +102,7 @@ typedef struct errorContext_t {
 // Check error and propagate with additional context
 #define CHECK_ERROR_CTX(call, msg, ...)                                                 \
   do {                                                                                  \
-    enum ErrorCode _err = call;                                                         \
+    enum reh_error_code_e _err = call;                                                  \
     if (_err != ERR_SUCCESS) {                                                          \
       const ErrorContext* _ctx = getLastError();                                        \
       char _new_msg[256];                                                               \
@@ -93,7 +112,7 @@ typedef struct errorContext_t {
     }                                                                                   \
   } while(0)
 
-void setError(enum ErrorCode code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo);
+void setError(enum reh_error_code_e code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo);
 const ErrorContext* getLastError(void);
 void clearError(void);
 

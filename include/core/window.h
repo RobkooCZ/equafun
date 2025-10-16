@@ -18,7 +18,7 @@
 // function declarations
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 
-enum ErrorCode initGLFW(void);
-enum ErrorCode initWindow(GLFWwindow **window);
+enum reh_error_code_e initGLFW(void);
+enum reh_error_code_e initWindow(GLFWwindow **window);
 
 #endif // WINDOW_H

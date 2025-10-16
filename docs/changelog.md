@@ -1,12 +1,46 @@
 # Changelog
 
+## Alpha v0.0.5
+
+### Added
+- FreeType text rendering system
+    - character atlas loading (128 ASCII characters)
+    - OpenGL texture generation for each glyph
+    - dynamic text rendering with VAO/VBO management
+- axis labeling system
+    - origin (0,0) label
+    - X-axis labels (positive and negative)
+    - Y-axis labels (positive and negative)
+    - NDC to pixel coordinate conversion helpers
+    - text width/height calculation for proper alignment
+    - value formatting (e.g., "1.00", "2.50")
+- math utilities
+    - Vec2 structure and basic operations
+    - Vec3 basic structures
+    - Mat4 orthographic projection
+    - type conversion function (`rm_Mat4ValuePtr()`)
+- shader utilities
+    - `gluSetMat4()` for setting matrix uniforms
+
+### Changed
+- graph markers now use dynamic vertex allocation
+- marker rendering calculates visible bounds each frame
+- text rendering uses orthographic projection matrix
+- `enum ErrorCode` to `enum reh_error_code_e`  and `struct ErrorContext_t` to `struct reh_error_context_t`  across the codebase to match the standards
+- build system updated to include FreeType library linkage
+- render loop now includes text rendering pass for axis labels
+- makefile now supports recompiling if a header file was changed
+
+### Fixed
+- text rendering coordinate system matches graph coordinate system
+
 ## Alpha v0.0.4
 
 ### Added
 - comprehensive two-layer error handling system
     - `ErrorContext` struct to store error details (code, file, line, function name, message, technical details)
     - global error context tracking via `getLastError()`, `setError()`, and `clearError()` functions
-    - error code enumeration (`enum ErrorCode`) with categorized error codes (File I/O, Memory, Shader, OpenGL/Graphics, Render, Generic)
+    - error code enumeration (`enum reh_error_code_e`) with categorized error codes (File I/O, Memory, Shader, OpenGL/Graphics, Render, Generic)
 - error handling macros to reduce boilerplate
     - `SET_ERROR_RETURN()` - set error with message and return error code
     - `SET_ERROR_TECHNICAL_RETURN()` - set error with technical details and return
@@ -17,11 +51,7 @@
 - thorough OpenGL error checking using `glGetError()` after all OpenGL calls in render utilities
 
 ### Changed
-- all function signatures now return `enum ErrorCode`
-    - shader utilities: `loadShaderSource()`, `compileShader()`, `linkShaders()`
-    - window initialization: `initGLFW()`, `initWindow()`
-    - render utilities: `setupRenderData()`, `setupEBO()`
-    - graph rendering: `setupGraph()`, `setupMarkers()`, `renderGraph()`, `renderMarkers()`
+- all (error-possible) function signatures now return `enum reh_error_code_e`
 - error handling architecture follows two-layer pattern
     - utilities: silent error detection, stores technical details in `ErrorContext`, returns error codes
     - setup/main: checks error codes, adds high-level context, logs errors with `logLastError()`

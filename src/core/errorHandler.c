@@ -12,7 +12,7 @@ void clearError(void){
   memset(&g_lastError, 0, sizeof(ErrorContext));
 }
 
-void setError(enum ErrorCode code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo){
+void setError(enum reh_error_code_e code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo){
   g_lastError.code = code;
   g_lastError.file = file;
   g_lastError.line = line;

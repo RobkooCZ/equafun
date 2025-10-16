@@ -9,7 +9,7 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height){
   logMsg(DEBUG, "Changing window resolution to: %d, %d", width, height);
 }
 
-enum ErrorCode initGLFW(void){
+enum reh_error_code_e initGLFW(void){
   if (!glfwInit()){
     SET_ERROR_RETURN(ERR_GLFW_INIT_FAILED, "Failed to initialize GLFW library");
   }
@@ -25,7 +25,7 @@ enum ErrorCode initGLFW(void){
   return ERR_SUCCESS;
 }
 
-enum ErrorCode initWindow(GLFWwindow **window){
+enum reh_error_code_e initWindow(GLFWwindow **window){
   if (!window){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Window pointer is NULL in initWindow()");
   }

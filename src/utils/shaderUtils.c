@@ -10,7 +10,7 @@
 #include <string.h>
 #include <errno.h>
 
-enum ErrorCode loadShaderSource(const char *path, char **outSource){
+enum reh_error_code_e loadShaderSource(const char *path, char **outSource){
   if (!path || !outSource){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Invalid parameters: path or outSource is NULL");
   }
@@ -62,7 +62,7 @@ enum ErrorCode loadShaderSource(const char *path, char **outSource){
   return ERR_SUCCESS;
 }
 
-enum ErrorCode compileShader(const char *source, unsigned int shaderType, GLuint *outShader){
+enum reh_error_code_e compileShader(const char *source, unsigned int shaderType, GLuint *outShader){
   if (!source){
     SET_ERROR_RETURN(ERR_SHADER_SOURCE_NULL, "Shader source is NULL");
   }
@@ -97,7 +97,7 @@ enum ErrorCode compileShader(const char *source, unsigned int shaderType, GLuint
   return ERR_SUCCESS;
 }
 
-enum ErrorCode linkShaders(GLuint vertex, GLuint fragment, GLuint* outProgram){
+enum reh_error_code_e linkShaders(GLuint vertex, GLuint fragment, GLuint* outProgram){
   if (!outProgram){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Output program pointer is NULL");
   }
@@ -136,7 +136,7 @@ enum ErrorCode linkShaders(GLuint vertex, GLuint fragment, GLuint* outProgram){
 }
 
 void gluSetFloat(GLuint program, const char *name, const float value){
-  if (!name){
+  if (name == nullptr){
     logMsg(WARNING, "Uniform name is NULL in gluSetFloat()");
     return;
   }
@@ -150,8 +150,23 @@ void gluSetFloat(GLuint program, const char *name, const float value){
   glUniform1f(location, value);
 }
 
+void gluSet3f(GLuint program, const char *name, const float x, const float y, const float z){
+  if (name == nullptr){
+    logMsg(WARNING, "Uniform name is NULL in gluSet3f()");
+    return;
+  }
+
+  GLint location = glGetUniformLocation(program, name);
+  if (location == -1){
+    logMsg(WARNING, "Failed to find uniform '%s' in program %u", name, program);
+    return;
+  }
+
+  glUniform3f(location, x, y, z);
+}
+
 void gluSet4f(GLuint program, const char *name, const float x, const float y, const float z, const float w){
-  if (!name){
+  if (name == nullptr){
     logMsg(WARNING, "Uniform name is NULL in gluSet4f()");
     return;
   }
@@ -163,4 +178,24 @@ void gluSet4f(GLuint program, const char *name, const float x, const float y, co
   }
 
   glUniform4f(location, x, y, z, w);
+}
+
+void gluSetMat4(GLuint program, const char *name, const float *value){
+  if (name == nullptr){
+    logMsg(WARNING, "Uniform name is NULL in gluSetMat4()");
+    return;
+  }
+
+  if (value == nullptr){
+    logMsg(WARNING, "Matrix value is NULL in gluSetMat4()");
+    return;
+  }
+
+  GLint location = glGetUniformLocation(program, name);
+  if (location == -1){
+    logMsg(WARNING, "Uniform '%s' not found in shader program", name);
+    return;
+  }
+
+  glUniformMatrix4fv(location, 1, GL_FALSE, value);
 }
