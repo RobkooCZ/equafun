@@ -43,7 +43,7 @@ enum reh_error_code_e rtr_initFtFace(FT_Library *library, FT_Face *face){
   }
 
   // SETTING FACE INFO
-  FT_Error setSizeErr = FT_Set_Pixel_Sizes(*face, 0, 8);
+  FT_Error setSizeErr = FT_Set_Pixel_Sizes(*face, 0, 16);
 
   if (setSizeErr != FT_Err_Ok){
     SET_ERROR_RETURN(ERR_FT_FACE_FAILED_TO_SET_FONT_SIZE, "Failed to set font size: %s", ft_ErrCodeToStr(setSizeErr));
@@ -271,7 +271,7 @@ enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VB
   char label[5];
   CHECK_ERROR_CTX(rtr_formatMarkerValue(value, label, 5), "Failed to format marker value."); // put the value into the string
 
-  CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, rtr_ndcToPixelX(0.0f + POINT_MARKER_HEIGHT * 1), rtr_ndcToPixelY(0.0f - POINT_MARKER_HEIGHT * 2.7f), scale, color), "Failed to render point [0,0]");
+  CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, rtr_ndcToPixelX(0.0f + POINT_MARKER_HEIGHT * 0.5f), rtr_ndcToPixelY(0.0f - POINT_MARKER_HEIGHT * 1.5f), scale, color), "Failed to render point [0,0]");
 
   // positive x axis labels
   int markerIndex = 0;

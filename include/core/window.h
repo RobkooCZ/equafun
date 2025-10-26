@@ -7,7 +7,7 @@
 #include "core/errorHandler.h"
 
 // default values for window (can be modified later)
-#define WIDTH 800
+#define WIDTH  800
 #define HEIGHT 600
 #define TITLE "Equafun"
 
