@@ -4,8 +4,8 @@
 #include <GLFW/glfw3.h>
 
 // lenght between points on graph
-#define GRID_SPACING_NDC 0.04f
-#define POINT_MARKER_HEIGHT 0.02f
+#define GRID_SPACING_NDC 0.1f
+#define POINT_MARKER_HEIGHT 0.03f
 
 // prototypes
 

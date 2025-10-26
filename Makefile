@@ -13,8 +13,8 @@ LIBS_SRC_DIR = libs/src
 BUILD_DIR = build
 
 # Source files
-SRCS = $(SRC_DIR)/main.c $(wildcard $(SRC_DIR)/**/*.c)
-LIB_SRCS = $(wildcard $(LIBS_SRC_DIR)/**/*.c)
+SRCS := $(shell find $(SRC_DIR) -name "*.c")
+LIB_SRCS := $(shell find $(LIBS_SRC_DIR) -name "*.c")
 
 # Object files (internal)
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)

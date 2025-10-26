@@ -1,5 +1,17 @@
 # Changelog
 
+## Alpha v0.0.6 (currently being developed)
+
+### Added
+- a very basic lexer
+    - splits a hardcoded expression into tokens and value 'pairs'
+    - ignores whitespaces
+    - support only for numbers, basic operators and the equals sign
+    - no error checking
+
+### Changed
+- updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)
+
 ## Alpha v0.0.5
 
 ### Added

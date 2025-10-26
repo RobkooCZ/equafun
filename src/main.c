@@ -1,3 +1,4 @@
+#include "expressionEngine/lexer.h"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
@@ -22,6 +23,17 @@
 #include FT_FREETYPE_H
 
 int main(void){
+  // lexer testing 
+  char* expression = "  345 + 123-2   =12";
+
+  printf("Expression input: %s\n", expression);
+  // ONLY FOR NOW i can pass NULL, there are no checks and NO assignements to the tokens array
+  // inside the ree_lexer function.
+  ree_lexer(expression, NULL);
+
+  // do not do anything else
+  return 0;
+
   GLFWwindow *window;
 
   enum reh_error_code_e err = initGLFW();
@@ -47,6 +59,7 @@ int main(void){
   glEnable(GL_LINE_SMOOTH);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glfwSwapInterval(1);
 
   GLuint gVAO, gVBO, gEBO, gProgram;
   err = setupGraph(&gProgram, &gVAO, &gVBO, &gEBO);
@@ -115,10 +128,6 @@ int main(void){
     return -1;
   }
   logMsg(SUCCESS, "Characters loaded successfully");
-
-  // Clean up FreeType resources (no longer needed after loading characters)
-  FT_Done_Face(face);
-  FT_Done_FreeType(ft);
 
   // Load text rendering shader
   char *vertexShaderSrc = nullptr;
@@ -269,6 +278,8 @@ int main(void){
   glDeleteVertexArrays(1, &textVAO);
   glDeleteBuffers(1, &textVBO);
   glDeleteProgram(textProgram);
+  FT_Done_Face(face);
+  FT_Done_FreeType(ft);
 
   glfwTerminate();
   return 0;
