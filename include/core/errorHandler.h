@@ -54,6 +54,12 @@ enum reh_error_code_e {
   ERR_VALUE_IS_NAN = 704,
   ERR_OUT_OF_BOUNDS = 705,
 
+  // Expression evaluator errors (8xx)
+  ERR_INPUT_TOKEN_INVALID = 800,
+  ERR_INVALID_OPERATOR = 801,
+  ERR_UNKNOWN_IDENTIFIER = 802,
+  ERR_MISMATCHED_PARENTHESES = 803,
+
   // Generic errors (9xx)
   ERR_INVALID_INPUT = 900,
   ERR_UNKNOWN = 999
@@ -74,7 +80,7 @@ typedef struct reh_error_context_t {
 // Set error and return error code
 #define SET_ERROR_RETURN(code, msg, ...)                             \
   do {                                                               \
-    char _msg_buf[256];                                              \
+    char _msg_buf[512];                                              \
     snprintf(_msg_buf, sizeof(_msg_buf), msg, ##__VA_ARGS__);        \
     setError(code, __FILE__, __LINE__, __func__, _msg_buf, nullptr); \
     return code;                                                     \

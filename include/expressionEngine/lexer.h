@@ -13,18 +13,22 @@ struct ree_token_t {
 struct ree_data_t {
   int currentPosition;
   int nextPosition;
+  int charsLexed; // how many chars we already went through
   int currentChar;
   int length;
   char* expression;
 };
 
-enum reh_error_code_e ree_nextToken(struct ree_data_t *data, struct ree_token_t *nextToken);
-enum reh_error_code_e ree_advance(struct ree_data_t *data);
-enum reh_error_code_e ree_readNumber(struct ree_data_t *data, char* number);
-enum reh_error_code_e ree_skipWhitespace(struct ree_data_t *data);
-
-enum reh_error_code_e ree_lexer(char* expression, struct ree_token_t *tokens);
 // helper function to print the struct
 void ree_print(struct ree_token_t *tokenVal);
+
+void ree_skipWhitespace(struct ree_data_t *data);
+void ree_advance(struct ree_data_t *data);
+void ree_readNumber(struct ree_data_t *data, char* number);
+void ree_readIdentifier(struct ree_data_t *data, char* identifier);
+enum reh_error_code_e ree_nextToken(struct ree_data_t *data, struct ree_token_t *nextToken);
+
+enum reh_error_code_e ree_countTokens(char* expression, int *tokenCount);
+enum reh_error_code_e ree_lexer(char* expression, struct ree_token_t *tokens);
 
 #endif // LEXER_H
