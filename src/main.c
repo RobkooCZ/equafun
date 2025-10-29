@@ -1,4 +1,5 @@
 #include "expressionEngine/lexer.h"
+#include "expressionEngine/parser/shuntingYard.h"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
@@ -20,23 +21,71 @@
 
 // free type
 #include <ft2build.h>
+#include <stdio.h>
 #include FT_FREETYPE_H
 
 int main(void){
-  // lexer testing 
-  char* expression = "  345 + 123-2   =12";
-
+  // lexer, parser testing
+  char* expression = "(-3 + 4) * 4!^2";
   printf("Expression input: %s\n", expression);
-  // ONLY FOR NOW i can pass NULL, there are no checks and NO assignements to the tokens array
-  // inside the ree_lexer function.
-  ree_lexer(expression, NULL);
+  int tokenCount = 0;
+
+  enum reh_error_code_e err = ree_countTokens(expression, &tokenCount);
+
+  if (err != ERR_SUCCESS){
+    logLastError(ERROR);
+    logMsg(FAILURE, "Application cannot continue: ree_countTokens failed.");
+    return -1;
+  }
+
+  printf("Token count: %d\n", tokenCount);
+
+  struct ree_token_t tokens[tokenCount];
+
+  err = ree_lexer(expression, tokens);
+  if (err != ERR_SUCCESS){
+    logLastError(ERROR);
+    logMsg(FAILURE, "Application cannot continue: ree_lexer failed.");
+    return -1;
+  }
+
+  for (int i = 0; i < tokenCount; i++){
+    ree_print(&tokens[i]);
+  }
+
+  struct ree_output_token_t outputQueue[tokenCount];
+  int outputCount = 0;
+
+  // first mark unary operators and then parse
+  err = ree_markUnaryOperators(tokens, tokenCount);
+  if (err != ERR_SUCCESS){
+    logLastError(ERROR);
+    logMsg(FAILURE, "Application cannot continue: ree_markUnaryOperators failed.");
+    return -1;
+  }
+
+  err = ree_parseToPostfix(tokens, tokenCount, outputQueue, &outputCount);
+  if (err != ERR_SUCCESS){
+    logLastError(ERROR);
+    logMsg(FAILURE, "Application cannot continue: ree_parseToPostfix failed.");
+    return -1;
+  }
+
+  printf("Output queue count: %d\n", outputCount);
+
+  for (int i = 0; i < outputCount; i++){
+    printf("[%s] ", outputQueue[i].symbol);
+  }
+  printf("\n");
+
+  // TODO: make the expression parser as a whole: e.g. be able to parse stuff like "f(x) = (expression)"
 
   // do not do anything else
   return 0;
 
   GLFWwindow *window;
 
-  enum reh_error_code_e err = initGLFW();
+  err = initGLFW();
   if (err != ERR_SUCCESS){
     logLastError(ERROR);
     logMsg(FAILURE, "Application cannot continue: GLFW initialization failed");

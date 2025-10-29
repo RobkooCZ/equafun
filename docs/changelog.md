@@ -3,14 +3,19 @@
 ## Alpha v0.0.6 (currently being developed)
 
 ### Added
-- a very basic lexer
+- a basic lexer
     - splits a hardcoded expression into tokens and value 'pairs'
     - ignores whitespaces
-    - support only for numbers, basic operators and the equals sign
-    - no error checking
-
+    - support for numbers, identifiers, equals sign, functions (predefined), unary and binary operators (including factorial)
+- a basic parser
+    - takes the 'lexed' tokens and parses them using the Shunting Yard algorithm
+    - supports parentheses, unary and binary operators, factorial
+    - is able to recognize x as a unique identifier to then be substituted for a value in the evaluator
+    - spits out RPN (reverse polish notation) which will be soon handled with the evaluator
+- a global utilities file with a function to search for a string in an array of strings
 ### Changed
 - updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)
+- `_msg_buf` in `SET_ERROR_RETURN()` macro size to 512
 
 ## Alpha v0.0.5
 
