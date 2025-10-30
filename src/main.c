@@ -1,5 +1,8 @@
+#include "expressionEngine/functionManager.h"
 #include "expressionEngine/lexer.h"
+#include "expressionEngine/parser/functionParser.h"
 #include "expressionEngine/parser/shuntingYard.h"
+#include "expressionEngine/tokens.h"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
@@ -26,59 +29,52 @@
 
 int main(void){
   // lexer, parser testing
-  char* expression = "(-3 + 4) * 4!^2";
+  char* expression = "f(x) = (-3 + 4x) * 4!^2";
   printf("Expression input: %s\n", expression);
-  int tokenCount = 0;
 
-  enum reh_error_code_e err = ree_countTokens(expression, &tokenCount);
+  struct ree_function_t function;
 
+  enum reh_error_code_e err = ree_parseFunctionDefinition(expression, &function);
   if (err != ERR_SUCCESS){
     logLastError(ERROR);
-    logMsg(FAILURE, "Application cannot continue: ree_countTokens failed.");
+    logMsg(FAILURE, "Application cannot continue: failed to parse function definition.");
     return -1;
   }
 
-  printf("Token count: %d\n", tokenCount);
-
-  struct ree_token_t tokens[tokenCount];
-
-  err = ree_lexer(expression, tokens);
-  if (err != ERR_SUCCESS){
-    logLastError(ERROR);
-    logMsg(FAILURE, "Application cannot continue: ree_lexer failed.");
-    return -1;
+  // print function metadata
+  printf("Function Name: %s\n", function.name);
+  printf("Parameter: %s\n", function.parameter);
+  printf("Token Count: %d\n", function.tokenCount);
+  printf("RPN Count: %d\n", function.rpnCount);
+  printf("Is Visible: %s\n", function.isVisible ? "true" : "false");
+  printf("Color: (%.2f, %.2f, %.2f)\n", function.color.x, function.color.y, function.color.z);
+  
+  // Print tokens
+  printf("\nTokens:\n");
+  for (int i = 0; i < function.tokenCount; i++) {
+    printf("\tToken %d: type=%s, value=[%s]\n",
+           i,
+           ree_tokenToStr(function.tokens[i].token_type),
+           function.tokens[i].value);
+  }
+  
+  // Print RPN
+  printf("\nRPN:\n");
+  for (int i = 0; i < function.rpnCount; i++) {
+    printf("\tRPN %d: type=%s, value=[%s]\n",
+           i,
+           ree_outputTokenToStr(function.rpn[i].type),
+           function.rpn[i].symbol);
   }
 
-  for (int i = 0; i < tokenCount; i++){
-    ree_print(&tokens[i]);
-  }
-
-  struct ree_output_token_t outputQueue[tokenCount];
-  int outputCount = 0;
-
-  // first mark unary operators and then parse
-  err = ree_markUnaryOperators(tokens, tokenCount);
-  if (err != ERR_SUCCESS){
-    logLastError(ERROR);
-    logMsg(FAILURE, "Application cannot continue: ree_markUnaryOperators failed.");
-    return -1;
-  }
-
-  err = ree_parseToPostfix(tokens, tokenCount, outputQueue, &outputCount);
-  if (err != ERR_SUCCESS){
-    logLastError(ERROR);
-    logMsg(FAILURE, "Application cannot continue: ree_parseToPostfix failed.");
-    return -1;
-  }
-
-  printf("Output queue count: %d\n", outputCount);
-
-  for (int i = 0; i < outputCount; i++){
-    printf("[%s] ", outputQueue[i].symbol);
-  }
   printf("\n");
 
-  // TODO: make the expression parser as a whole: e.g. be able to parse stuff like "f(x) = (expression)"
+  // memory cleanup
+  free(function.rpn);
+  free(function.tokens);
+
+  // TODO: function to call that cleans up all functions' allocated memory
+  // rendering of said functions
 
   // do not do anything else
   return 0;

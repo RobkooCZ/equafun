@@ -9,10 +9,19 @@
     - support for numbers, identifiers, equals sign, functions (predefined), unary and binary operators (including factorial)
 - a basic parser
     - takes the 'lexed' tokens and parses them using the Shunting Yard algorithm
-    - supports parentheses, unary and binary operators, factorial
+    - supports parentheses
+    - distinguishes between unary and binary minus (and plus) operators
+    - support for factorial operator with proper precedence
     - is able to recognize x as a unique identifier to then be substituted for a value in the evaluator
     - spits out RPN (reverse polish notation) which will be soon handled with the evaluator
-- a global utilities file with a function to search for a string in an array of strings
+- a function struct that contains all necessary metadata for the soon to be evaluator
+- function to parse the (for now) hardcoded function including the definition and save the data into the function struct
+- some error handling, will be improved drastically before full release of Alpha v0.0.6
+- a global utilities file with 
+    - a function to search for a string in an array of strings
+    - a function to trim the leading whitespace in a string
+- some planned functions to work with a manager of functions to allow multiple functions at the same time
+
 ### Changed
 - updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)
 - `_msg_buf` in `SET_ERROR_RETURN()` macro size to 512

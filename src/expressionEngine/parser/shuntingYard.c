@@ -3,13 +3,21 @@
 #include "expressionEngine/lexer.h"
 #include "expressionEngine/tokens.h"
 #include "utils/utilities.h"
-#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 // visible/usable only in this file
 static const char* validFunctions[] = {"sin", "cos", "tan", "sqrt", "abs", "ln", "log"};
 static const int functionArrLength = sizeof(validFunctions) / sizeof(validFunctions[0]);
+
+const char* ree_outputTokenToStr(enum ree_output_type_e outputToken){
+  switch (outputToken){
+    case OUTPUT_NUMBER:   return "OUTPUT_NUMBER";
+    case OUTPUT_OPERATOR: return "OUTPUT_OPERATOR";
+    case OUTPUT_FUNCTION: return "OUTPUT_FUNCTION";
+    default: return "Unknown Output Token";
+  }
+}
 
 enum reh_error_code_e ree_operatorPrecedence(enum ree_token_type_e tokenType, int *precedence){
   switch (tokenType){
