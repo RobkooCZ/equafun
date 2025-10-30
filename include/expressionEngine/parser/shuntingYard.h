@@ -18,6 +18,8 @@ struct ree_output_token_t {
   float value;
 };
 
+const char* ree_outputTokenToStr(enum ree_output_type_e outputToken);
+
 enum reh_error_code_e ree_operatorPrecedence(enum ree_token_type_e tokenType, int *precedence);
 int ree_determineArity(enum ree_token_type_e tokenType);
 enum reh_error_code_e ree_markUnaryOperators(struct ree_token_t *tokens, const int tokenCount);
