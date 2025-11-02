@@ -8,6 +8,50 @@
 #include <string.h>
 #include <stdlib.h>
 
+enum reh_error_code_e ree_testLexerParser(void){
+  // lexer, parser testing
+  char* expression = "f(x) = (-3 + 4x) * 4!^2";
+  printf("Expression input: %s\n", expression);
+
+  struct ree_function_t function;
+
+  CHECK_ERROR_CTX(ree_parseFunctionDefinition(expression, &function), "Failed to parse function definition.");
+
+  // print function metadata
+  printf("Function Name: %s\n", function.name);
+  printf("Parameter: %s\n", function.parameter);
+  printf("Token Count: %d\n", function.tokenCount);
+  printf("RPN Count: %d\n", function.rpnCount);
+  printf("Is Visible: %s\n", function.isVisible ? "true" : "false");
+  printf("Color: (%.2f, %.2f, %.2f)\n", function.color.x, function.color.y, function.color.z);
+  
+  // Print tokens
+  printf("\nTokens:\n");
+  for (int i = 0; i < function.tokenCount; i++) {
+    printf("\tToken %d: type=%s, value=[%s]\n",
+           i,
+           ree_tokenToStr(function.tokens[i].token_type),
+           function.tokens[i].value);
+  }
+  
+  // Print RPN
+  printf("\nRPN:\n");
+  for (int i = 0; i < function.rpnCount; i++) {
+    printf("\tRPN %d: type=%s, value=[%s]\n",
+           i,
+           ree_outputTokenToStr(function.rpn[i].type),
+           function.rpn[i].symbol);
+  }
+
+  printf("\n");
+
+  // memory cleanup
+  free(function.rpn);
+  free(function.tokens);
+
+  return ERR_SUCCESS;
+}
+
 enum reh_error_code_e ree_parseFunctionDefinition(char *definition, struct ree_function_t *function){
   int tokenCount = 0;
   CHECK_ERROR_CTX(ree_countTokens(definition, &tokenCount), "Failed to count tokens.");

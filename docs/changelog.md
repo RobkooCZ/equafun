@@ -21,10 +21,21 @@
     - a function to search for a string in an array of strings
     - a function to trim the leading whitespace in a string
 - some planned functions to work with a manager of functions to allow multiple functions at the same time
+- on window resize:
+    - projection matrices get recalculated
+    - graph VBO gets updated
 
 ### Changed
 - updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)
 - `_msg_buf` in `SET_ERROR_RETURN()` macro size to 512
+- graph, marker and text rendering to use world coordinates instead of NDC coordinates
+- the graph now stays square (as in, if you extended the markers, everything would look like squares) instead of rectangles and similar
+- split up main into 3 functions - ra_appInit, ra_apprenderFrame and ra_appShutdown
+- cleaned up repetitive error checking code in ra_appInit
+- centralized cleanup after a failure
+
+### Fixed
+- minor rendering issues
 
 ## Alpha v0.0.5
 

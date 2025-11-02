@@ -38,5 +38,8 @@ enum reh_error_code_e rtr_calculateTextHeight(const char *text, struct rtr_chara
 enum reh_error_code_e rtr_formatMarkerValue(float value, char* buffer, const int bufferSize);
 float rtr_ndcToPixelX(float ndcX);
 float rtr_ndcToPixelY(float ndcY);
+
+float rtr_worldToPixelX(float worldX);
+float rtr_worldToPixelY(float worldY);
 enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color);
 #endif // TEXT_H

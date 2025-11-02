@@ -6,10 +6,24 @@
 
 #include "core/errorHandler.h"
 
-// default values for window (can be modified later)
+// default values for window
 #define WIDTH  800
 #define HEIGHT 600
+#define ASPECT_RATIO ((float)WIDTH / (float)HEIGHT)
 #define TITLE "Equafun"
+
+// variables to hold the boundaries of the world space
+extern float worldXMin;
+extern float worldXMax;
+extern float worldYMin;
+extern float worldYMax;
+
+// variables to hold the current resolution of the window
+extern float windowWidth;
+extern float windowHeight;
+
+// flag to tell main if we should rebuild projection matrices
+extern bool rebuildProjection;
 
 // OpenGL 3.3 due to compatibility
 #define GL_VER_MAJOR 3

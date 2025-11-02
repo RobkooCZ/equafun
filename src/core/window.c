@@ -1,11 +1,45 @@
 #include "core/window.h"
 #include "core/logger.h"
 #include "core/errorHandler.h"
+#include "renderer/graph.h"
 
 #include <stdio.h>
 
+static const float WORLD_UNITS_PER_PIXEL = (2.0f * (10.0f + POINT_MARKER_HEIGHT_WORLD)) / HEIGHT;
+
+// define the viewport and adjust it based on the aspect ratio so the axes match symetrically
+float worldYMin = -0.5f * WORLD_UNITS_PER_PIXEL * HEIGHT;
+float worldYMax =  0.5f * WORLD_UNITS_PER_PIXEL * HEIGHT;
+float worldXMin = -0.5f * WORLD_UNITS_PER_PIXEL * WIDTH;
+float worldXMax =  0.5f * WORLD_UNITS_PER_PIXEL * WIDTH;
+
+// by default WIDTH,HEIGHT
+float windowWidth =  WIDTH;
+float windowHeight = HEIGHT;
+
+// flag to tell main if we should rebuild the projection matrices
+bool rebuildProjection = false;
+
+// helper function to recompute the world extents
+static void recomputeWorldExtents(void){
+  float halfSpanY = 0.5f * WORLD_UNITS_PER_PIXEL * windowHeight;
+  float halfSpanX = 0.5f * WORLD_UNITS_PER_PIXEL * windowWidth;
+
+  worldYMin = -halfSpanY;
+  worldYMax =  halfSpanY;
+  worldXMin = -halfSpanX;
+  worldXMax =  halfSpanX;
+}
+
 void framebufferSizeCallback(GLFWwindow *window, int width, int height){
   glViewport(0, 0, width, height);
+
+  windowWidth = (float)width;
+  windowHeight = (float)height;
+
+  recomputeWorldExtents();
+  rebuildProjection = true;
+
   logMsg(DEBUG, "Changing window resolution to: %d, %d", width, height);
 }
 

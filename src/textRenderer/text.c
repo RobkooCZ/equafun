@@ -258,11 +258,19 @@ enum reh_error_code_e rtr_formatMarkerValue(float value, char *buffer, const int
 }
 
 float rtr_ndcToPixelX(float ndcX){
-  return ((ndcX + 1.0f) / 2.0f) * WIDTH;
+  return ((ndcX + 1.0f) / 2.0f) * windowWidth;
 }
 
 float rtr_ndcToPixelY(float ndcY){
-  return ((ndcY + 1.0f) / 2.0f) * HEIGHT;
+  return ((ndcY + 1.0f) / 2.0f) * windowHeight;
+}
+
+float rtr_worldToPixelX(float worldX){
+  return ((worldX - worldXMin) / (worldXMax - worldXMin)) * windowWidth;
+}
+
+float rtr_worldToPixelY(float worldY){
+  return ((worldY - worldYMin) / (worldYMax - worldYMin)) * windowHeight;
 }
 
 enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color){
@@ -271,62 +279,60 @@ enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VB
   char label[5];
   CHECK_ERROR_CTX(rtr_formatMarkerValue(value, label, 5), "Failed to format marker value."); // put the value into the string
 
-  CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, rtr_ndcToPixelX(0.0f + POINT_MARKER_HEIGHT * 0.5f), rtr_ndcToPixelY(0.0f - POINT_MARKER_HEIGHT * 1.5f), scale, color), "Failed to render point [0,0]");
+  CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, rtr_worldToPixelX(0.0f + POINT_MARKER_HEIGHT_WORLD * 0.5f), rtr_worldToPixelY(0.0f - POINT_MARKER_HEIGHT_WORLD * 1.5f), scale, color), "Failed to render point [0,0]");
+
+  // prevent rendering glitches which makes labels (from my experience, on the y-axis) lifted to the viewport edge
+  // by adding padding
+  float usableXMin = worldXMin + POINT_MARKER_HEIGHT_WORLD;
+  float usableXMax = worldXMax - POINT_MARKER_HEIGHT_WORLD;
+  float usableYMin = worldYMin + POINT_MARKER_HEIGHT_WORLD;
+  float usableYMax = worldYMax - POINT_MARKER_HEIGHT_WORLD;
 
   // positive x axis labels
-  int markerIndex = 0;
-  for (float ndcX = GRID_SPACING_NDC; ndcX <= 1.0f; ndcX += GRID_SPACING_NDC){
-    markerIndex++;
-
+  for (float worldX = GRID_SPACING_WORLD; worldX <= usableXMax; worldX += GRID_SPACING_WORLD){
     // print the label into the buffer
     char label[5];
-    CHECK_ERROR_CTX(rtr_formatMarkerValue((float)markerIndex, label, 5), "Failed to format marker value.");
+    CHECK_ERROR_CTX(rtr_formatMarkerValue(worldX, label, 5), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textWidth;
     CHECK_ERROR_CTX(rtr_calculateTextWidth(label, characters, scale, &textWidth), "Failed to calculate text width.");
 
     // where to render
-    float pixelX = rtr_ndcToPixelX(ndcX);
+    float pixelX = rtr_worldToPixelX(worldX);
 
     float labelX = pixelX - (textWidth / 2.0f);
-    float labelY = rtr_ndcToPixelY(0.0f - (POINT_MARKER_HEIGHT * 3));
+    float labelY = rtr_worldToPixelY(0.0f - (POINT_MARKER_HEIGHT_WORLD * 3));
 
     // render
     CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
   }
 
   // negative x axis labels
-  markerIndex = 0;
-  for (float ndcX = -GRID_SPACING_NDC; ndcX >= -1.0f; ndcX -= GRID_SPACING_NDC){
-    markerIndex--;
-
+  for (float worldX = -GRID_SPACING_WORLD; worldX >= usableXMin; worldX -= GRID_SPACING_WORLD){
     // print the label into the buffer
     char label[6];
-    CHECK_ERROR_CTX(rtr_formatMarkerValue((float)markerIndex, label, 6), "Failed to format marker value.");
+    CHECK_ERROR_CTX(rtr_formatMarkerValue(worldX, label, 6), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textWidth;
     CHECK_ERROR_CTX(rtr_calculateTextWidth(label, characters, scale, &textWidth), "Failed to calculate text width.");
 
     // where to render
-    float pixelX = rtr_ndcToPixelX(ndcX);
+    float pixelX = rtr_worldToPixelX(worldX);
 
     float labelX = pixelX - (textWidth / 2.0f);
-    float labelY = rtr_ndcToPixelY(0.0f - (POINT_MARKER_HEIGHT * 3));
+    float labelY = rtr_worldToPixelY(0.0f - (POINT_MARKER_HEIGHT_WORLD * 3));
 
     // render
     CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
   }
 
   // positive y axis labels
-  markerIndex = 0;
-  for (float ndcY = GRID_SPACING_NDC; ndcY <= 1.0f; ndcY += GRID_SPACING_NDC){
-    markerIndex++;
-
+  for (float worldY = GRID_SPACING_WORLD; worldY <= usableYMax; worldY += GRID_SPACING_WORLD){
     // print the label into the buffer
     char label[5];
-    CHECK_ERROR_CTX(rtr_formatMarkerValue((float)markerIndex, label, 5), "Failed to format marker value.");
+    CHECK_ERROR_CTX(rtr_formatMarkerValue(worldY, label, 5), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textHeight;
@@ -334,9 +340,9 @@ enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VB
     CHECK_ERROR_CTX(rtr_calculateTextHeight(label, characters, scale, &textHeight, &ascent), "Failed to calculate text height.");
 
     // where to render
-    float pixelY = rtr_ndcToPixelY(ndcY);
+    float pixelY = rtr_worldToPixelY(worldY);
 
-    float labelX = rtr_ndcToPixelX(0.0f + (POINT_MARKER_HEIGHT * 1.5f));
+    float labelX = rtr_worldToPixelX(0.0f + (POINT_MARKER_HEIGHT_WORLD * 1.5f));
     float labelY = pixelY + (textHeight / 2.0f) - ascent;
 
     // render
@@ -344,13 +350,10 @@ enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VB
   }
 
   // negative y axis labels
-  markerIndex = 0;
-  for (float ndcY = -GRID_SPACING_NDC; ndcY >= -1.0f; ndcY -= GRID_SPACING_NDC){
-    markerIndex--;
-
+  for (float worldY = -GRID_SPACING_WORLD; worldY >= usableYMin; worldY -= GRID_SPACING_WORLD){
     // print the label into the buffer
     char label[6];
-    CHECK_ERROR_CTX(rtr_formatMarkerValue((float)markerIndex, label, 6), "Failed to format marker value.");
+    CHECK_ERROR_CTX(rtr_formatMarkerValue(worldY, label, 6), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textHeight;
@@ -358,9 +361,9 @@ enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VB
     CHECK_ERROR_CTX(rtr_calculateTextHeight(label, characters, scale, &textHeight, &ascent), "Failed to calculate text height.");
 
     // where to render
-    float pixelY = rtr_ndcToPixelY(ndcY);
+    float pixelY = rtr_worldToPixelY(worldY);
 
-    float labelX = rtr_ndcToPixelX(0.0f + (POINT_MARKER_HEIGHT * 1.5f));
+    float labelX = rtr_worldToPixelX(0.0f + (POINT_MARKER_HEIGHT_WORLD * 1.5f));
     float labelY = pixelY + (textHeight / 2.0f) - ascent;
 
     // render
