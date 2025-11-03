@@ -15,5 +15,6 @@ typedef enum rm_num_classes_e {
 // Function that returns one of the above enum values based on the number provided.
 // Used in math functions for edge case checking
 enum rm_num_classes_e rm_classifyNum(float num);
+enum reh_error_code_e rm_factorial(int n, int *result);
 
 #endif // MATH_UTILITES_H

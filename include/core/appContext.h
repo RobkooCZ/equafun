@@ -17,6 +17,11 @@ struct ra_app_context_t {
   // marker resources - 0 if failure
   GLuint gmVAO, gmVBO, gmEBO, gmProgram;
 
+  // function resources - 0 if failure
+  // EBO not necessary as glDrawVertexArrays() will be used
+  GLuint fVAO, fVBO, fProgram;
+  GLsizeiptr fVertexCapacityBytes;
+
   // Freetype - non-zero error code if failure
   FT_Library ft;
   FT_Face face;

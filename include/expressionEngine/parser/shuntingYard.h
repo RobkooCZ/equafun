@@ -18,6 +18,9 @@ struct ree_output_token_t {
   float value;
 };
 
+extern const char* validFunctions[];
+extern const int functionArrLength;
+
 const char* ree_outputTokenToStr(enum ree_output_type_e outputToken);
 
 enum reh_error_code_e ree_operatorPrecedence(enum ree_token_type_e tokenType, int *precedence);

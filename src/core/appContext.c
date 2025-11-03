@@ -45,6 +45,15 @@ void ra_appContextCleanup(struct ra_app_context_t *context, const char *msg){
   if (context->gmProgram != 0){
     glDeleteProgram(context->gmProgram);
   }
+  if (context->fVAO != 0){
+    glDeleteVertexArrays(1, &context->fVAO);
+  }
+  if (context->fVBO != 0){
+    glDeleteBuffers(1, &context->fVBO);
+  }
+  if (context->fProgram != 0){
+    glDeleteProgram(context->fProgram);
+  }
   if (context->face != nullptr){
     FT_Done_Face(context->face);
   }

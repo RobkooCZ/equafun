@@ -16,6 +16,7 @@ struct ree_function_t {
 
   struct ree_token_t *tokens;             // tokens from the lexer without 'f(x) ='
   int tokenCount;                         // token count
+  int tokenCapacity;
 
   struct ree_output_token_t *rpn;         // rpn of the function definition
   int rpnCount;                           // rpn token count
@@ -30,7 +31,7 @@ struct ree_function_manager_t {
 };
 
 enum reh_error_code_e ree_initFunctionManager(struct ree_function_manager_t *manager);
-enum reh_error_code_e ree_addFunction(struct ree_function_manager_t *manager, const char* definition);
+enum reh_error_code_e ree_addFunction(struct ree_function_manager_t *manager, char* definition);
 enum reh_error_code_e ree_removeFunction(struct ree_function_manager_t *manager, const char* name);
 int ree_getFunction(struct ree_function_manager_t *manager, const char *name, struct ree_function_t *function);
 

@@ -6,9 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-// visible/usable only in this file
-static const char* validFunctions[] = {"sin", "cos", "tan", "sqrt", "abs", "ln", "log"};
-static const int functionArrLength = sizeof(validFunctions) / sizeof(validFunctions[0]);
+const char* validFunctions[] = {"sin", "cos", "tan", "sqrt", "abs", "ln", "log"};
+const int functionArrLength = sizeof(validFunctions) / sizeof(validFunctions[0]);
 
 const char* ree_outputTokenToStr(enum ree_output_type_e outputToken){
   switch (outputToken){
@@ -29,11 +28,11 @@ enum reh_error_code_e ree_operatorPrecedence(enum ree_token_type_e tokenType, in
     case TOKEN_DIVIDE:
       *precedence = 2;
       break;
-    case TOKEN_POWER:
-      *precedence = 3;
-      break;
     case TOKEN_UNARY_MINUS:
     case TOKEN_UNARY_PLUS:
+      *precedence = 3;
+      break;
+    case TOKEN_POWER:
       *precedence = 4;
       break;
     case TOKEN_FACTORIAL:
@@ -314,6 +313,17 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
     if (remainingOperator.token_type == TOKEN_PAREN_OPEN){
       SET_ERROR_RETURN(ERR_INVALID_INPUT, "Mismatched parentheses: extra '('");
     }
+    // here because the parser would push the raw operator ('-', '+') even for the unary operator, thus causing stack underflow while attempting to sample the function using them
+    const char *symbolName;
+    if (remainingOperator.token_type == TOKEN_UNARY_MINUS){
+      symbolName = "NEG";
+    }
+    else if (remainingOperator.token_type == TOKEN_UNARY_PLUS){
+      symbolName = "POS";
+    }
+    else {
+      symbolName = remainingOperator.value;
+    }
 
     enum ree_output_type_e outputTokenType = (remainingOperator.token_type == TOKEN_IDENTIFIER) ? OUTPUT_FUNCTION : OUTPUT_OPERATOR;
 
@@ -322,7 +332,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
       .arity = ree_determineArity(remainingOperator.token_type),
       .value = 0.0f // not used in the case of an operator
     };
-    strcpy(outputToken.symbol, remainingOperator.value);
+    strcpy(outputToken.symbol, symbolName);
 
     outputQueue[*outputCount] = outputToken;
     (*outputCount)++;

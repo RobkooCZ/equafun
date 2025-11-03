@@ -1,17 +1,16 @@
 #include "core/window.h"
 #include "core/logger.h"
 #include "core/errorHandler.h"
-#include "renderer/graph.h"
 
 #include <stdio.h>
 
-static const float WORLD_UNITS_PER_PIXEL = (2.0f * (10.0f + POINT_MARKER_HEIGHT_WORLD)) / HEIGHT;
+static const float GRAPH_HALF_HEIGHT = 10.0f;
 
-// define the viewport and adjust it based on the aspect ratio so the axes match symetrically
-float worldYMin = -0.5f * WORLD_UNITS_PER_PIXEL * HEIGHT;
-float worldYMax =  0.5f * WORLD_UNITS_PER_PIXEL * HEIGHT;
-float worldXMin = -0.5f * WORLD_UNITS_PER_PIXEL * WIDTH;
-float worldXMax =  0.5f * WORLD_UNITS_PER_PIXEL * WIDTH;
+// define the viewport and adjust it based on the aspect ratio so the axes match symmetrically
+float worldYMin = -GRAPH_HALF_HEIGHT;
+float worldYMax =  GRAPH_HALF_HEIGHT;
+float worldXMin = -GRAPH_HALF_HEIGHT * ASPECT_RATIO;
+float worldXMax =  GRAPH_HALF_HEIGHT * ASPECT_RATIO;
 
 // by default WIDTH,HEIGHT
 float windowWidth =  WIDTH;
@@ -20,17 +19,19 @@ float windowHeight = HEIGHT;
 // flag to tell main if we should rebuild the projection matrices
 bool rebuildProjection = false;
 
-// helper function to recompute the world extents
 static void recomputeWorldExtents(void){
-  float halfSpanY = 0.5f * WORLD_UNITS_PER_PIXEL * windowHeight;
-  float halfSpanX = 0.5f * WORLD_UNITS_PER_PIXEL * windowWidth;
+  if (windowHeight <= 0.0f){
+    windowHeight = 1.0f; // prevent division-by-zero; will be corrected by the next resize event
+  }
 
-  worldYMin = -halfSpanY;
-  worldYMax =  halfSpanY;
+  const float aspect = windowWidth / windowHeight;
+  const float halfSpanX = GRAPH_HALF_HEIGHT * aspect;
+
+  worldYMin = -GRAPH_HALF_HEIGHT;
+  worldYMax =  GRAPH_HALF_HEIGHT;
   worldXMin = -halfSpanX;
   worldXMax =  halfSpanX;
 }
-
 void framebufferSizeCallback(GLFWwindow *window, int width, int height){
   glViewport(0, 0, width, height);
 

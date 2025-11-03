@@ -1,9 +1,11 @@
 #include "core/app.h"
+#include "core/errorHandler.h"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
 #include "core/logger.h"
 #include "core/window.h"
+#include "renderer/functionRenderer.h"
 #include "renderer/graph.h"
 #include "utils/shaderUtils.h"
 #include "math/Mat4.h"
@@ -62,6 +64,14 @@ enum reh_error_code_e ra_appInit(struct ra_app_context_t *ctx){
   if (err != ERR_SUCCESS){
     logLastError(ERROR);
     logMsg(FAILURE, "Application cannot continue: Graph marker buffers failed to initialize");
+    return err;
+  }
+
+  // Setup function resources
+  err = rfr_init(ctx);
+  if (err != ERR_SUCCESS){
+    logLastError(ERROR);
+    logMsg(FAILURE, "Application cannot continue: Failed to initialize function rendering data.");
     return err;
   }
 
@@ -170,7 +180,7 @@ enum reh_error_code_e ra_appInit(struct ra_app_context_t *ctx){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e ra_appRenderFrame(struct ra_app_context_t *ctx, struct rtr_character_t *chars){
+enum reh_error_code_e ra_appRenderFrame(struct ra_app_context_t *ctx, struct rtr_character_t *chars, struct ree_function_manager_t *functions){
   if (ctx == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Context pointer is NULL in ra_appRenderFrame()");
   }
@@ -189,6 +199,7 @@ enum reh_error_code_e ra_appRenderFrame(struct ra_app_context_t *ctx, struct rtr
     float *graphProjectionPtr = nullptr;
     rm_Mat4ValuePtr(&graphProjection, &graphProjectionPtr);
     gluSetMat4(ctx->gProgram, "graphProjection", graphProjectionPtr);
+    gluSetMat4(ctx->fProgram, "functionProjection", graphProjectionPtr);
 
     struct rm_mat4_t textProjection;
     rm_Mat4Ortho(0.0f, windowWidth, 0.0f, windowHeight, &textProjection);
@@ -225,7 +236,19 @@ enum reh_error_code_e ra_appRenderFrame(struct ra_app_context_t *ctx, struct rtr
     return err;
   }
 
-  // Render text
+  err = rfr_render(ctx, functions, &graphProjectionPtr);
+  if (err != ERR_SUCCESS){
+    logLastError(ERROR);
+    logMsg(FAILURE, "Application cannot continue: Failed to render functions.");
+    return err;
+  }
+
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glUseProgram(0);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   struct rm_vec3_t textColor = {1.0f, 1.0f, 1.0f};
   err = rtr_renderAxisLabels(ctx->textProgram, ctx->textVAO, ctx->textVBO, chars, 1.0f, textColor);
   if (err != ERR_SUCCESS){

@@ -14,7 +14,11 @@
     - support for factorial operator with proper precedence
     - is able to recognize x as a unique identifier to then be substituted for a value in the evaluator
     - spits out RPN (reverse polish notation) which will be soon handled with the evaluator
-- a function struct that contains all necessary metadata for the soon to be evaluator
+    - support for implicit multiplication
+- an evaluator
+    - supports variables
+    - solves for y when given an expression and variables data
+    - correctly evaluates functions, operators (including unary) and numbers
 - function to parse the (for now) hardcoded function including the definition and save the data into the function struct
 - some error handling, will be improved drastically before full release of Alpha v0.0.6
 - a global utilities file with 
@@ -24,6 +28,14 @@
 - on window resize:
     - projection matrices get recalculated
     - graph VBO gets updated
+- function rendering
+    - able to handle non-continuous functions
+    - can render multiple functions at the same time
+    - step is for now hardcoded
+    - so far no support for calculations with user-defined functions
+- function manager
+    - holds function structures which hold all function data
+    - added functions to add, remove, init and lookup
 
 ### Changed
 - updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)
@@ -36,6 +48,7 @@
 
 ### Fixed
 - minor rendering issues
+- null-pointer bug in `setError()`
 
 ## Alpha v0.0.5
 

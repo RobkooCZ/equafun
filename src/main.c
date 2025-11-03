@@ -1,3 +1,4 @@
+#include "expressionEngine/functionManager.h"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
@@ -5,26 +6,43 @@
 #include "core/errorHandler.h"
 #include "core/appContext.h"
 #include "core/input.h"
-#include "expressionEngine/parser/functionParser.h"
 #include "textRenderer/text.h"
 #include "core/app.h"
 
 #include <string.h>
 
 int main(void){
-  enum reh_error_code_e err = ree_testLexerParser();
-  if (err != ERR_SUCCESS){
-    logLastError(ERROR);
-    logMsg(FAILURE, "Application cannot continue: Function parser test failed.");
-    return -1;
-  }
-  logMsg(SUCCESS, "Function parser test completed successfully.");
-  // TODO: function to call that cleans up all functions' allocated memory
-  // rendering of said functions
-
   // Initialize application context
   struct ra_app_context_t appContext;
   memset(&appContext, 0, sizeof appContext);
+
+  // initialize function manager and add some functions to test drawing
+  struct ree_function_manager_t functions;
+  char* f = "f(x) = 1/x";
+  char* g = "g(x) = x^2 - 3x";
+  char* m = "m(x) = log(x)";
+  // factorials DON'T WORK but im too lazy to make a proper factorial function so next commit it is :)
+
+  enum reh_error_code_e err = ree_initFunctionManager(&functions);
+  if (err != ERR_SUCCESS){
+    ra_appShutdown(&appContext, "Function manager initialization failed.");
+    return -1;
+  }
+  err = ree_addFunction(&functions, f);
+  if (err != ERR_SUCCESS){
+    ra_appShutdown(&appContext, "Failed to add function f to the function manager.");
+    return -1;
+  }
+  err = ree_addFunction(&functions, g);
+  if (err != ERR_SUCCESS){
+    ra_appShutdown(&appContext, "Failed to add function g to the function manager.");
+    return -1;
+  }
+  err = ree_addFunction(&functions, m);
+  if (err != ERR_SUCCESS){
+    ra_appShutdown(&appContext, "Failed to add function l to the function manager.");
+    return -1;
+  }
 
   // Initialize application
   err = ra_appInit(&appContext);
@@ -46,7 +64,7 @@ int main(void){
   while (!glfwWindowShouldClose(appContext.window)){
     processInput(appContext.window);
 
-    err = ra_appRenderFrame(&appContext, characters);
+    err = ra_appRenderFrame(&appContext, characters, &functions);
     if (err != ERR_SUCCESS){
       ra_appShutdown(&appContext, "Rendering failed.");
       return -1;

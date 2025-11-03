@@ -17,6 +17,7 @@ enum reh_error_code_e {
   ERR_OUT_OF_MEMORY = 200,
   ERR_ALLOCATION_FAILED = 201,
   ERR_INVALID_POINTER = 202,
+  ERR_INVALID_MEMORY_ACCESS = 203,
 
   // Shader errors (3xx)
   ERR_SHADER_COMPILE_FAILED = 300,
@@ -53,12 +54,16 @@ enum reh_error_code_e {
   ERR_UNDERFLOW = 703,
   ERR_VALUE_IS_NAN = 704,
   ERR_OUT_OF_BOUNDS = 705,
+  ERR_TAN_OUT_OF_DOMAIN = 706,
+  ERR_LN_OUT_OF_DOMAIN = 707,
+  ERR_LOG_OUT_OF_DOMAIN = 708,
 
   // Expression evaluator errors (8xx)
   ERR_INPUT_TOKEN_INVALID = 800,
   ERR_INVALID_OPERATOR = 801,
   ERR_UNKNOWN_IDENTIFIER = 802,
   ERR_MISMATCHED_PARENTHESES = 803,
+  ERR_INVALID_STACK_STATE = 804,
 
   // Generic errors (9xx)
   ERR_INVALID_INPUT = 900,
@@ -86,7 +91,7 @@ typedef struct reh_error_context_t {
     return code;                                                     \
   } while(0)
 
-// Add context to existing error without clearing technical details
+// Add context to existing error without clearing technical details203
 #define ADD_ERROR_CONTEXT_RETURN(code, msg, ...)                                    \
   do {                                                                              \
     const ErrorContext* _ctx = getLastError();                                      \
@@ -109,7 +114,7 @@ typedef struct reh_error_context_t {
 #define CHECK_ERROR_CTX(call, msg, ...)                                                 \
   do {                                                                                  \
     enum reh_error_code_e _err = call;                                                  \
-    if (_err != ERR_SUCCESS) {                                                          \
+    if (_err != ERR_SUCCESS){                                                           \
       const ErrorContext* _ctx = getLastError();                                        \
       char _new_msg[256];                                                               \
       snprintf(_new_msg, sizeof(_new_msg), msg, ##__VA_ARGS__);                         \

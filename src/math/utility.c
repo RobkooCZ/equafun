@@ -1,4 +1,5 @@
 #include "math/utility.h"
+#include "core/errorHandler.h"
 #include <float.h>
 #include <math.h>
 
@@ -19,4 +20,23 @@ enum rm_num_classes_e rm_classifyNum(float num){
     default:
       return FUNC_ERROR;
   }
+}
+
+enum reh_error_code_e rm_factorial(int n, int *result){
+  if (n == 0){
+    *result = 1;
+    return ERR_SUCCESS;
+  }
+  else if (n < 0){
+    *result = 0;
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "n lower than 0 (%d) in rm_factorial.", n);
+  }
+
+  *result = 1;
+
+  for (int i = 1; i <= n; ++i){
+    *result *= i;
+  }
+
+  return ERR_SUCCESS;
 }

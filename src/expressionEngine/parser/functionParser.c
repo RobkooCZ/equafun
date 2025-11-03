@@ -5,6 +5,7 @@
 #include "expressionEngine/parser/shuntingYard.h"
 #include "expressionEngine/tokens.h"
 #include "math/Vec3.h"
+#include "utils/utilities.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -15,7 +16,7 @@ enum reh_error_code_e ree_testLexerParser(void){
 
   struct ree_function_t function;
 
-  CHECK_ERROR_CTX(ree_parseFunctionDefinition(expression, &function), "Failed to parse function definition.");
+  CHECK_ERROR_CTX(ree_parseFunction(expression, &function), "Failed to parse function definition.");
 
   // print function metadata
   printf("Function Name: %s\n", function.name);
@@ -52,7 +53,61 @@ enum reh_error_code_e ree_testLexerParser(void){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e ree_parseFunctionDefinition(char *definition, struct ree_function_t *function){
+enum reh_error_code_e ree_implicitMultiplication(struct ree_token_t **tokens, int *tokenCount, int *tokenCapacity){
+  // walk the array of tokens
+  for (int i = 0; i < *tokenCount - 1; i++){
+    // set bools based on if we get one of the required token types
+    bool leftFactor =  (*tokens)[i].token_type == TOKEN_NUMBER         ||
+                       (*tokens)[i].token_type == TOKEN_IDENTIFIER     ||
+                       (*tokens)[i].token_type == TOKEN_PAREN_CLOSE;
+
+    bool rightFactor = (*tokens)[i+1].token_type == TOKEN_NUMBER         ||
+                       (*tokens)[i+1].token_type == TOKEN_IDENTIFIER     ||
+                       (*tokens)[i+1].token_type == TOKEN_FUNCTION       ||
+                       (*tokens)[i+1].token_type == TOKEN_PAREN_OPEN;
+
+    bool leftIsFunction = ((*tokens)[i].token_type == TOKEN_IDENTIFIER) &&
+                      rgu_isStrInArray(validFunctions, functionArrLength, (*tokens)[i].value);
+
+    // bail out early if the left factor is a known function
+    // if we kept it, sin(x) would turn into sin * (x) and thus break the parser
+    if (leftIsFunction){
+      continue;
+    }
+
+    // dont do anything unless both factors are true
+    if ((!leftFactor || !rightFactor)){
+      continue;
+    }
+    if (*tokenCount + 1 > *tokenCapacity){
+      int newCapacity = (*tokenCapacity == 0) ? 8 : (*tokenCapacity * 2);
+      while (*tokenCount + 1 > newCapacity){
+        newCapacity *= 2;
+      }
+
+      struct ree_token_t *tmp = realloc(*tokens, newCapacity * sizeof **tokens);
+      if (tmp == nullptr){
+        SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to expand token buffer in ree_implicitMultiplication.");
+      }
+
+      *tokens = tmp;
+      *tokenCapacity = newCapacity;
+    }
+    // shift the array to the right by one slot to have space to insert the multiplication token
+    memmove(&(*tokens)[i+2],
+            &(*tokens)[i+1],
+            (*tokenCount - (i + 1)) * sizeof **tokens);
+
+    (*tokens)[i+1].token_type = TOKEN_MULTIPLY;
+    strcpy((*tokens)[i+1].value, "*");
+    (*tokenCount)++;
+    i++;
+  }
+
+  return ERR_SUCCESS;
+}
+
+enum reh_error_code_e ree_parseFunction(char *definition, struct ree_function_t *function){
   int tokenCount = 0;
   CHECK_ERROR_CTX(ree_countTokens(definition, &tokenCount), "Failed to count tokens.");
 
@@ -87,7 +142,7 @@ enum reh_error_code_e ree_parseFunctionDefinition(char *definition, struct ree_f
   }
   else if (strlen(tokens[2].value) > (unsigned long)MAX_PARAM_NAME_LEN){
     SET_ERROR_RETURN(ERR_INVALID_INPUT, "Function parameter too long: %lu chars. Max length: %d chars.", strlen(tokens[2].value), MAX_PARAM_NAME_LEN);
-  }
+  }else 
 
   // check for right parenthesis ')'
   if (tokens[3].token_type != TOKEN_PAREN_CLOSE){
@@ -117,6 +172,10 @@ enum reh_error_code_e ree_parseFunctionDefinition(char *definition, struct ree_f
   }
 
   function->tokenCount = j;
+  function->tokenCapacity = j;
+
+  // support for implicit multiplication
+  ree_implicitMultiplication(&function->tokens, &function->tokenCount, &function->tokenCapacity);
 
   // allocate RPN array
   function->rpn = malloc(function->tokenCount * sizeof(struct ree_output_token_t));
@@ -131,7 +190,7 @@ enum reh_error_code_e ree_parseFunctionDefinition(char *definition, struct ree_f
 
   // rendering data
   function->isVisible = true;
-  function->color = (struct rm_vec3_t){255.0f, 255.0f, 255.0f}; // default white
+  function->color = (struct rm_vec3_t){1.0f, 1.0f, 0.5f}; // default white
 
   return ERR_SUCCESS;
 }

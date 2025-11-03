@@ -18,8 +18,14 @@ void setError(enum reh_error_code_e code, const char* file, int line, const char
   g_lastError.line = line;
   g_lastError.fnName = fnName;
 
-  strncpy(g_lastError.message, message, sizeof(g_lastError.message) - 1);
-  g_lastError.message[sizeof(g_lastError.message) -1] = '\0';
+  // prevent null-pointer bug
+  if (message){
+    strncpy(g_lastError.message, message, sizeof(g_lastError.message) - 1);
+    g_lastError.message[sizeof(g_lastError.message) - 1] = '\0';
+  }
+  else {
+    g_lastError.message[0] = '\0';
+  }
 
   // technical info provided
   if (technicalInfo){
