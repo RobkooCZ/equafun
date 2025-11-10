@@ -36,6 +36,8 @@
 - function manager
     - holds function structures which hold all function data
     - added functions to add, remove, init and lookup
+- support for windows compilation by adding CMake (idk if it compiles/runs on windows)
+- added a .cmd file to do the same thing as build.sh
 
 ### Changed
 - updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)
@@ -45,6 +47,7 @@
 - split up main into 3 functions - ra_appInit, ra_apprenderFrame and ra_appShutdown
 - cleaned up repetitive error checking code in ra_appInit
 - centralized cleanup after a failure
+- modified the build script to be able to choose between make and CMake
 
 ### Fixed
 - minor rendering issues
