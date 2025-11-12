@@ -1,3 +1,4 @@
+# Check for features: wayland, x11, win32
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
     wayland         GLFW_USE_WAYLAND
@@ -11,3 +12,4 @@ vcpkg_cmake_configure(
         -DGLFW_BUILD_DOCS=OFF
         ${FEATURE_OPTIONS}
 )
+

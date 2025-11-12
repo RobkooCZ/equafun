@@ -3,10 +3,7 @@
   "version": "0.0.5",
   "description": "Lightweight renderer",
   "dependencies": [
-    {
-      "name": "glfw3",
-      "features": [ "wayland" ]
-    },
+    "glfw3",
     "freetype"
   ],
   "builtin-baseline": "3b594f574962619c134994f92cbd5e9a2b508b07"
