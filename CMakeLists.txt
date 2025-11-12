@@ -28,59 +28,38 @@ file(GLOB_RECURSE SRC_FILES
     "${LIBS_SRC_DIR}/*.c"
 )
 
-# --- Include paths for project ---
+# --- Include paths ---
 include_directories(
     "${CMAKE_SOURCE_DIR}/include"
     "${CMAKE_SOURCE_DIR}/libs/include"
 )
 
-# --- FREETYPE detection ---
-find_package(PkgConfig QUIET)
-if(PkgConfig_FOUND)
-    pkg_check_modules(FREETYPE2 freetype2)
-endif()
-
-if(FREETYPE2_FOUND)
-    message(STATUS "Found Freetype via pkg-config")
-    include_directories(${FREETYPE2_INCLUDE_DIRS})
-    link_directories(${FREETYPE2_LIBRARY_DIRS})
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${FREETYPE2_LIBRARIES})
-else()
-    find_package(Freetype REQUIRED)
-    if(Freetype_FOUND)
-        message(STATUS "Found Freetype via CMake")
-        include_directories(${Freetype_INCLUDE_DIRS})
-        set(EXTRA_LIBS ${EXTRA_LIBS} ${Freetype_LIBRARIES})
+# --- VCPKG support ---
+# Tell CMake to use vcpkg toolchain if available
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+    if(DEFINED ENV{VCPKG_ROOT})
+        set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
     endif()
 endif()
 
-# --- GLFW detection ---
-find_package(glfw3 QUIET)
-if(glfw3_FOUND)
-    set(EXTRA_LIBS ${EXTRA_LIBS} glfw)
-else()
-    if(UNIX)
-        find_package(OpenGL REQUIRED)
-        set(EXTRA_LIBS ${EXTRA_LIBS} glfw GL X11 pthread Xrandr Xi dl m)
-    elseif(WIN32)
-        set(EXTRA_LIBS ${EXTRA_LIBS} glfw3 opengl32)
-    endif()
+# --- Find packages via vcpkg or system ---
+find_package(freetype CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+
+# --- Link libraries ---
+set(EXTRA_LIBS glfw freetype)
+
+if(UNIX)
+    list(APPEND EXTRA_LIBS m)  # math library for Linux
 endif()
 
 # --- Define executable ---
 add_executable(equafun ${SRC_FILES})
-
-# --- Link everything ---
-if(UNIX)
-    set(EXTRA_LIBS ${EXTRA_LIBS} m)  # link libm explicitly
-endif()
-
-# --- Link everything ---
 target_link_libraries(equafun PRIVATE ${EXTRA_LIBS})
 
 # --- Output binary location (matches Makefile: build/equafun) ---
 set_target_properties(equafun PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build"
     OUTPUT_NAME "equafun"
 )
 
