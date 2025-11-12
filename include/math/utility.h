@@ -1,6 +1,8 @@
 #ifndef MATH_UTILITIES_H
 #define MATH_UTILITIES_H
 
+#include "core/errorHandler.h"
+
 typedef enum rm_num_classes_e {
   FUNC_ERROR   = -1,
   IS_NAN       =  0,

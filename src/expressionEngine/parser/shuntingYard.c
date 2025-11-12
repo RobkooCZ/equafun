@@ -5,6 +5,7 @@
 #include "utils/utilities.h"
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 const char* validFunctions[] = {"sin", "cos", "tan", "sqrt", "abs", "ln", "log"};
 const int functionArrLength = sizeof(validFunctions) / sizeof(validFunctions[0]);
@@ -150,8 +151,8 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
       if (rgu_isStrInArray(validFunctions, functionArrLength, currentToken.value) == true){
         stack[operatorStackPointer++] = currentToken;
       }
-      // check if its x
-      else if (strcmp(currentToken.value, "x") == 0){
+      // check if its a parameter
+      else if (isalpha(currentToken.value[0])){
         struct ree_output_token_t outputToken = {
           .type = OUTPUT_NUMBER,
           .arity = 0,

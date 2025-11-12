@@ -1,6 +1,7 @@
 #include "expressionEngine/lexer.h"
 #include "core/errorHandler.h"
 #include "expressionEngine/tokens.h"
+#include "core/logger.h"
 
 #include <ctype.h>
 #include <stdio.h>

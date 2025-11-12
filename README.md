@@ -13,6 +13,9 @@
 - Support for **Linux** and **Windows** as of `Alpha v0.0.6 (currently being developed)`.
 
 ## How to build from the beginning & run
+- **IMPORTANT: ** you *have* to pass the functions you want to be rendered as arguments, as shown in the example here: 
+    - `./build/equafun "f(x) = x" "g(x) = x^2"` (running the executable on Linux)
+    - (function identifiers don't have to be the same as in the example, but they have to be unique)
 - **The resulting binary is in `build`** 
 - To run the project, either:
     1. Go to *build* and run the executable there (*equafun(.exe)*)

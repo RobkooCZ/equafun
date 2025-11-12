@@ -2,6 +2,7 @@
 #include "core/errorHandler.h"
 #include "expressionEngine/parser/shuntingYard.h"
 #include "math/utility.h"
+#include "core/logger.h"
 
 #include <ctype.h>
 #include <float.h>
@@ -58,7 +59,7 @@ enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpn
       }
       // error - symbol found but no variable (well, variableCount is just zero) was provided
       else if (isalpha((unsigned char)rpn[i].symbol[0]) && variableCount == 0){
-        SET_ERROR_RETURN(ERR_INVALID_INPUT, "Found identifier (%s) in RPN expression, but no variable value was provided to substitute for it.", rpn[i].symbol);
+       SET_ERROR_RETURN(ERR_INVALID_INPUT, "Found identifier (%s) in RPN expression, but no variable value was provided to substitute for it.", rpn[i].symbol);
       }
       // its a number
       else {

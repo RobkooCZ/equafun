@@ -8,6 +8,8 @@
 #include "utils/utilities.h"
 #include <string.h>
 #include <stdlib.h>
+#include "core/logger.h"
+
 
 enum reh_error_code_e ree_testLexerParser(void){
   // lexer, parser testing

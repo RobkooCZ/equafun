@@ -11,38 +11,41 @@
 
 #include <string.h>
 
-int main(void){
+int main(int argc, char** argv){
+  if (argc > 16 + 1){
+    logMsg(FAILURE, "Too many arguments passed (%d). Max arguments: %d", argc - 1, 16);
+    return -1;
+  }
+
   // Initialize application context
   struct ra_app_context_t appContext;
   memset(&appContext, 0, sizeof appContext);
 
   // initialize function manager and add some functions to test drawing
   struct ree_function_manager_t functions;
-  char* f = "f(x) = sqrt(x)";
-  char* g = "g(x) = x^2 - 3x";
-  char* m = "m(x) = ln(x)";
-  // factorials DON'T WORK but im too lazy to make a proper factorial function so next commit it is :)
 
   enum reh_error_code_e err = ree_initFunctionManager(&functions);
   if (err != ERR_SUCCESS){
     ra_appShutdown(&appContext, "Function manager initialization failed.");
     return -1;
   }
-  err = ree_addFunction(&functions, f);
-  if (err != ERR_SUCCESS){
-    ra_appShutdown(&appContext, "Failed to add function f to the function manager.");
+
+  // based on arguments, dynamically add functions to the manager and render them
+  if (argc >= 2){
+    for (int i = 1; i < argc; ++i){
+      char* fnDef = argv[i];
+      enum reh_error_code_e err = ree_addFunction(&functions, fnDef);
+      if (err != ERR_SUCCESS){
+        ra_appShutdown(&appContext, "Failed to add function f to the function manager.");
+        return -1;
+      }
+    }
+  }
+  else {
+    ra_appShutdown(&appContext, "Please run the executable with a function definition as an argument.");
     return -1;
   }
-  err = ree_addFunction(&functions, g);
-  if (err != ERR_SUCCESS){
-    ra_appShutdown(&appContext, "Failed to add function g to the function manager.");
-    return -1;
-  }
-  err = ree_addFunction(&functions, m);
-  if (err != ERR_SUCCESS){
-    ra_appShutdown(&appContext, "Failed to add function l to the function manager.");
-    return -1;
-  }
+  // factorials DON'T WORK but im too lazy to make a proper factorial function so next commit it is :)
 
   // Initialize application
   err = ra_appInit(&appContext);
@@ -63,6 +66,20 @@ int main(void){
   // Main render loop
   while (!glfwWindowShouldClose(appContext.window)){
     processInput(appContext.window);
+
+    static double lastFpsSample = 0.0;
+    static int frameCount = 0;
+
+    double now = glfwGetTime();
+    if (lastFpsSample == 0.0) lastFpsSample = now;
+    frameCount++;
+
+    if (now - lastFpsSample >= 1.0) {
+      double fps = frameCount / (now - lastFpsSample);
+      logMsg(DEBUG, "FPS: %.2f", fps);
+      frameCount = 0;
+      lastFpsSample = now;
+    }
 
     err = ra_appRenderFrame(&appContext, characters, &functions);
     if (err != ERR_SUCCESS){

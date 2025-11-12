@@ -3,6 +3,7 @@
 #include "expressionEngine/parser/functionParser.h"
 #include <stdlib.h>
 #include <string.h>
+#include "core/logger.h"
 
 enum reh_error_code_e ree_initFunctionManager(struct ree_function_manager_t *manager){
   if (manager == nullptr){

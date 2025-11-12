@@ -10,6 +10,5 @@ typedef struct rm_mat4_t {
 
 enum reh_error_code_e rm_Mat4Get(struct rm_mat4_t *mat, int row, int col, float *result);
 enum reh_error_code_e rm_Mat4Ortho(float left, float right, float bottom, float top, struct rm_mat4_t *result);
-enum reh_error_code_e rm_Mat4ValuePtr(struct rm_mat4_t *mat, float **result);
 
 #endif // MAT4_H

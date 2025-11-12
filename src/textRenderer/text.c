@@ -13,6 +13,7 @@
 #include "utils/shaderUtils.h"
 #include "core/errorHandler.h"
 #include "math/Vec2.h"
+#include "core/logger.h"
 
 // static helper to be used internally
 static const char* ft_ErrCodeToStr(FT_Error errCode){

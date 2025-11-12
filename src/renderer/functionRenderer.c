@@ -1,5 +1,6 @@
 #include "renderer/functionRenderer.h"
 #include "core/appContext.h"
+#include "core/logger.h"
 #include "core/errorHandler.h"
 #include "core/window.h"
 #include "expressionEngine/evaluator.h"
@@ -153,8 +154,7 @@ enum reh_error_code_e rfr_init(struct ra_app_context_t *context){
 
   return ERR_SUCCESS;
 }
-
-enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float worldXRangeMin, float worldXRangeMax, float worldStep, float **vertices, size_t *outVertexCount){
+enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float worldXRangeMin, float worldXRangeMax, float worldStep, struct rfr_function_point_data_t *pointsData){
   if (function == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_sampleFunction is NULL.");
   }
@@ -164,11 +164,8 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
   if (worldStep <= 0){
     SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid step provided to rfr_sampleFunction (%f)", worldStep);
   }
-  if (vertices == nullptr){
+  if (pointsData == nullptr ){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "vertices array passed to rfr_sampleFunction is NULL.");
-  }
-  if (outVertexCount == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "outVertexCount passed to rfr_sampleFunction is NULL.");
   }
 
   // calculate samplecount
@@ -177,10 +174,17 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
   size_t sample = 0;
 
   // allocate memory for the vertices
-  *vertices = (float *)malloc(sizeof(float) * sampleCount * 2);
+  pointsData->vertices = (float *)malloc(sizeof(float) * sampleCount * 2);
 
-  if (*vertices == nullptr){
+  if (pointsData->vertices == nullptr){
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for vertices in rfr_sampleFunction");
+  }
+
+  // allocate memory for undefined points
+  pointsData->undefinedPoints = (float *)malloc(sizeof(float) * sampleCount);
+  pointsData->undefinedPointsCount = 0;
+  if (pointsData->undefinedPoints == nullptr){
+    SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for undefinedPoints in rfr_sampleFunction");
   }
 
   // fill vertices (sample the function)
@@ -188,35 +192,45 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
     float x = worldXRangeMin + i * worldStep;
     // evaluate function at current x (get y)
     float y;
-    struct ree_variable_t variables[] = {{"x", x}};
+    struct ree_variable_t variables[] = {{function->parameter, x}};
 
     // gutted CHECK_ERROR_CTX macro
     enum reh_error_code_e _err = ree_evaluateRpn(function->rpn, (size_t)function->rpnCount, variables, 1, &y);
+
+    if (!isfinite(y) || (fabsf(y) > ((worldYMax - worldYMin) * 10))){
+        pointsData->undefinedPoints[pointsData->undefinedPointsCount++] = x;
+        clearError();
+        continue;
+    }
+
     if (_err != ERR_SUCCESS){
       if (_err == ERR_DIVISION_BY_ZERO || _err == ERR_TAN_OUT_OF_DOMAIN ||
           _err == ERR_LOG_OUT_OF_DOMAIN || _err == ERR_LN_OUT_OF_DOMAIN ||
           _err == ERR_INVALID_SQRT){
+        pointsData->undefinedPoints[pointsData->undefinedPointsCount++] = x;
         clearError();
         continue;
       }
-      printf("tech det: %s\n", getLastError()->message);
+      const ErrorContext *_ctx = getLastError();
+      logError(_ctx, ERROR);
       char _new_msg[256];
       snprintf(_new_msg, sizeof(_new_msg), "Failed to evaluate RPN.");
       setError(_err, __FILE__, __LINE__, __func__, _new_msg, getLastError()->message);
-      free(*vertices);
-      *vertices = nullptr;
-      *outVertexCount = 0;
+      free(pointsData->vertices);
+      pointsData->vertices = nullptr;
+      pointsData->vertexCount = 0;
       return _err;
     }
     // add the coordinates into the vertex array
-    (*vertices)[sample++] = x;
-    (*vertices)[sample++] = y;
+    (pointsData->vertices)[sample++] = x;
+    (pointsData->vertices)[sample++] = y;
   }
 
-  *outVertexCount = sample / 2;
+  pointsData->vertexCount = sample / 2;
 
   return ERR_SUCCESS;
 }
+
 enum reh_error_code_e rfr_render(struct ra_app_context_t *context, struct ree_function_manager_t *functions, float **projectionMatrixPtr){
   if (context == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "context passed to rfr_render is NULL.");
@@ -230,36 +244,66 @@ enum reh_error_code_e rfr_render(struct ra_app_context_t *context, struct ree_fu
     // skip rendering functions that are not visible
     if (function->isVisible == false) continue;
 
-    float *vertices;
-    size_t vertexCount = 0;
+    struct rfr_function_point_data_t pointData;
+
     // sample the function
-    enum reh_error_code_e _err = rfr_sampleFunction(function, worldXMin, worldXMax, 0.02f, &vertices, &vertexCount);
-    if (_err != ERR_SUCCESS){
-      printf("Error code %d\n", getLastError()->code);
-      SET_ERROR_TECHNICAL_RETURN(_err, "Failed to sample function", getLastError()->technicalDetails);
-    }
+    CHECK_ERROR_CTX(rfr_sampleFunction(function, worldXMin, worldXMax, 0.01f, &pointData), "Failed to sample function.");
+
     // bind VAO, VBO and grow if needed
     glBindVertexArray(context->fVAO);
     glBindBuffer(GL_ARRAY_BUFFER, context->fVBO);
 
-    const GLsizeiptr byteCount = (GLsizeiptr)(vertexCount * 2u * sizeof(float));
+    const GLsizeiptr byteCount = (GLsizeiptr)(pointData.vertexCount * 2u * sizeof(float));
     // grow if the byte count is larger than the previous capacity
     if (byteCount > context->fVertexCapacityBytes){
-      glBufferData(GL_ARRAY_BUFFER, byteCount, vertices, GL_DYNAMIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, byteCount, pointData.vertices, GL_DYNAMIC_DRAW);
       context->fVertexCapacityBytes = byteCount;
     }
     else {
-      glBufferSubData(GL_ARRAY_BUFFER, 0, byteCount, vertices);
+      glBufferSubData(GL_ARRAY_BUFFER, 0, byteCount, pointData.vertices);
     }
 
     glUseProgram(context->fProgram);
     gluSetMat4(context->fProgram, "functionProjection", *projectionMatrixPtr);
     gluSet4f(context->fProgram, "color", function->color.x, function->color.y, function->color.z, 1.0f);
     glLineWidth(2.0f);
-    glDrawArrays(GL_LINE_STRIP, 0, vertexCount);
+
+    size_t start = 0;
+    size_t undefinedIndex = 0;
+
+    while (start < pointData.vertexCount){
+      // get the index of the undefined point
+      while (undefinedIndex < pointData.undefinedPointsCount &&
+          pointData.undefinedPoints[undefinedIndex] <= pointData.vertices[start * 2]
+          ){
+        ++undefinedIndex;
+      }
+
+      // first assume the end is the end of the array
+      size_t end = pointData.vertexCount;
+
+      if (undefinedIndex < pointData.undefinedPointsCount){
+        float cutX = pointData.undefinedPoints[undefinedIndex];
+        // try to find the end of this segment (between two undefined points, for example)
+        for (size_t i = start; i < pointData.vertexCount; ++i){
+          if (pointData.vertices[i * 2] > cutX){
+            end = i;
+            break;
+          }
+        }
+      }
+
+      // draw the array if the current segment has atleast two vertices
+      if (end > start + 1){
+        glDrawArrays(GL_LINE_STRIP, (GLint)start, (GLsizei)(end-start));
+      }
+      start = end;
+    }
+
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    free(vertices);
+    free(pointData.vertices);
+    free(pointData.undefinedPoints);
   }
   return ERR_SUCCESS;
 }

@@ -50,10 +50,46 @@ void glfwErrCallback(int errCode, const char* msg){
 }
 
 enum reh_error_code_e initGLFW(void){
+  if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)){
+    logMsg(DEBUG, "GLFW support for Wayland found.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
+  }
+  else if (glfwPlatformSupported(GLFW_PLATFORM_X11)){
+    logMsg(DEBUG, "GLFW support for X11 found.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+  }
+  else if (glfwPlatformSupported(GLFW_PLATFORM_WIN32)){
+    logMsg(DEBUG, "GLFW support for Windows found.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WIN32);
+  }
+  else { // fallback
+    logMsg(DEBUG, "No GLFW platform found, using fallback.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_NULL);
+  }
+
   if (!glfwInit()){
     SET_ERROR_RETURN(ERR_GLFW_INIT_FAILED, "Failed to initialize GLFW library");
   }
- 
+
+  int platform = glfwGetPlatform();
+  switch (platform){
+    case GLFW_PLATFORM_X11:
+      logMsg(DEBUG, "Using X11 platform.");
+      break;
+    case GLFW_PLATFORM_WAYLAND:
+      logMsg(DEBUG, "Using the Wayland platform.");
+      break;
+    case GLFW_PLATFORM_WIN32:
+      logMsg(DEBUG, "Using Windows platform.");
+      break;
+    case GLFW_PLATFORM_NULL:
+      logMsg(DEBUG, "Using fallback platform.");
+      break;
+    default:
+      logMsg(DEBUG, "Using unknown platform.");
+      break;
+  }
+
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VER_MAJOR);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VER_MINOR);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);

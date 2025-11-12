@@ -117,6 +117,7 @@ typedef struct reh_error_context_t {
     enum reh_error_code_e _err = call;                                                  \
     if (_err != ERR_SUCCESS){                                                           \
       const ErrorContext* _ctx = getLastError();                                        \
+      logError(_ctx, ERROR);                                                            \
       char _new_msg[256];                                                               \
       snprintf(_new_msg, sizeof(_new_msg), msg, ##__VA_ARGS__);                         \
       setError(_err, __FILE__, __LINE__, __func__, _new_msg, _ctx->technicalDetails);   \

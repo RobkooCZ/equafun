@@ -12,7 +12,7 @@
     - supports parentheses
     - distinguishes between unary and binary minus (and plus) operators
     - support for factorial operator with proper precedence
-    - is able to recognize x as a unique identifier to then be substituted for a value in the evaluator
+    - is able to recognize one-letter identifiers to then be substituted for a value in the evaluator
     - spits out RPN (reverse polish notation) which will be soon handled with the evaluator
     - support for implicit multiplication
 - an evaluator
@@ -36,8 +36,9 @@
 - function manager
     - holds function structures which hold all function data
     - added functions to add, remove, init and lookup
-- support for windows compilation by adding CMake (idk if it compiles/runs on windows)
-- added a .cmd file to do the same thing as build.sh
+- support for windows compilation by adding CMake
+- added a .cmd file to do a similar thing as build.sh
+- an FPS counter (printing to the console) to have a relative idea of the performance
 
 ### Changed
 - updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)
@@ -48,14 +49,15 @@
 - cleaned up repetitive error checking code in ra_appInit
 - centralized cleanup after a failure
 - modified the build script to be able to choose between make and CMake
+- undefined points don't get connected anymore
 
 ### Fixed
 - minor rendering issues
 - null-pointer bug in `setError()`
 - a bug where fread() and ftell() returned with different byte values on Windows
+- error handler not printing all the error messages
 
 ## Alpha v0.0.5
-
 ### Added
 - FreeType text rendering system
     - character atlas loading (128 ASCII characters)

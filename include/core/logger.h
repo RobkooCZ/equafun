@@ -4,12 +4,12 @@
 #include "core/errorHandler.h"
 
 // ASCII codes for colors for the different levels
-#define DEBUG_CLR     "\e[1;36m"
-#define SUCCESS_CLR   "\e[1;32m"
-#define WARNING_CLR   "\e[1;33m"
-#define ERROR_CLR     "\e[1;31m"
-#define FAILURE_CLR   "\e[1;37m\e[41m"
-#define END           "\e[0m"
+#define DEBUG_CLR     "\x1B[1;36m"
+#define SUCCESS_CLR   "\x1B[1;32m"
+#define WARNING_CLR   "\x1B[1;33m"
+#define ERROR_CLR     "\x1B[1;31m"
+#define FAILURE_CLR   "\x1B[1;37m\x1B[41m"
+#define END           "\x1B[0m"
 
 // debug mode or no
 #define _DEBUG_ENABLE

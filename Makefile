@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGS = -std=c23 -O2 -g -Wall -Werror -MMD -MP
+CFLAGS = -std=c23 -O2 -g -Wall -Werror -Wpedantic -MMD -MP
 
 # Libraries
-LIBS = -lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl -lfreetype -lm 
+LIBS = -lglfw -lGL -lpthread -lXrandr -lXi -ldl -lfreetype -lm 
 
 # Include paths for internal includes and external includes
 INCLUDE_PATHS = -Iinclude -Ilibs/include $(shell pkg-config --cflags freetype2 | awk '{print $1}')
@@ -28,7 +28,7 @@ EXEC = $(BUILD_DIR)/equafun
 all: $(EXEC)
 
 	# remove the current data there
-	rm -fr $(BUILD_DIR)/data
+	rm -rf $(BUILD_DIR)/data
 
 	# copy the data folder to the build folder
 	cp -r data/ $(BUILD_DIR)/
@@ -36,6 +36,11 @@ all: $(EXEC)
 # Linking the object files into the final executable
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $(EXEC) $(LIBS)
+
+# build glad.c without pedantic warnings
+$(BUILD_DIR)/glad/glad.o: $(LIBS_SRC_DIR)/glad/glad.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -Wno-pedantic $(INCLUDE_PATHS) -c $< -o $@
 
 # Compilation rule for each internal source file (src/)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
