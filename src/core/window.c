@@ -2,6 +2,7 @@
 #include "core/logger.h"
 #include "core/errorHandler.h"
 
+#include <GLFW/glfw3.h>
 #include <stdio.h>
 
 static const float GRAPH_HALF_HEIGHT = 10.0f;
@@ -44,6 +45,10 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height){
   logMsg(DEBUG, "Changing window resolution to: %d, %d", width, height);
 }
 
+void glfwErrCallback(int errCode, const char* msg){
+  logMsg(ERROR, "GLFW error (code: %d): %s", errCode, msg);
+}
+
 enum reh_error_code_e initGLFW(void){
   if (!glfwInit()){
     SET_ERROR_RETURN(ERR_GLFW_INIT_FAILED, "Failed to initialize GLFW library");
@@ -52,6 +57,8 @@ enum reh_error_code_e initGLFW(void){
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VER_MAJOR);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VER_MINOR);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  glfwSetErrorCallback(glfwErrCallback);
 
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);

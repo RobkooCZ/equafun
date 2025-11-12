@@ -34,6 +34,7 @@ enum reh_error_code_e {
   ERR_INVALID_VAO = 404,
   ERR_INVALID_VBO = 405,
   ERR_INVALID_EBO = 406,
+  ERR_GLFW_ERR_OCCURED = 407,
 
   // Render errors (5xx)
   ERR_GRAPH_SETUP_FAILED = 500,

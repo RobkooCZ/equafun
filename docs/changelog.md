@@ -52,6 +52,7 @@
 ### Fixed
 - minor rendering issues
 - null-pointer bug in `setError()`
+- a bug where fread() and ftell() returned with different byte values on Windows
 
 ## Alpha v0.0.5
 

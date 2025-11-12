@@ -19,7 +19,7 @@ int main(void){
   // initialize function manager and add some functions to test drawing
   struct ree_function_manager_t functions;
   char* f = "f(x) = sqrt(x)";
-  char* g = "g(x) = -x^2 - 3x";
+  char* g = "g(x) = x^2 - 3x";
   char* m = "m(x) = ln(x)";
   // factorials DON'T WORK but im too lazy to make a proper factorial function so next commit it is :)
 

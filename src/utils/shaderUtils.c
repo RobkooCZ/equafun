@@ -15,7 +15,8 @@ enum reh_error_code_e loadShaderSource(const char *path, char **outSource){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Invalid parameters: path or outSource is NULL");
   }
 
-  FILE* shaderSrcFile = fopen(path, "r");
+  // changing this to rb may fix the windows bug
+  FILE* shaderSrcFile = fopen(path, "rb");
   logMsg(DEBUG, "Attempting to open file at path: %s", path);
 
   if (!shaderSrcFile){
@@ -26,6 +27,7 @@ enum reh_error_code_e loadShaderSource(const char *path, char **outSource){
 
   logMsg(DEBUG, "Successfully opened file at path: %s", path);
 
+  // gets 169 bytes (win)
   fseek(shaderSrcFile, 0L, SEEK_END);
   long fSize = ftell(shaderSrcFile);
   fseek(shaderSrcFile, 0L, SEEK_SET);
@@ -45,6 +47,7 @@ enum reh_error_code_e loadShaderSource(const char *path, char **outSource){
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate %ld bytes for shader source", fSize + 1);
   }
 
+  // reads 161 bytes (win)
   size_t bytesRead = fread(shaderSrc, 1, fSize, shaderSrcFile);
   fclose(shaderSrcFile);
 

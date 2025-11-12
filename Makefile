@@ -27,6 +27,12 @@ EXEC = $(BUILD_DIR)/equafun
 # Default target (compiling the executable)
 all: $(EXEC)
 
+	# remove the current data there
+	rm -fr $(BUILD_DIR)/data
+
+	# copy the data folder to the build folder
+	cp -r data/ $(BUILD_DIR)/
+
 # Linking the object files into the final executable
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $(EXEC) $(LIBS)

@@ -1,26 +1,66 @@
-# Equafun (Alpha v0.0.5)
+# Equafun (Alpha v0.0.5 (Alpha v0.0.6 is being developed))
 
 ## Features
 - Graph render with labeled markers
+- Function rendering
+- Adjusting the window size dynamically grows/shrinks the graph and values still match
 - Tons of CLI logging
 
 ## Changelog
 - The full changelog for the project can be found [here](docs/changelog.md).
 
 ## Note
-- Only **LINUX** support as of `Alpha v0.0.5`.
+- Support for **Linux** and **Windows** as of `Alpha v0.0.6 (currently being developed)`.
 
-## How to build & run
+## How to build from the beginning & run
+- **The resulting binary is in `build`** 
+- To run the project, either:
+    1. Go to *build* and run the executable there (*equafun(.exe)*)
+    2. Run the executable from the root directory using *./build/equafun(.exe)*
 
-- **The resulting binary is in `build`. To start the project, run `./build/equafun`.**
-
-### Prerequisites
-- **Required:** *make*, *gcc*, *glfw*
+### Linux:
+#### Prerequisites
+- **Required:** *make/Cmake*, *gcc*
+    > if using make, *glfw* and *freetype* is required
+    > if using Cmake, *vcpkg* is required
 - **OpenGL version 3.3 or above**
 
-### Build Using Make
-1. Simply run `make` in the root directory of the project.
+#### Build Using Make
+1. Simply run `./build.sh make` in the root directory of the project. The script runs `make clean` followed by `make` which compiles the project.
 
-### Build Using Make + Bear
+#### Build Using Make + Bear
 1. **Additional prerequisite:** *bear*
-2. Simply run `./build.sh` in the root directory of the project. The script runs `make clean`, followed by `bear -- make` to compile the project while also generating `compile_commands.json`.
+2. Simply run `./build.sh make -b` in the root directory of the project. The script runs `make clean`, followed by `bear -- make` to compile the project while also generating `compile_commands.json`.
+
+#### Build Using CMake
+1. **Additional prerequisite:** *vcpkg*
+    > installed in ~/vcpkg (ill change it soon)
+2. Simply run `./build.sh cmake` in the root directory of the project. The script removes the build directory and compiles the project from the beginning.
+
+#### Build using CMake + Bear
+1. **Additional prerequisite:** *vcpkg, bear*
+    > installed in ~/vcpkg (ill change it soon)
+2. Simply run `./build.sh cmake -b` in the root directory of the project. The script removes the build directory and compiles the project from the beginning.
+
+#### **Repeated build**
+- after building it for the first time with one of the above commands, you can use either
+    1. *make*
+    2. *cmake --build build*
+- to rebuild only the files that were changed, including changes only to the header files
+
+### Windows
+
+#### Prerequisites
+- **Required:** *Cmake*, *mingw*, *ninja*, *vcpkg*
+- **OpenGL version 3.3 or above**
+
+#### Build using CMake
+1. **Additional preresquisites:**
+    > properly set enviroment variables for vcpkg
+    > ninja installed and set up for C23
+2. Simply run `.\build.cmd` in the root directory of the project. The script removes the build directory and compiles the project from the beginning
+
+#### **Repeated build**
+- after building it for the first time with one of the above commands, you can use 
+    1. *cmake --build build*
+- to rebuild only the files that were changed, including changes only to the header files
