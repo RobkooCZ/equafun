@@ -8,6 +8,18 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     endif()
 endif()
 
+# --- Set VCPKG triplets ---
+if (WIN32)
+  set(PROJECT_TRIPLET "x64-mingw-dynamic")
+elseif(UNIX)
+  set(PROJECT_TRIPLET "x64-linux")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(PROJECT_TRIPLET "x64-osx")
+endif()
+
+set(VCPKG_HOST_TRIPLET "${PROJECT_TRIPLET}")
+set(VCPKG_TARGET_TRIPLET "${VCPKG_HOST_TRIPLET}")
+
 project(equafun C)
 
 # --- Language settings ---
