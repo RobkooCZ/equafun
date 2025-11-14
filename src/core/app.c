@@ -118,7 +118,7 @@ enum reh_error_code_e ra_appRenderFrame(struct ra_app_context_t *ctx, struct rtr
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Characters pointer is NULL in ra_appRenderFrame()");
   }
 
-  // hyprland issue 
+  // hyprland issue
   // https://github.com/glfw/glfw/issues/2768
   // workaround: manually check for framebuffer size changes
   int framebufferWidth = 0;
@@ -135,7 +135,7 @@ enum reh_error_code_e ra_appRenderFrame(struct ra_app_context_t *ctx, struct rtr
 
   enum reh_error_code_e err;
 
-  // Rebuild projection matrices if resolution changed
+  // Rebuild projection matrices and redraw window if resolution changed
   if (rebuildProjection == true){
     struct rm_mat4_t graphProjection;
     rm_Mat4Ortho(worldXMin, worldXMax, worldYMin, worldYMax, &graphProjection);

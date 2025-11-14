@@ -6,6 +6,6 @@
 
 enum reh_error_code_e ree_testLexerParser(void);
 enum reh_error_code_e ree_implicitMultiplication(struct ree_token_t **tokens, int *tokenCount, int *tokenCapacity);
-enum reh_error_code_e ree_parseFunction(char* definition, struct ree_function_t *function);
+enum reh_error_code_e ree_parseFunction(char *definition, struct ree_function_t *function, struct rm_vec3_t *functionColor);
 
 #endif // FUNCTION_PARSER_H

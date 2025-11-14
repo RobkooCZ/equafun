@@ -19,6 +19,8 @@ float windowHeight = HEIGHT;
 
 // flag to tell main if we should rebuild the projection matrices
 bool rebuildProjection = false;
+// flag to tell main if we should redraw the window
+bool redrawWindow = true;
 
 static void recomputeWorldExtents(void){
   if (windowHeight <= 0.0f){
@@ -33,7 +35,9 @@ static void recomputeWorldExtents(void){
   worldXMin = -halfSpanX;
   worldXMax =  halfSpanX;
 }
+
 void framebufferSizeCallback(GLFWwindow *window, int width, int height){
+  (void)window;
   glViewport(0, 0, width, height);
 
   windowWidth = (float)width;
@@ -41,6 +45,7 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height){
 
   recomputeWorldExtents();
   rebuildProjection = true;
+  redrawWindow = true;
 
   logMsg(DEBUG, "Changing window resolution to: %d, %d", width, height);
 }

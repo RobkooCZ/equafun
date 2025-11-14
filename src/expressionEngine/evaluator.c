@@ -11,14 +11,14 @@
 
 #define POP_2_NUMS()                    \
     if (stackIndex < 2){                \
-      SET_ERROR_RETURN(ERR_INVALID_MEMORY_ACCESS, "Stack index whilst popping two numbers would've gone below 0. Stack index value: %lu", stackIndex);                                  \
+      SET_ERROR_RETURN(ERR_INVALID_MEMORY_ACCESS, "Stack index whilst popping two numbers would've gone below 0. Stack index value: %zu", stackIndex);                                  \
     }                                   \
     float num2 = stack[--stackIndex];   \
     float num1 = stack[--stackIndex];
 
 #define POP_1_NUM()                     \
     if (stackIndex < 1){                \
-      SET_ERROR_RETURN(ERR_INVALID_MEMORY_ACCESS, "Stack index whilst popping a number would've gone below 0.Stack index value: %lu", stackIndex);                                     \
+      SET_ERROR_RETURN(ERR_INVALID_MEMORY_ACCESS, "Stack index whilst popping a number would've gone below 0.Stack index value: %zu", stackIndex);                                     \
     }                                   \
     float num1 = stack[--stackIndex];
 
@@ -111,9 +111,9 @@ enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpn
 
         // declared so we dont pass a raw float into the factorial function
         int n = (int)roundf(num1);
-        int result;
-        CHECK_ERROR_CTX(rm_factorial(n, &result), "Failed to calculate factorial.");
-        stack[stackIndex++] = (float)result;
+        int localResult;
+        CHECK_ERROR_CTX(rm_factorial(n, &localResult), "Failed to calculate factorial.");
+        stack[stackIndex++] = (float)localResult;
       }
       else if (strcmp(rpn[i].symbol, "NEG") == 0){
         POP_1_NUM();
@@ -140,14 +140,14 @@ enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpn
       else if (strcmp(rpn[i].symbol, "tan") == 0){
         POP_1_NUM();
         if (fabsf(cosf(num1)) < FLT_EPSILON){
-          SET_ERROR_RETURN(ERR_TAN_OUT_OF_DOMAIN, "Tan is undefined for x = %f", num1);
+          SET_ERROR_RETURN(ERR_TAN_OUT_OF_DOMAIN, "Tan is undefined for x = %f", (double)num1);
         }
         stack[stackIndex++] = tanf(num1);
       }
       else if (strcmp(rpn[i].symbol, "sqrt") == 0){
         POP_1_NUM();
         if (num1 < 0){
-          SET_ERROR_RETURN(ERR_INVALID_SQRT, "Sqrt is undefined for x = %f", num1);
+          SET_ERROR_RETURN(ERR_INVALID_SQRT, "Sqrt is undefined for x = %f", (double)num1);
         }
         stack[stackIndex++] = sqrtf(num1);
       }
@@ -158,7 +158,7 @@ enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpn
       else if (strcmp(rpn[i].symbol, "ln") == 0){
         POP_1_NUM();
         if (num1 <= 0){
-          SET_ERROR_RETURN(ERR_LN_OUT_OF_DOMAIN, "Natural log of x is undefined for %f", num1);
+          SET_ERROR_RETURN(ERR_LN_OUT_OF_DOMAIN, "Natural log of x is undefined for %f", (double)num1);
         }
         // should be lnf() ;)
         stack[stackIndex++] = logf(num1);
@@ -166,7 +166,7 @@ enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpn
       else if (strcmp(rpn[i].symbol, "log") == 0){
         POP_1_NUM();
         if (num1 <= 0){
-          SET_ERROR_RETURN(ERR_LOG_OUT_OF_DOMAIN, "Log with base 10 of x is undefined for %f", num1);
+          SET_ERROR_RETURN(ERR_LOG_OUT_OF_DOMAIN, "Log with base 10 of x is undefined for %f", (double)num1);
         }
         // should be logf() ;)
         stack[stackIndex++] = log10f(num1);
@@ -184,7 +184,7 @@ enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpn
 
   // result SHOULD be the only thing left on stack
   if (stackIndex != 1){
-    SET_ERROR_RETURN(ERR_INVALID_STACK_STATE, "There is more than the result on the stack left. (stackIndex: %lu)", stackIndex);
+    SET_ERROR_RETURN(ERR_INVALID_STACK_STATE, "There is more than the result on the stack left. (stackIndex: %zu)", stackIndex);
   }
   *result = stack[0];
 

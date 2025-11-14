@@ -9,6 +9,7 @@
 
 #include "textRenderer/text.h"
 #include "core/window.h"
+#include "freetype/fttypes.h"
 #include "renderer/graph.h"
 #include "utils/shaderUtils.h"
 #include "core/errorHandler.h"
@@ -68,7 +69,7 @@ enum reh_error_code_e rtr_loadCharactersIntoArray(FT_Face face, struct rtr_chara
   // load the first ASCII_CHAR_COUNT (rn 128) characters into the provided array of structs
   for (struct rtr_character_t *ptr = characters; ptr < characters + ASCII_CHAR_COUNT; ++ptr){
     // load char glyph
-    CHECK_ERROR_CTX(rtr_loadChar(face, ptr - characters), "Failed to load character.");
+    CHECK_ERROR_CTX(rtr_loadChar(face, (uint8_t)(ptr - characters)), "Failed to load character.");
 
     // generate a texture
     GLuint texture;
@@ -78,8 +79,8 @@ enum reh_error_code_e rtr_loadCharactersIntoArray(FT_Face face, struct rtr_chara
       GL_TEXTURE_2D,
       0,
       GL_RED,
-      face->glyph->bitmap.width,
-      face->glyph->bitmap.rows,
+      (GLsizei)face->glyph->bitmap.width,
+      (GLsizei)face->glyph->bitmap.rows,
       0,
       GL_RED,
       GL_UNSIGNED_BYTE,
@@ -94,9 +95,9 @@ enum reh_error_code_e rtr_loadCharactersIntoArray(FT_Face face, struct rtr_chara
 
     // store character for later use
     ptr->textureID = texture;
-    ptr->size = (struct rm_vec2_t){face->glyph->bitmap.width, face->glyph->bitmap.rows};
-    ptr->bearing = (struct rm_vec2_t){face->glyph->bitmap_left, face->glyph->bitmap_top};
-    ptr->advance = face->glyph->advance.x;
+    ptr->size = (struct rm_vec2_t){(float)face->glyph->bitmap.width, (float)face->glyph->bitmap.rows};
+    ptr->bearing = (struct rm_vec2_t){(float)face->glyph->bitmap_left, (float)face->glyph->bitmap_top};
+    ptr->advance = (FT_UInt)face->glyph->advance.x;
   }
 
   return ERR_SUCCESS;
@@ -174,7 +175,7 @@ enum reh_error_code_e rtr_renderText(GLuint program, GLuint VAO, GLuint VBO, con
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     // Advance cursor (FT gives advance in 1/64th pixels)
-    x += (ch.advance >> 6) * scale;
+    x += (float)(ch.advance >> 6) * scale;
   }
 
   glBindVertexArray(0);
@@ -194,9 +195,9 @@ enum reh_error_code_e rtr_calculateTextWidth(const char *text, struct rtr_charac
   *totalWidth = 0;
 
   for (const char *ptr = text; *ptr != '\0'; ++ptr){
-    int advance = characters[ptr - text].advance;
+    int advance = (int)characters[ptr - text].advance;
 
-    *totalWidth += (advance >> 6) * scale;
+    *totalWidth += (float)(advance >> 6) * scale;
   }
 
   return ERR_SUCCESS;
@@ -219,10 +220,10 @@ enum reh_error_code_e rtr_calculateTextHeight(const char *text, struct rtr_chara
   for (const char *ptr = text; *ptr != '\0'; ++ptr){
     struct rtr_character_t ch = characters[(unsigned char)*ptr];
 
-    float ascent = (float)ch.bearing.y * scale;
+    float localAscent = (float)ch.bearing.y * scale;
     float descent = ((float)(ch.size.y - ch.bearing.y)) * scale;
 
-    if (ascent > maxAscent) maxAscent = ascent;
+    if (localAscent > maxAscent) maxAscent = localAscent;
     if (descent > maxDescent) maxDescent = descent;
   }
 
@@ -234,10 +235,10 @@ enum reh_error_code_e rtr_calculateTextHeight(const char *text, struct rtr_chara
 
 enum reh_error_code_e rtr_formatMarkerValue(float value, char *buffer, const int bufferSize){
   if (value < -FLT_MAX){
-    SET_ERROR_TECHNICAL_RETURN(ERR_UNDERFLOW, "value < -FLT_MAX (%f)", "Value provided to rtr_formatMarkerValue() is smaller than -FLT_MAX", -FLT_MAX);
+    SET_ERROR_TECHNICAL_RETURN(ERR_UNDERFLOW, "value < -FLT_MAX (%f)", "Value provided to rtr_formatMarkerValue() is smaller than -FLT_MAX", (double)-FLT_MAX);
   }
   if (value > FLT_MAX){
-    SET_ERROR_TECHNICAL_RETURN(ERR_OVERFLOW, "value > FLT_MAX (%f)", "Value provided to rtr_formatMarkerValue() is bigger than FLT_MAX (%f)", FLT_MAX);
+    SET_ERROR_TECHNICAL_RETURN(ERR_OVERFLOW, "value > FLT_MAX (%f)", "Value provided to rtr_formatMarkerValue() is bigger than FLT_MAX (%f)", (double)FLT_MAX);
   }
   if (buffer == nullptr){
     SET_ERROR_TECHNICAL_RETURN(ERR_INVALID_POINTER, "buffer == nullptr", "Buffer provided to rtr_formatMarkerValue() is NULL");
@@ -247,12 +248,12 @@ enum reh_error_code_e rtr_formatMarkerValue(float value, char *buffer, const int
   }
 
   // Check if value is effectively an integer (e.g., 1.00, -5.00)
-  if (fmodf(value, 1.0f) == 0.0f){
+  if (fmodf(value, 1.0f) < FLT_EPSILON){
     // It's an integer, format without decimals
-    snprintf(buffer, bufferSize, "%d", (int)value);
+    snprintf(buffer, (size_t)bufferSize, "%d", (int)value);
   } else {
     // Has decimal places, format with 2 decimals
-    snprintf(buffer, bufferSize, "%.2f", value);
+    snprintf(buffer, (size_t)bufferSize, "%.2f", (double)value);
   }
 
   return ERR_SUCCESS;
@@ -277,10 +278,10 @@ float rtr_worldToPixelY(float worldY){
 enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color){
   // [0,0] point
   int value = 0;
-  char label[5];
-  CHECK_ERROR_CTX(rtr_formatMarkerValue(value, label, 5), "Failed to format marker value."); // put the value into the string
+  char zeroLabel[5];
+  CHECK_ERROR_CTX(rtr_formatMarkerValue((float)value, zeroLabel, 5), "Failed to format marker value."); // put the value into the string
 
-  CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, rtr_worldToPixelX(0.0f + POINT_MARKER_HEIGHT_WORLD * 0.5f), rtr_worldToPixelY(0.0f - POINT_MARKER_HEIGHT_WORLD * 1.5f), scale, color), "Failed to render point [0,0]");
+  CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, zeroLabel, characters, rtr_worldToPixelX(0.0f + POINT_MARKER_HEIGHT_WORLD * 0.5f), rtr_worldToPixelY(0.0f - POINT_MARKER_HEIGHT_WORLD * 1.5f), scale, color), "Failed to render point [0,0]");
 
   // prevent rendering glitches which makes labels (from my experience, on the y-axis) lifted to the viewport edge
   // by adding padding

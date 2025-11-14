@@ -159,10 +159,10 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_sampleFunction is NULL.");
   }
   if (worldXRangeMin > worldXRangeMax){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "worldXRangeMin is bigger than worldXRangeMax (%f > %f) in rfr_sampleFunction.", worldXRangeMin, worldXRangeMax);
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "worldXRangeMin is bigger than worldXRangeMax (%f > %f) in rfr_sampleFunction.", (double)worldXRangeMin, (double)worldXRangeMax);
   }
   if (worldStep <= 0){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid step provided to rfr_sampleFunction (%f)", worldStep);
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid step provided to rfr_sampleFunction (%f)", (double)worldStep);
   }
   if (pointsData == nullptr ){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "vertices array passed to rfr_sampleFunction is NULL.");
@@ -189,7 +189,7 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
 
   // fill vertices (sample the function)
   for (size_t i = 0; i < sampleCount; ++i){
-    float x = worldXRangeMin + i * worldStep;
+    float x = (float)(worldXRangeMin + (float)i * worldStep);
     // evaluate function at current x (get y)
     float y;
     struct ree_variable_t variables[] = {{function->parameter, x}};
@@ -238,7 +238,7 @@ enum reh_error_code_e rfr_render(struct ra_app_context_t *context, struct ree_fu
   if (functions == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_render is NULL.");
   }
-  for (size_t i = 0; i < functions->functionCount; ++i){
+  for (size_t i = 0; i < (size_t)functions->functionCount; ++i){
     struct ree_function_t *function = &functions->functions[i];
 
     // skip rendering functions that are not visible
@@ -285,9 +285,9 @@ enum reh_error_code_e rfr_render(struct ra_app_context_t *context, struct ree_fu
       if (undefinedIndex < pointData.undefinedPointsCount){
         float cutX = pointData.undefinedPoints[undefinedIndex];
         // try to find the end of this segment (between two undefined points, for example)
-        for (size_t i = start; i < pointData.vertexCount; ++i){
-          if (pointData.vertices[i * 2] > cutX){
-            end = i;
+        for (size_t j = start; j < pointData.vertexCount; ++j){
+          if (pointData.vertices[j * 2] > cutX){
+            end = j;
             break;
           }
         }

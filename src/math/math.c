@@ -88,7 +88,7 @@ enum reh_error_code_e rm_Vec2Normalize(struct rm_vec2_t v, struct rm_vec2_t *n_v
   CHECK_ERROR_CTX(rm_Vec2Magnitude(v, &magnitude), "Failed to get vector magnitude.");
 
   if (magnitude < FLT_EPSILON){
-    logMsg(WARNING, "Magnitude too close to 0 (%.2e), setting normalized vector to: <0,0>", magnitude);
+    logMsg(WARNING, "Magnitude too close to 0 (%.2e), setting normalized vector to: <0,0>", (double)magnitude);
     n_v->x = 0;
     n_v->y = 0;
     return ERR_SUCCESS;
@@ -197,10 +197,10 @@ enum reh_error_code_e rm_Mat4Ortho(float left, float right, float bottom, float 
   }
 
   // Validate inputs (prevent division by zero)
-  if (right == left) {
+  if (fabsf(right - left) < FLT_EPSILON) {
     SET_ERROR_RETURN(ERR_INVALID_INPUT, "right == left in rm_Mat4Ortho() (division by zero)");
   }
-  if (top == bottom) {
+  if (fabsf(top - bottom) < FLT_EPSILON){
     SET_ERROR_RETURN(ERR_INVALID_INPUT, "top == bottom in rm_Mat4Ortho() (division by zero)");
   }
 

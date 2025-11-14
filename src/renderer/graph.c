@@ -213,8 +213,8 @@ enum reh_error_code_e renderMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, G
   int vertexCount = totalMarkers * 2; // 2 vertices per marker (top and bottom of tick)
 
   // Allocate arrays
-  float *vertices = malloc(vertexCount * 3 * sizeof(float));
-  GLuint *indices = malloc(vertexCount * sizeof(GLuint));
+  float *vertices = malloc((long unsigned int)vertexCount * (long unsigned int)3 * sizeof(float));
+  GLuint *indices = malloc((long unsigned int)vertexCount * sizeof(GLuint));
 
   if (vertices == nullptr || indices == nullptr){
     free(vertices);
@@ -237,8 +237,8 @@ enum reh_error_code_e renderMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, G
     vertices[v++] = 0.0f - pointMarkerHeight;
     vertices[v++] = 0.0f;
 
-    indices[idx++] = indicesVal++;
-    indices[idx++] = indicesVal++;
+    indices[idx++] = (GLuint)indicesVal++;
+    indices[idx++] = (GLuint)indicesVal++;
   }
 
   // X-axis markers (negative)
@@ -251,8 +251,8 @@ enum reh_error_code_e renderMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, G
     vertices[v++] = 0.0f - pointMarkerHeight;
     vertices[v++] = 0.0f;
 
-    indices[idx++] = indicesVal++;
-    indices[idx++] = indicesVal++;
+    indices[idx++] = (GLuint)indicesVal++;
+    indices[idx++] = (GLuint)indicesVal++;
   }
 
   // Y-axis markers (positive)
@@ -265,8 +265,8 @@ enum reh_error_code_e renderMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, G
     vertices[v++] = y;
     vertices[v++] = 0.0f;
 
-    indices[idx++] = indicesVal++;
-    indices[idx++] = indicesVal++;
+    indices[idx++] = (GLuint)indicesVal++;
+    indices[idx++] = (GLuint)indicesVal++;
   }
 
   // Y-axis markers (negative)
@@ -279,18 +279,18 @@ enum reh_error_code_e renderMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, G
     vertices[v++] = y;
     vertices[v++] = 0.0f;
 
-    indices[idx++] = indicesVal++;
-    indices[idx++] = indicesVal++;
+    indices[idx++] = (GLuint)indicesVal++;
+    indices[idx++] = (GLuint)indicesVal++;
   }
 
   // Update VBO and EBO
   glBindVertexArray(*VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertexCount * 3 * sizeof(float), vertices, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, (long unsigned int)vertexCount * (long unsigned int)3 * sizeof(float), vertices, GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexCount * sizeof(GLuint), indices, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, (long unsigned int)vertexCount * sizeof(GLuint), indices, GL_DYNAMIC_DRAW);
 
   // Render
   glUseProgram(*program);

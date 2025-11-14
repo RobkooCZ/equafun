@@ -4,12 +4,26 @@
 #include "core/errorHandler.h"
 
 // ASCII codes for colors for the different levels
-#define DEBUG_CLR     "\x1B[1;36m"
-#define SUCCESS_CLR   "\x1B[1;32m"
-#define WARNING_CLR   "\x1B[1;33m"
-#define ERROR_CLR     "\x1B[1;31m"
-#define FAILURE_CLR   "\x1B[1;37m\x1B[41m"
-#define END           "\x1B[0m"
+#ifdef __linux__
+  #define DEBUG_CLR     "\x1B[1;36m"
+  #define SUCCESS_CLR   "\x1B[1;32m"
+  #define WARNING_CLR   "\x1B[1;33m"
+  #define ERROR_CLR     "\x1B[1;31m"
+  #define FAILURE_CLR   "\x1B[1;37m\x1B[41m"
+  #define END           "\x1B[0m"
+#endif
+
+#ifdef _WIN32
+  #define DEBUG_CLR     "\x1B[36m"
+  #define SUCCESS_CLR   "\x1B[32m"
+  #define WARNING_CLR   "\x1B[33m"
+  #define ERROR_CLR     "\x1B[31m"
+  #define FAILURE_CLR   "\x1B[37m\x1B[41m"
+  #define END           "\x1B[0m"
+
+  // on Windows you have to enable virtual terminal processing so it can handle ANSI escape codes (for colour)
+  void enableANSI(void);
+#endif
 
 // debug mode or no
 #define _DEBUG_ENABLE

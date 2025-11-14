@@ -4,6 +4,29 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifdef _WIN32
+#define NOGDI // prevent inclusion of many stuff, amongst them being the ERROR macro
+#include <windows.h>
+
+void enableANSI(void){
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  DWORD dwMode = 0;
+
+  // get the current console mode
+  if (!GetConsoleMode(hOut, &dwMode)){
+    logMsg(ERROR, "Failed to get console mode!");
+  }
+
+  // enable virtual terminal processing to support ANSI escape codes (works in PowerShell and CMD)
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+  if (!SetConsoleMode(hOut, dwMode)){
+    logMsg(ERROR, "Failed to set console mode!");
+  }
+}
+
+#endif
+
 void logMsg(enum logLevel severity, const char *restrict msg, ...){
   #ifndef _DEBUG_ENABLE
     if (severity == DEBUG) return; // do not print any debug message if the macro isnt set

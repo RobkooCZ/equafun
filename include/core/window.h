@@ -24,12 +24,14 @@ extern float windowHeight;
 
 // flag to tell main if we should rebuild projection matrices
 extern bool rebuildProjection;
+// flag to tell main if we should redraw the window
+extern bool redrawWindow;
 
 // OpenGL 3.3 due to compatibility
 #define GL_VER_MAJOR 3
 #define GL_VER_MINOR 3
 
-// function declarations
+void glfwErrCallback(int errCode, const char* msg);
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 
 enum reh_error_code_e initGLFW(void);

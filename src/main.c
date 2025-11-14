@@ -8,10 +8,15 @@
 #include "core/input.h"
 #include "textRenderer/text.h"
 #include "core/app.h"
+#include "core/window.h"
 
 #include <string.h>
 
 int main(int argc, char** argv){
+  #ifdef _WIN32
+    enableANSI();
+  #endif
+
   if (argc > 16 + 1){
     logMsg(FAILURE, "Too many arguments passed (%d). Max arguments: %d", argc - 1, 16);
     return -1;
@@ -32,13 +37,16 @@ int main(int argc, char** argv){
 
   // based on arguments, dynamically add functions to the manager and render them
   if (argc >= 2){
+    int colorIterator = 0;
     for (int i = 1; i < argc; ++i){
       char* fnDef = argv[i];
-      enum reh_error_code_e err = ree_addFunction(&functions, fnDef);
+      err = ree_addFunction(&functions, fnDef, &functionColorArray[colorIterator]);
       if (err != ERR_SUCCESS){
         ra_appShutdown(&appContext, "Failed to add function f to the function manager.");
         return -1;
       }
+      // increment the color iterator, if its over the array length, put it back to zero
+      (colorIterator + 1 > functionColorArrayLength - 1) ? colorIterator = 0 : colorIterator++;
     }
   }
   else {
@@ -67,27 +75,17 @@ int main(int argc, char** argv){
   while (!glfwWindowShouldClose(appContext.window)){
     processInput(appContext.window);
 
-    static double lastFpsSample = 0.0;
-    static int frameCount = 0;
-
-    double now = glfwGetTime();
-    if (lastFpsSample == 0.0) lastFpsSample = now;
-    frameCount++;
-
-    if (now - lastFpsSample >= 1.0) {
-      double fps = frameCount / (now - lastFpsSample);
-      logMsg(DEBUG, "FPS: %.2f", fps);
-      frameCount = 0;
-      lastFpsSample = now;
+    if (redrawWindow == true){
+      err = ra_appRenderFrame(&appContext, characters, &functions);
+      if (err != ERR_SUCCESS){
+        ra_appShutdown(&appContext, "Rendering failed.");
+        return -1;
+      }
+      logMsg(DEBUG, "Window redraw triggered.");
+      glfwSwapBuffers(appContext.window);
+      redrawWindow = false;
     }
 
-    err = ra_appRenderFrame(&appContext, characters, &functions);
-    if (err != ERR_SUCCESS){
-      ra_appShutdown(&appContext, "Rendering failed.");
-      return -1;
-    }
-
-    glfwSwapBuffers(appContext.window);
     glfwPollEvents();
   }
 

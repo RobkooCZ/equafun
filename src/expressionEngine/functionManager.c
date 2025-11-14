@@ -5,6 +5,9 @@
 #include <string.h>
 #include "core/logger.h"
 
+struct rm_vec3_t functionColorArray[] = {RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK, GRAY, WHITE};
+const int functionColorArrayLength = sizeof(functionColorArray) / sizeof(functionColorArray[0]);
+
 enum reh_error_code_e ree_initFunctionManager(struct ree_function_manager_t *manager){
   if (manager == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to manager passed to ree_initFunctionManager is NULL.");
@@ -30,7 +33,7 @@ int ree_getFunction(struct ree_function_manager_t *manager, const char *name, st
   return -1; // uh oh
 }
 
-enum reh_error_code_e ree_addFunction(struct ree_function_manager_t *manager, char *definition){
+enum reh_error_code_e ree_addFunction(struct ree_function_manager_t *manager, char *definition, struct rm_vec3_t *functionColor){
   if (manager == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Manager passed to ree_addFunction is NULL.");
   }
@@ -39,7 +42,7 @@ enum reh_error_code_e ree_addFunction(struct ree_function_manager_t *manager, ch
   }
 
   // add the function to the manager
-  CHECK_ERROR_CTX(ree_parseFunction(definition, &manager->functions[manager->functionCount]), "Failed to parse function definition.");
+  CHECK_ERROR_CTX(ree_parseFunction(definition, &manager->functions[manager->functionCount], functionColor), "Failed to parse function definition.");
 
   manager->functionCount++;
 
@@ -75,7 +78,7 @@ enum reh_error_code_e ree_removeFunction(struct ree_function_manager_t *manager,
   free(manager->functions[functionPos].rpn);
 
   // move the functions that were after this removed one back (to not have holes in the arr)
-  memmove(&manager->functions[functionPos], &manager->functions[functionPos + 1], (manager->functionCount - functionPos - 1) * sizeof *manager->functions);
+  memmove(&manager->functions[functionPos], &manager->functions[functionPos + 1], (long unsigned int)(manager->functionCount - functionPos - 1) * sizeof *manager->functions);
 
   manager->functionCount--;
 

@@ -101,11 +101,11 @@ enum reh_error_code_e ree_nextToken(struct ree_data_t *data, struct ree_token_t 
   }
   else {
     nextToken->token_type = TOKEN_ILLEGAL;
-    nextToken->value[0] = data->currentChar;
+    nextToken->value[0] = (char)data->currentChar;
     return ERR_INPUT_TOKEN_INVALID;
   }
 
-  nextToken->value[0] = data->currentChar;
+  nextToken->value[0] = (char)data->currentChar;
 
   ree_advance(data);
 
@@ -120,7 +120,7 @@ enum reh_error_code_e ree_lexer(char *expression, struct ree_token_t *tokens){
   data.nextPosition = 1;
   data.currentChar = expression[0];
   data.expression = expression;
-  data.length = strlen(data.expression);
+  data.length = (int)strlen(data.expression);
 
   int i = 0;
   // loop through the entire expression
@@ -145,7 +145,7 @@ enum reh_error_code_e ree_countTokens(char* expression, int *tokenCount){
   data.charsLexed = 0;
   data.currentChar = expression[0];
   data.expression = expression;
-  data.length = strlen(data.expression);
+  data.length = (int)strlen(data.expression);
 
   int i = 0;
   // loop through the entire expression

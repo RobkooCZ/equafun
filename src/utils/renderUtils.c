@@ -45,7 +45,7 @@ enum reh_error_code_e setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO)
     SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to bind Element Buffer Object", technical);
   }
 
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)indicesSize, indices, GL_STATIC_DRAW);
   err = glGetError();
   if (err != GL_NO_ERROR){
     char technical[256];
@@ -149,7 +149,7 @@ enum reh_error_code_e setupRenderData(float *vertices, size_t verticesSize, GLui
     SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to bind Vertex Buffer Object", technical);
   }
 
-  glBufferData(GL_ARRAY_BUFFER, verticesSize, vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)verticesSize, vertices, GL_STATIC_DRAW);
   err = glGetError();
   if (err != GL_NO_ERROR){
     char technical[256];
