@@ -188,6 +188,10 @@ enum reh_error_code_e ra_appRenderFrame(struct ra_app_context_t *ctx, struct rtr
   return ERR_SUCCESS;
 }
 
+// yo this is a test
+/*
+   test pls work
+*/
 void ra_appShutdown(struct ra_app_context_t *ctx, const char *msg){
   ra_appContextCleanup(ctx, msg);
 }

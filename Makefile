@@ -37,7 +37,7 @@ MinSizeRel: CFLAGS += -Os
 MinSizeRel: $(EXEC)
 
 # Flags build type
-Flags: CFLAGS += -O2 -Wextra -Werror -Wpedantic -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wconversion -Wuninitialized -Wno-unused-function -Wnull-dereference -Wdouble-promotion -Wfloat-equal -Wlogical-op -Wunreachable-code -Wvla -Wmissing-prototypes -Wredundant-decls -Wformat=2 -Wformat-nonliteral -Wformat-security -Wno-missing-field-initializers -Wstrict-aliasing -Wstrict-prototypes -Wunused-variable -Wunused-parameter -Wunused-but-set-variable -Wcast-align -Wno-implicit-fallthrough -Wdeclaration-after-statement -Winline -Wunsafe-loop-optimizations -Wstack-protector -fstack-protector-all -D_FORTIFY_SOURCE=2 -fno-common -fwrapv -fno-strict-aliasing -fno-builtin -ffast-math -funroll-loops -fno-omit-frame-pointer -fstack-check -g -flto -march=native -mtune=native -fno-omit-frame-pointer -fvisibility=hidden -fsanitize=address -fsanitize=undefined -fsanitize=leak -fno-inline
+Flags: CFLAGS += -Wextra -Werror -Wpedantic -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wconversion -Wuninitialized -Wno-unused-function -Wnull-dereference -Wdouble-promotion -Wfloat-equal -Wlogical-op -Wunreachable-code -Wmissing-prototypes -Wredundant-decls -Wformat=2 -Wformat-nonliteral -Wformat-security -Wno-missing-field-initializers -Wstrict-aliasing -Wstrict-prototypes -Wunused-variable -Wunused-parameter -Wunused-but-set-variable -Wcast-align -Wno-implicit-fallthrough -Winline -Wunsafe-loop-optimizations -D_FORTIFY_SOURCE=2 -fno-common -fwrapv -fno-strict-aliasing -fno-builtin -ffast-math -funroll-loops -fno-omit-frame-pointer -fstack-check -g -Og -flto -march=native -mtune=native -fno-omit-frame-pointer -fvisibility=hidden -fno-inline  -pedantic-errors -fno-common
 Flags: $(EXEC)
 
 # Linking the object files into the final executable
@@ -47,7 +47,7 @@ $(EXEC): $(OBJS)
 # Build glad.c without pedantic warnings
 $(BUILD_DIR)/glad/glad.o: $(LIBS_SRC_DIR)/glad/glad.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -Wno-pedantic $(INCLUDE_PATHS) -c $< -o $@
+	$(CC) $(CFLAGS) -Wno-pedantic -Wno-sign-conversion $(INCLUDE_PATHS) -c $< -o $@
 
 # Compilation rule for each internal source file (src/)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c

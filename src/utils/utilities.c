@@ -3,6 +3,10 @@
 #include <string.h>
 
 bool rgu_isStrInArray(const char **arr, int arrSize, const char *str){
+  if (arr == nullptr || str == nullptr || arrSize <= 0){
+    return false;
+  }
+
   for (int i = 0; i < arrSize; ++i){
     if (strcmp(arr[i], str) == 0){
       return true;
@@ -13,6 +17,10 @@ bool rgu_isStrInArray(const char **arr, int arrSize, const char *str){
 }
 
 void rgu_trimStr(char *str){
+  if (str == nullptr){
+    return;
+  }
+
   int i = 0, j = 0;
 
   // count how many whitespaces there are

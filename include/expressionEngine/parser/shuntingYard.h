@@ -5,6 +5,8 @@
 #include "expressionEngine/lexer.h"
 #include "expressionEngine/tokens.h"
 
+#define REE_MAX_TOKENS 256
+
 enum ree_output_type_e {
   OUTPUT_NUMBER = 0,
   OUTPUT_OPERATOR = 1,

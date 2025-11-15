@@ -19,6 +19,11 @@ void ree_skipWhitespace(struct ree_data_t *data){
 }
 
 void ree_advance(struct ree_data_t *data){
+  if (data == nullptr){
+    logMsg(ERROR, "Data pointer passed to ree_advance is NULL.");
+    return;
+  }
+
   if (data->nextPosition >= data->length){
     data->currentChar = ' ';
   }
@@ -32,6 +37,15 @@ void ree_advance(struct ree_data_t *data){
 }
 
 void ree_readNumber(struct ree_data_t *data, char* number){
+  if (number == nullptr){
+    logMsg(ERROR, "Number pointer passed to ree_readNumber is NULL.");
+    return;
+  }
+  if (data == nullptr){
+    logMsg(ERROR, "Data pointer passed to ree_readNumber is NULL.");
+    return;
+  }
+
   int start = data->currentPosition;
 
   while (isdigit(data->currentChar)){
@@ -46,6 +60,15 @@ void ree_readNumber(struct ree_data_t *data, char* number){
 }
 
 void ree_readIdentifier(struct ree_data_t *data, char* identifier){
+  if (identifier == nullptr){
+    logMsg(ERROR, "Identifier pointer passed to ree_readIdentifier is NULL.");
+    return;
+  }
+  if (data == nullptr){
+    logMsg(ERROR, "Data pointer passed to ree_readIdentifier is NULL.");
+    return;
+  }
+
   int start = data->currentPosition;
 
   while (isalpha(data->currentChar)){
@@ -60,6 +83,13 @@ void ree_readIdentifier(struct ree_data_t *data, char* identifier){
 }
 
 enum reh_error_code_e ree_nextToken(struct ree_data_t *data, struct ree_token_t *nextToken){
+  if (data == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Data pointer passed to ree_nextToken is NULL.");
+  }
+  if (nextToken == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Next token pointer passed to ree_nextToken is NULL.");
+  }
+
   ree_skipWhitespace(data);
 
   if (isdigit(data->currentChar)){
@@ -113,6 +143,13 @@ enum reh_error_code_e ree_nextToken(struct ree_data_t *data, struct ree_token_t 
 }
 
 enum reh_error_code_e ree_lexer(char *expression, struct ree_token_t *tokens){
+  if (expression == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Expression passed to ree_lexer is NULL.");
+  }
+  if (tokens == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_lexer is NULL.");
+  }
+
   struct ree_data_t data;
 
   // fill the data struct
@@ -137,6 +174,13 @@ enum reh_error_code_e ree_lexer(char *expression, struct ree_token_t *tokens){
 }
 
 enum reh_error_code_e ree_countTokens(char* expression, int *tokenCount){
+  if (expression == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Expression passed to ree_countTokens is NULL.");
+  }
+  if (tokenCount == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to tokenCount in ree_countTokens is NULL.");
+  }
+
   struct ree_data_t data;
 
   // fill the data struct

@@ -8,7 +8,7 @@
 #define MAX_FN_NAME_LEN    1
 #define MAX_PARAM_NAME_LEN 1
 
-#define MAX_FUNCTIONS      16
+#define REE_MAX_FUNCTIONS      16
 
 #define WHITE  {1.0f, 1.0f, 1.0f}       // RGB: 255, 255, 255
 #define RED    {1.0f, 0.0f, 0.0f}       // RGB: 255, 0, 0
@@ -39,7 +39,7 @@ struct ree_function_t {
 };
 
 struct ree_function_manager_t {
-  struct ree_function_t functions[MAX_FUNCTIONS];
+  struct ree_function_t functions[REE_MAX_FUNCTIONS];
   int functionCount;
 };
 

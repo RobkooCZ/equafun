@@ -22,6 +22,12 @@ int ree_getFunction(struct ree_function_manager_t *manager, const char *name, st
   if (manager == nullptr){
     return -1;
   }
+  else if (name == nullptr){
+    return -1;
+  }
+  else if (function == nullptr){
+    return -1;
+  }
 
   for (int i = 0; i < manager->functionCount; ++i){
     if (strcmp(manager->functions[i].name, name) == 0){
@@ -39,6 +45,14 @@ enum reh_error_code_e ree_addFunction(struct ree_function_manager_t *manager, ch
   }
   else if (definition == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Definition passed to ree_addFunction is NULL.");
+  }
+  else if (manager->functionCount >= REE_MAX_FUNCTIONS){
+    SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Function manager has reached maximum function capacity.");
+  }
+  else if (functionColor == nullptr){
+    logMsg(WARNING, "No function color (NULL) provided to ree_addFunction, assigning next available color.");
+    // assign a color from the array based on the current function count
+    functionColor = &functionColorArray[manager->functionCount % functionColorArrayLength];
   }
 
   // add the function to the manager

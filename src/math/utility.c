@@ -23,6 +23,10 @@ enum rm_num_classes_e rm_classifyNum(float num){
 }
 
 enum reh_error_code_e rm_factorial(int n, int *result){
+  if (result == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to result in rm_factorial is NULL.");
+  }
+
   if (n == 0){
     *result = 1;
     return ERR_SUCCESS;

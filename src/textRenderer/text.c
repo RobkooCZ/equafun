@@ -23,6 +23,10 @@ static const char* ft_ErrCodeToStr(FT_Error errCode){
 }
 
 enum reh_error_code_e rtr_initFt(FT_Library *library){
+  if (library == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to FT_Library in rtr_initFt is NULL.");
+  }
+
   FT_Error ftErr = FT_Init_FreeType(library);
 
   if (ftErr != FT_Err_Ok){
@@ -33,6 +37,13 @@ enum reh_error_code_e rtr_initFt(FT_Library *library){
 }
 
 enum reh_error_code_e rtr_initFtFace(FT_Library *library, FT_Face *face){
+  if (library == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to FT_Library in rtr_initFtFace is NULL.");
+  }
+  else if (face == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to FT_Face in rtr_initFtFace is NULL.");
+  }
+
   // FACE INITIALIZATION
 
   FT_Error faceInitErr = FT_New_Face(*library, "data/fonts/DejaVuSans.ttf", 0, face);
@@ -64,6 +75,10 @@ enum reh_error_code_e rtr_loadChar(FT_Face face, uint8_t ch){
 }
 
 enum reh_error_code_e rtr_loadCharactersIntoArray(FT_Face face, struct rtr_character_t *characters){
+  if (characters == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Characters array pointer in rtr_loadCharactersIntoArray is NULL.");
+  }
+
   glad_glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
 
   // load the first ASCII_CHAR_COUNT (rn 128) characters into the provided array of structs

@@ -56,6 +56,19 @@ enum reh_error_code_e ree_testLexerParser(void){
 }
 
 enum reh_error_code_e ree_implicitMultiplication(struct ree_token_t **tokens, int *tokenCount, int *tokenCapacity){
+  if (tokens == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to tokens array in ree_implicitMultiplication is NULL.");
+  }
+  else if (tokenCount == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to tokenCount in ree_implicitMultiplication is NULL.");
+  }
+  else if (tokenCapacity == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to tokenCapacity in ree_implicitMultiplication is NULL.");
+  }
+  else if (*tokenCount <= 0){
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_implicitMultiplication is less than or equal to 0.");
+  }
+
   // walk the array of tokens
   for (int i = 0; i < *tokenCount - 1; i++){
     // set bools based on if we get one of the required token types
@@ -110,6 +123,16 @@ enum reh_error_code_e ree_implicitMultiplication(struct ree_token_t **tokens, in
 }
 
 enum reh_error_code_e ree_parseFunction(char *definition, struct ree_function_t *function, struct rm_vec3_t *functionColor){
+  if (definition == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Definition passed to ree_parseFunction is NULL.");
+  }
+  else if (function == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to ree_parseFunction is NULL.");
+  }
+  else if (functionColor == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function color (rm_vec3_t) passed to ree_parseFunction is NULL.");
+  }
+
   int tokenCount = 0;
   CHECK_ERROR_CTX(ree_countTokens(definition, &tokenCount), "Failed to count tokens.");
 

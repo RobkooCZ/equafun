@@ -14,7 +14,7 @@ float worldXMin = -GRAPH_HALF_HEIGHT * ASPECT_RATIO;
 float worldXMax =  GRAPH_HALF_HEIGHT * ASPECT_RATIO;
 
 // by default WIDTH,HEIGHT
-float windowWidth =  WIDTH;
+float windowWidth  = WIDTH;
 float windowHeight = HEIGHT;
 
 // flag to tell main if we should rebuild the projection matrices

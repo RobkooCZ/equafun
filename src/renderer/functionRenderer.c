@@ -235,9 +235,13 @@ enum reh_error_code_e rfr_render(struct ra_app_context_t *context, struct ree_fu
   if (context == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "context passed to rfr_render is NULL.");
   }
-  if (functions == nullptr){
+  else if (functions == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_render is NULL.");
   }
+  else if (projectionMatrixPtr == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Projection matrix pointer passed to rfr_render is NULL.");
+  }
+
   for (size_t i = 0; i < (size_t)functions->functionCount; ++i){
     struct ree_function_t *function = &functions->functions[i];
 

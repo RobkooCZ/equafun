@@ -13,6 +13,9 @@ void clearError(void){
 }
 
 void setError(enum reh_error_code_e code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo){
+  if (file == nullptr) file = "Unknown File";
+  if (fnName == nullptr) fnName = "Unknown Function";
+
   g_lastError.code = code;
   g_lastError.file = file;
   g_lastError.line = line;

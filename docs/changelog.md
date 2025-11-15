@@ -19,26 +19,24 @@
     - supports variables
     - solves for y when given an expression and variables data
     - correctly evaluates functions, operators (including unary) and numbers
-- function to parse the (for now) hardcoded function including the definition and save the data into the function struct
-- some error handling, will be improved drastically before full release of Alpha v0.0.6
-- a global utilities file with 
+- function to parse the a function including the definition and save the data into the function struct
+- a global utilities file with
     - a function to search for a string in an array of strings
     - a function to trim the leading whitespace in a string
 - some planned functions to work with a manager of functions to allow multiple functions at the same time
 - on window resize:
     - projection matrices get recalculated
     - graph VBO gets updated
+    - window contents get redrawn
 - function rendering
-    - able to handle non-continuous functions
+    - is able to handle non-continuous functions
     - can render multiple functions at the same time
     - step is for now hardcoded
-    - so far no support for calculations with user-defined functions
 - function manager
     - holds function structures which hold all function data
     - added functions to add, remove, init and lookup
-- support for windows compilation by adding CMake
+- support for standardized compilation using CMake
 - added a .cmd file to do a similar thing as build.sh
-- an FPS counter (printing to the console) to have a relative idea of the performance
 
 ### Changed
 - updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)

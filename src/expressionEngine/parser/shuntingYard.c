@@ -20,6 +20,10 @@ const char* ree_outputTokenToStr(enum ree_output_type_e outputToken){
 }
 
 enum reh_error_code_e ree_operatorPrecedence(enum ree_token_type_e tokenType, int *precedence){
+  if (precedence == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to precedence in ree_operatorPrecedence is NULL.");
+  }
+
   switch (tokenType){
     case TOKEN_PLUS:
     case TOKEN_MINUS:
@@ -70,6 +74,16 @@ int ree_determineArity(enum ree_token_type_e tokenType){
 }
 
 enum reh_error_code_e ree_markUnaryOperators(struct ree_token_t *tokens, const int tokenCount){
+  if (tokens == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_markUnaryOperators is NULL.");
+  }
+  else if (tokenCount <= 0){
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_markUnaryOperators is less than or equal to 0.");
+  }
+  else if (tokenCount > REE_MAX_TOKENS){
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_markUnaryOperators exceeds maximum allowed tokens (%d > %d).", tokenCount, REE_MAX_TOKENS);
+  }
+
   struct ree_token_t currentToken, previousToken;
 
   previousToken.token_type = TOKEN_ILLEGAL;
@@ -128,6 +142,23 @@ enum reh_error_code_e ree_markUnaryOperators(struct ree_token_t *tokens, const i
 }
 
 enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int tokenCount, struct ree_output_token_t *outputQueue, int *outputCount){
+  if (outputCount == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to outputCount in ree_parseToPostfix is NULL.");
+  }
+  else if (tokens == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_parseToPostfix is NULL.");
+  }
+  else if (outputQueue == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Output queue passed to ree_parseToPostfix is NULL.");
+  }
+
+  if (tokenCount <= 0){
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_parseToPostfix is less than or equal to 0.");
+  }
+  if (tokenCount > REE_MAX_TOKENS){
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_parseToPostfix exceeds maximum allowed tokens (%d > %d).", tokenCount, REE_MAX_TOKENS);
+  }
+
   *outputCount = 0;
   int operatorStackPointer = 0;
   struct ree_token_t stack[tokenCount];
