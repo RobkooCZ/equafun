@@ -1,6 +1,6 @@
 # Changelog
 
-## Alpha v0.0.6 (currently being developed)
+## Alpha v0.0.6
 
 ### Added
 - a lexer
@@ -13,7 +13,7 @@
     - distinguishes between unary and binary minus (and plus) operators
     - support for factorial operator with proper precedence
     - is able to recognize one-letter identifiers to then be substituted for a value in the evaluator
-    - spits out RPN (reverse polish notation) which will be soon handled with the evaluator
+    - spits out RPN (reverse polish notation) which is handled in the evaluator
     - support for implicit multiplication
 - an evaluator
     - supports variables
@@ -34,22 +34,29 @@
 - function manager
     - holds function structures which hold all function data
     - added functions to add, remove, init and lookup
-- support for standardized compilation using CMake
-- added a .cmd file to do a similar thing as build.sh
+- CMake and `vcpkg.json` integration for standardized building
+- a `build.cmd` script to streamline compilation on Windows
+- brief comments to all functions
+- comments to each header file explaining the functions' id
 
 ### Changed
 - updated makefile to use `find ..` instead of `wildcard` to match all `.c` files inside the project rather than specific nested structures (`src/**/*.c`)
 - `_msg_buf` in `SET_ERROR_RETURN()` macro size to 512
 - graph, marker and text rendering to use world coordinates instead of NDC coordinates
 - the graph now stays square (as in, if you extended the markers, everything would look like squares) instead of rectangles and similar
-- split up main into 3 functions - ra_AppInit, ra_apprenderFrame and ra_AppShutdown
+- split up main into 3 functions - ra_AppInit, ra_AppRenderFrame and ra_AppShutdown
 - cleaned up repetitive error checking code in ra_AppInit
 - centralized cleanup after a failure
-- modified the build script to be able to choose between make and CMake
+- heavily improved both the `build.sh` script
+    - argument to choose between CMake and make
+    - argument to toggle generating `compile_commands.json` or not
+    - argument to choose a preset to compile with (for both CMake and make)
 - undefined points don't get connected anymore
+- all function signatures to meet standards defined in `standards.md`
 
 ### Fixed
 - minor rendering issues
+- code to be stricter to allow compilation with the 'Flags' preset
 - null-pointer bug in `reh_SetError()`
 - a bug where fread() and ftell() returned with different byte values on Windows
 - error handler not printing all the error messages

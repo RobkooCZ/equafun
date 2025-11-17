@@ -1,16 +1,16 @@
-# Equafun (Alpha v0.0.5 (Alpha v0.0.6 is being developed))
+# Equafun (Alpha v0.0.6)
 
 ## Features
 - Graph render with labeled markers
+- Full fledged lexer, parser and evaluator for function definition handling
 - Function rendering
 - Adjusting the window size dynamically grows/shrinks the graph and values still match
-- Tons of CLI logging
 
 ## Changelog
 - The full changelog for the project can be found [here](docs/changelog.md).
 
 ## Note
-- Support for **Linux** and **Windows** as of `Alpha v0.0.6 (currently being developed)`.
+- Support for **Linux** and **Windows** as of `Alpha v0.0.6`.
 
 ## How to build from the beginning & run
 - **IMPORTANT: ** you *have* to pass the functions you want to be rendered as arguments, as shown in the example here: 

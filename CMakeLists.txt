@@ -101,7 +101,7 @@ if(UNIX)
     find_package(glfw3 CONFIG REQUIRED)
   endif()
 
-  list(APPRL_END EXTRA_LIBS m)  # math library for Linux
+  list(APPEND EXTRA_LIBS m)  # math library for Linux
 endif()
 
 # --- Link libraries ---
