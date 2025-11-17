@@ -9,10 +9,13 @@
 
 #include "textRenderer/text.h"
 #include "core/window.h"
+#include "freetype/freetype.h"
+#include "freetype/fttypes.h"
 #include "renderer/graph.h"
 #include "utils/shaderUtils.h"
 #include "core/errorHandler.h"
 #include "math/Vec2.h"
+#include "core/logger.h"
 
 // static helper to be used internally
 static const char* ft_ErrCodeToStr(FT_Error errCode){
@@ -20,7 +23,11 @@ static const char* ft_ErrCodeToStr(FT_Error errCode){
   return errString ? errString : "Unknown error.";
 }
 
-enum reh_error_code_e rtr_initFt(FT_Library *library){
+enum reh_error_code_e rtr_InitFt(FT_Library *library){
+  if (library == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to FT_Library in rtr_InitFt is NULL.");
+  }
+
   FT_Error ftErr = FT_Init_FreeType(library);
 
   if (ftErr != FT_Err_Ok){
@@ -30,7 +37,14 @@ enum reh_error_code_e rtr_initFt(FT_Library *library){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rtr_initFtFace(FT_Library *library, FT_Face *face){
+enum reh_error_code_e rtr_InitFtFace(FT_Library *library, FT_Face *face){
+  if (library == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to FT_Library in rtr_InitFtFace is NULL.");
+  }
+  else if (face == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to FT_Face in rtr_InitFtFace is NULL.");
+  }
+
   // FACE INITIALIZATION
 
   FT_Error faceInitErr = FT_New_Face(*library, "data/fonts/DejaVuSans.ttf", 0, face);
@@ -43,7 +57,7 @@ enum reh_error_code_e rtr_initFtFace(FT_Library *library, FT_Face *face){
   }
 
   // SETTING FACE INFO
-  FT_Error setSizeErr = FT_Set_Pixel_Sizes(*face, 0, 8);
+  FT_Error setSizeErr = FT_Set_Pixel_Sizes(*face, 0, 16);
 
   if (setSizeErr != FT_Err_Ok){
     SET_ERROR_RETURN(ERR_FT_FACE_FAILED_TO_SET_FONT_SIZE, "Failed to set font size: %s", ft_ErrCodeToStr(setSizeErr));
@@ -52,8 +66,8 @@ enum reh_error_code_e rtr_initFtFace(FT_Library *library, FT_Face *face){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rtr_loadChar(FT_Face face, uint8_t ch){
-  FT_Error charErr = FT_Load_Char(face, ch, FT_LOAD_RENDER); // FT_LOAD_RENDER flag tells FT to create an 8-bit grayscale bitmap image for us accessable via face->glyph->bitmap
+enum reh_error_code_e rtr_LoadChar(FT_Face face, uint8_t ch){
+  FT_Error charErr = FT_Load_Char(face, ch, FT_LOAD_RENDER); // FT_LOAD_RRL_ENDER flag tells FT to create an 8-bit grayscale bitmap image for us accessable via face->glyph->bitmap
   if (charErr != FT_Err_Ok){
     SET_ERROR_RETURN(ERR_FT_FAILED_TO_LOAD_CHAR, "Failed to load char: %s", ft_ErrCodeToStr(charErr));
   }
@@ -61,13 +75,17 @@ enum reh_error_code_e rtr_loadChar(FT_Face face, uint8_t ch){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rtr_loadCharactersIntoArray(FT_Face face, struct rtr_character_t *characters){
+enum reh_error_code_e rtr_LoadCharactersIntoArray(FT_Face face, struct rtr_character_t *characters){
+  if (characters == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Characters array pointer in rtr_LoadCharactersIntoArray is NULL.");
+  }
+
   glad_glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
 
   // load the first ASCII_CHAR_COUNT (rn 128) characters into the provided array of structs
   for (struct rtr_character_t *ptr = characters; ptr < characters + ASCII_CHAR_COUNT; ++ptr){
     // load char glyph
-    CHECK_ERROR_CTX(rtr_loadChar(face, ptr - characters), "Failed to load character.");
+    CHECK_ERROR_CTX(rtr_LoadChar(face, (uint8_t)(ptr - characters)), "Failed to load character.");
 
     // generate a texture
     GLuint texture;
@@ -77,8 +95,8 @@ enum reh_error_code_e rtr_loadCharactersIntoArray(FT_Face face, struct rtr_chara
       GL_TEXTURE_2D,
       0,
       GL_RED,
-      face->glyph->bitmap.width,
-      face->glyph->bitmap.rows,
+      (GLsizei)face->glyph->bitmap.width,
+      (GLsizei)face->glyph->bitmap.rows,
       0,
       GL_RED,
       GL_UNSIGNED_BYTE,
@@ -93,20 +111,20 @@ enum reh_error_code_e rtr_loadCharactersIntoArray(FT_Face face, struct rtr_chara
 
     // store character for later use
     ptr->textureID = texture;
-    ptr->size = (struct rm_vec2_t){face->glyph->bitmap.width, face->glyph->bitmap.rows};
-    ptr->bearing = (struct rm_vec2_t){face->glyph->bitmap_left, face->glyph->bitmap_top};
-    ptr->advance = face->glyph->advance.x;
+    ptr->size = (struct rm_vec2_t){(float)face->glyph->bitmap.width, (float)face->glyph->bitmap.rows};
+    ptr->bearing = (struct rm_vec2_t){(float)face->glyph->bitmap_left, (float)face->glyph->bitmap_top};
+    ptr->advance = (FT_UInt)face->glyph->advance.x;
   }
 
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rtr_createTextRenderVAO(GLuint *VAO, GLuint *VBO){
+enum reh_error_code_e rtr_CreateTextRenderVAO(GLuint *VAO, GLuint *VBO){
   if (VAO == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "VAO pointer is NULL in rtr_createTextRenderVAO()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "VAO pointer is NULL in rtr_CreateTextRenderVAO()");
   }
   if (VBO == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "VBO pointer is NULL in rtr_createTextRenderVAO()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "VBO pointer is NULL in rtr_CreateTextRenderVAO()");
   }
 
   glGenVertexArrays(1, VAO);
@@ -125,20 +143,20 @@ enum reh_error_code_e rtr_createTextRenderVAO(GLuint *VAO, GLuint *VBO){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rtr_renderText(GLuint program, GLuint VAO, GLuint VBO, const char *text, struct rtr_character_t *characters, float x, float y, float scale, struct rm_vec3_t color){
+enum reh_error_code_e rtr_RenderText(GLuint program, GLuint VAO, GLuint VBO, const char *text, struct rtr_character_t *characters, float x, float y, float scale, struct rm_vec3_t color){
   if (text == nullptr || characters == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Text or characters pointer is NULL in rtr_renderText()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Text or characters pointer is NULL in rtr_RenderText()");
   }
 
   if (program == 0 || VAO == 0 || VBO == 0){
-    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid program, VAO or VBO in rtr_renderText()");
+    SET_ERROR_RETURN(ERR_RRL_ENDER_INVALID_PARAMS, "Invalid program, VAO or VBO in rtr_RenderText()");
   }
 
   // use our shader
   glUseProgram(program);
 
   // set the text to the provided color
-  gluSet3f(program, "textColor", color.x, color.y, color.z);
+  rsu_GluSet3f(program, "textColor", color.x, color.y, color.z);
 
   // activate corresponding render state
   glActiveTexture(GL_TEXTURE0);
@@ -173,7 +191,7 @@ enum reh_error_code_e rtr_renderText(GLuint program, GLuint VAO, GLuint VBO, con
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     // Advance cursor (FT gives advance in 1/64th pixels)
-    x += (ch.advance >> 6) * scale;
+    x += (float)(ch.advance >> 6) * scale;
   }
 
   glBindVertexArray(0);
@@ -182,34 +200,34 @@ enum reh_error_code_e rtr_renderText(GLuint program, GLuint VAO, GLuint VBO, con
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rtr_calculateTextWidth(const char *text, struct rtr_character_t *characters, float scale, float *totalWidth){
+enum reh_error_code_e rtr_CalculateTextWidth(const char *text, struct rtr_character_t *characters, float scale, float *totalWidth){
   if (text == nullptr || characters == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Text or characters pointer is NULL in rtr_calculateTextWidth()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Text or characters pointer is NULL in rtr_CalculateTextWidth()");
   }
   if (totalWidth == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Total width pointer is NULL in rtr_calculateTextWidth()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Total width pointer is NULL in rtr_CalculateTextWidth()");
   }
 
   *totalWidth = 0;
 
   for (const char *ptr = text; *ptr != '\0'; ++ptr){
-    int advance = characters[ptr - text].advance;
+    int advance = (int)characters[ptr - text].advance;
 
-    *totalWidth += (advance >> 6) * scale;
+    *totalWidth += (float)(advance >> 6) * scale;
   }
 
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rtr_calculateTextHeight(const char *text, struct rtr_character_t *characters, float scale, float *totalHeight, float *ascent){
+enum reh_error_code_e rtr_CalculateTextHeight(const char *text, struct rtr_character_t *characters, float scale, float *totalHeight, float *ascent){
   if (text == nullptr || characters == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Text or characters pointer is NULL in rtr_calculateTextHeight()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Text or characters pointer is NULL in rtr_CalculateTextHeight()");
   }
   if (totalHeight == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Total height pointer is NULL in rtr_calculateTextHeight()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Total height pointer is NULL in rtr_CalculateTextHeight()");
   }
   if (ascent == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Ascent pointer is NULL in rtr_calculateTextHeight()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Ascent pointer is NULL in rtr_CalculateTextHeight()");
   }
 
   float maxAscent = 0.0f;
@@ -218,10 +236,10 @@ enum reh_error_code_e rtr_calculateTextHeight(const char *text, struct rtr_chara
   for (const char *ptr = text; *ptr != '\0'; ++ptr){
     struct rtr_character_t ch = characters[(unsigned char)*ptr];
 
-    float ascent = (float)ch.bearing.y * scale;
+    float localAscent = (float)ch.bearing.y * scale;
     float descent = ((float)(ch.size.y - ch.bearing.y)) * scale;
 
-    if (ascent > maxAscent) maxAscent = ascent;
+    if (localAscent > maxAscent) maxAscent = localAscent;
     if (descent > maxDescent) maxDescent = descent;
   }
 
@@ -231,140 +249,143 @@ enum reh_error_code_e rtr_calculateTextHeight(const char *text, struct rtr_chara
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rtr_formatMarkerValue(float value, char *buffer, const int bufferSize){
+enum reh_error_code_e rtr_FormatMarkerValue(float value, char *buffer, const int bufferSize){
   if (value < -FLT_MAX){
-    SET_ERROR_TECHNICAL_RETURN(ERR_UNDERFLOW, "value < -FLT_MAX (%f)", "Value provided to rtr_formatMarkerValue() is smaller than -FLT_MAX", -FLT_MAX);
+    SET_ERROR_TECHNICAL_RETURN(ERR_UNDERFLOW, "value < -FLT_MAX (%f)", "Value provided to rtr_FormatMarkerValue() is smaller than -FLT_MAX", (double)-FLT_MAX);
   }
   if (value > FLT_MAX){
-    SET_ERROR_TECHNICAL_RETURN(ERR_OVERFLOW, "value > FLT_MAX (%f)", "Value provided to rtr_formatMarkerValue() is bigger than FLT_MAX (%f)", FLT_MAX);
+    SET_ERROR_TECHNICAL_RETURN(ERR_OVERFLOW, "value > FLT_MAX (%f)", "Value provided to rtr_FormatMarkerValue() is bigger than FLT_MAX (%f)", (double)FLT_MAX);
   }
   if (buffer == nullptr){
-    SET_ERROR_TECHNICAL_RETURN(ERR_INVALID_POINTER, "buffer == nullptr", "Buffer provided to rtr_formatMarkerValue() is NULL");
+    SET_ERROR_TECHNICAL_RETURN(ERR_INVALID_POINTER, "buffer == nullptr", "Buffer provided to rtr_FormatMarkerValue() is NULL");
   }
   if (bufferSize <= 0){
-    SET_ERROR_TECHNICAL_RETURN(ERR_INVALID_INPUT, "bufferSize <= 0 (%d)", "Buffer size provided to rtr_formatMarkerValue is 0 or less. (%d)", bufferSize);
+    SET_ERROR_TECHNICAL_RETURN(ERR_INVALID_INPUT, "bufferSize <= 0 (%d)", "Buffer size provided to rtr_FormatMarkerValue is 0 or less. (%d)", bufferSize);
   }
 
   // Check if value is effectively an integer (e.g., 1.00, -5.00)
-  if (fmodf(value, 1.0f) == 0.0f){
+  if (fmodf(value, 1.0f) < FLT_EPSILON){
     // It's an integer, format without decimals
-    snprintf(buffer, bufferSize, "%d", (int)value);
+    snprintf(buffer, (size_t)bufferSize, "%d", (int)value);
   } else {
     // Has decimal places, format with 2 decimals
-    snprintf(buffer, bufferSize, "%.2f", value);
+    snprintf(buffer, (size_t)bufferSize, "%.2f", (double)value);
   }
 
   return ERR_SUCCESS;
 }
 
-float rtr_ndcToPixelX(float ndcX){
-  return ((ndcX + 1.0f) / 2.0f) * WIDTH;
+float rtr_NdcToPixelX(float ndcX){
+  return ((ndcX + 1.0f) / 2.0f) * windowWidth;
 }
 
-float rtr_ndcToPixelY(float ndcY){
-  return ((ndcY + 1.0f) / 2.0f) * HEIGHT;
+float rtr_NdcToPixelY(float ndcY){
+  return ((ndcY + 1.0f) / 2.0f) * windowHeight;
 }
 
-enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color){
+float rtr_WorldToPixelX(float worldX){
+  return ((worldX - worldXMin) / (worldXMax - worldXMin)) * windowWidth;
+}
+
+float rtr_WorldToPixelY(float worldY){
+  return ((worldY - worldYMin) / (worldYMax - worldYMin)) * windowHeight;
+}
+
+enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color){
   // [0,0] point
   int value = 0;
-  char label[5];
-  CHECK_ERROR_CTX(rtr_formatMarkerValue(value, label, 5), "Failed to format marker value."); // put the value into the string
+  char zeroLabel[5];
+  CHECK_ERROR_CTX(rtr_FormatMarkerValue((float)value, zeroLabel, 5), "Failed to format marker value."); // put the value into the string
 
-  CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, rtr_ndcToPixelX(0.0f + POINT_MARKER_HEIGHT * 1), rtr_ndcToPixelY(0.0f - POINT_MARKER_HEIGHT * 2.7f), scale, color), "Failed to render point [0,0]");
+  CHECK_ERROR_CTX(rtr_RenderText(program, VAO, VBO, zeroLabel, characters, rtr_WorldToPixelX(0.0f + POINT_MARKER_HEIGHT_WORLD * 0.5f), rtr_WorldToPixelY(0.0f - POINT_MARKER_HEIGHT_WORLD * 1.5f), scale, color), "Failed to render point [0,0]");
+
+  // prevent rendering glitches which makes labels (from my experience, on the y-axis) lifted to the viewport edge
+  // by adding padding
+  float usableXMin = worldXMin + POINT_MARKER_HEIGHT_WORLD;
+  float usableXMax = worldXMax - POINT_MARKER_HEIGHT_WORLD;
+  float usableYMin = worldYMin + POINT_MARKER_HEIGHT_WORLD;
+  float usableYMax = worldYMax - POINT_MARKER_HEIGHT_WORLD;
 
   // positive x axis labels
-  int markerIndex = 0;
-  for (float ndcX = GRID_SPACING_NDC; ndcX <= 1.0f; ndcX += GRID_SPACING_NDC){
-    markerIndex++;
-
+  for (float worldX = GRID_SPACING_WORLD; worldX <= usableXMax; worldX += GRID_SPACING_WORLD){
     // print the label into the buffer
     char label[5];
-    CHECK_ERROR_CTX(rtr_formatMarkerValue((float)markerIndex, label, 5), "Failed to format marker value.");
+    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldX, label, 5), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textWidth;
-    CHECK_ERROR_CTX(rtr_calculateTextWidth(label, characters, scale, &textWidth), "Failed to calculate text width.");
+    CHECK_ERROR_CTX(rtr_CalculateTextWidth(label, characters, scale, &textWidth), "Failed to calculate text width.");
 
     // where to render
-    float pixelX = rtr_ndcToPixelX(ndcX);
+    float pixelX = rtr_WorldToPixelX(worldX);
 
     float labelX = pixelX - (textWidth / 2.0f);
-    float labelY = rtr_ndcToPixelY(0.0f - (POINT_MARKER_HEIGHT * 3));
+    float labelY = rtr_WorldToPixelY(0.0f - (POINT_MARKER_HEIGHT_WORLD * 3));
 
     // render
-    CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
+    CHECK_ERROR_CTX(rtr_RenderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
   }
 
   // negative x axis labels
-  markerIndex = 0;
-  for (float ndcX = -GRID_SPACING_NDC; ndcX >= -1.0f; ndcX -= GRID_SPACING_NDC){
-    markerIndex--;
-
+  for (float worldX = -GRID_SPACING_WORLD; worldX >= usableXMin; worldX -= GRID_SPACING_WORLD){
     // print the label into the buffer
     char label[6];
-    CHECK_ERROR_CTX(rtr_formatMarkerValue((float)markerIndex, label, 6), "Failed to format marker value.");
+    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldX, label, 6), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textWidth;
-    CHECK_ERROR_CTX(rtr_calculateTextWidth(label, characters, scale, &textWidth), "Failed to calculate text width.");
+    CHECK_ERROR_CTX(rtr_CalculateTextWidth(label, characters, scale, &textWidth), "Failed to calculate text width.");
 
     // where to render
-    float pixelX = rtr_ndcToPixelX(ndcX);
+    float pixelX = rtr_WorldToPixelX(worldX);
 
     float labelX = pixelX - (textWidth / 2.0f);
-    float labelY = rtr_ndcToPixelY(0.0f - (POINT_MARKER_HEIGHT * 3));
+    float labelY = rtr_WorldToPixelY(0.0f - (POINT_MARKER_HEIGHT_WORLD * 3));
 
     // render
-    CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
+    CHECK_ERROR_CTX(rtr_RenderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
   }
 
   // positive y axis labels
-  markerIndex = 0;
-  for (float ndcY = GRID_SPACING_NDC; ndcY <= 1.0f; ndcY += GRID_SPACING_NDC){
-    markerIndex++;
-
+  for (float worldY = GRID_SPACING_WORLD; worldY <= usableYMax; worldY += GRID_SPACING_WORLD){
     // print the label into the buffer
     char label[5];
-    CHECK_ERROR_CTX(rtr_formatMarkerValue((float)markerIndex, label, 5), "Failed to format marker value.");
+    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldY, label, 5), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textHeight;
     float ascent;
-    CHECK_ERROR_CTX(rtr_calculateTextHeight(label, characters, scale, &textHeight, &ascent), "Failed to calculate text height.");
+    CHECK_ERROR_CTX(rtr_CalculateTextHeight(label, characters, scale, &textHeight, &ascent), "Failed to calculate text height.");
 
     // where to render
-    float pixelY = rtr_ndcToPixelY(ndcY);
+    float pixelY = rtr_WorldToPixelY(worldY);
 
-    float labelX = rtr_ndcToPixelX(0.0f + (POINT_MARKER_HEIGHT * 1.5f));
+    float labelX = rtr_WorldToPixelX(0.0f + (POINT_MARKER_HEIGHT_WORLD * 1.5f));
     float labelY = pixelY + (textHeight / 2.0f) - ascent;
 
     // render
-    CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
+    CHECK_ERROR_CTX(rtr_RenderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
   }
 
   // negative y axis labels
-  markerIndex = 0;
-  for (float ndcY = -GRID_SPACING_NDC; ndcY >= -1.0f; ndcY -= GRID_SPACING_NDC){
-    markerIndex--;
-
+  for (float worldY = -GRID_SPACING_WORLD; worldY >= usableYMin; worldY -= GRID_SPACING_WORLD){
     // print the label into the buffer
     char label[6];
-    CHECK_ERROR_CTX(rtr_formatMarkerValue((float)markerIndex, label, 6), "Failed to format marker value.");
+    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldY, label, 6), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textHeight;
     float ascent;
-    CHECK_ERROR_CTX(rtr_calculateTextHeight(label, characters, scale, &textHeight, &ascent), "Failed to calculate text height.");
+    CHECK_ERROR_CTX(rtr_CalculateTextHeight(label, characters, scale, &textHeight, &ascent), "Failed to calculate text height.");
 
     // where to render
-    float pixelY = rtr_ndcToPixelY(ndcY);
+    float pixelY = rtr_WorldToPixelY(worldY);
 
-    float labelX = rtr_ndcToPixelX(0.0f + (POINT_MARKER_HEIGHT * 1.5f));
+    float labelX = rtr_WorldToPixelX(0.0f + (POINT_MARKER_HEIGHT_WORLD * 1.5f));
     float labelY = pixelY + (textHeight / 2.0f) - ascent;
 
     // render
-    CHECK_ERROR_CTX(rtr_renderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
+    CHECK_ERROR_CTX(rtr_RenderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
   }
 
   return ERR_SUCCESS;

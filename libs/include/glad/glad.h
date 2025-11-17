@@ -209,9 +209,9 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_STENCIL_WRITEMASK 0x0B98
 #define GL_VIEWPORT 0x0BA2
 #define GL_DITHER 0x0BD0
-#define GL_BLEND_DST 0x0BE0
-#define GL_BLEND_SRC 0x0BE1
-#define GL_BLEND 0x0BE2
+#define GL_BLRL_END_DST 0x0BE0
+#define GL_BLRL_END_SRC 0x0BE1
+#define GL_BLRL_END 0x0BE2
 #define GL_LOGIC_OP_MODE 0x0BF0
 #define GL_DRAW_BUFFER 0x0C01
 #define GL_READ_BUFFER 0x0C02
@@ -288,8 +288,8 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_REPLACE 0x1E01
 #define GL_INCR 0x1E02
 #define GL_DECR 0x1E03
-#define GL_VENDOR 0x1F00
-#define GL_RENDERER 0x1F01
+#define GL_VRL_ENDOR 0x1F00
+#define GL_RRL_ENDERER 0x1F01
 #define GL_VERSION 0x1F02
 #define GL_EXTENSIONS 0x1F03
 #define GL_NEAREST 0x2600
@@ -428,10 +428,10 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_NUM_COMPRESSED_TEXTURE_FORMATS 0x86A2
 #define GL_COMPRESSED_TEXTURE_FORMATS 0x86A3
 #define GL_CLAMP_TO_BORDER 0x812D
-#define GL_BLEND_DST_RGB 0x80C8
-#define GL_BLEND_SRC_RGB 0x80C9
-#define GL_BLEND_DST_ALPHA 0x80CA
-#define GL_BLEND_SRC_ALPHA 0x80CB
+#define GL_BLRL_END_DST_RGB 0x80C8
+#define GL_BLRL_END_SRC_RGB 0x80C9
+#define GL_BLRL_END_DST_ALPHA 0x80CA
+#define GL_BLRL_END_SRC_ALPHA 0x80CB
 #define GL_POINT_FADE_THRESHOLD_SIZE 0x8128
 #define GL_DEPTH_COMPONENT16 0x81A5
 #define GL_DEPTH_COMPONENT24 0x81A6
@@ -444,8 +444,8 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_TEXTURE_DEPTH_SIZE 0x884A
 #define GL_TEXTURE_COMPARE_MODE 0x884C
 #define GL_TEXTURE_COMPARE_FUNC 0x884D
-#define GL_BLEND_COLOR 0x8005
-#define GL_BLEND_EQUATION 0x8009
+#define GL_BLRL_END_COLOR 0x8005
+#define GL_BLRL_END_EQUATION 0x8009
 #define GL_CONSTANT_COLOR 0x8001
 #define GL_ONE_MINUS_CONSTANT_COLOR 0x8002
 #define GL_CONSTANT_ALPHA 0x8003
@@ -483,7 +483,7 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_DYNAMIC_COPY 0x88EA
 #define GL_SAMPLES_PASSED 0x8914
 #define GL_SRC1_ALPHA 0x8589
-#define GL_BLEND_EQUATION_RGB 0x8009
+#define GL_BLRL_END_EQUATION_RGB 0x8009
 #define GL_VERTEX_ATTRIB_ARRAY_ENABLED 0x8622
 #define GL_VERTEX_ATTRIB_ARRAY_SIZE 0x8623
 #define GL_VERTEX_ATTRIB_ARRAY_STRIDE 0x8624
@@ -512,7 +512,7 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_DRAW_BUFFER13 0x8832
 #define GL_DRAW_BUFFER14 0x8833
 #define GL_DRAW_BUFFER15 0x8834
-#define GL_BLEND_EQUATION_ALPHA 0x883D
+#define GL_BLRL_END_EQUATION_ALPHA 0x883D
 #define GL_MAX_VERTEX_ATTRIBS 0x8869
 #define GL_VERTEX_ATTRIB_ARRAY_NORMALIZED 0x886A
 #define GL_MAX_TEXTURE_IMAGE_UNITS 0x8872
@@ -694,7 +694,7 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_FRAMEBUFFER_DEFAULT 0x8218
 #define GL_FRAMEBUFFER_UNDEFINED 0x8219
 #define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
-#define GL_MAX_RENDERBUFFER_SIZE 0x84E8
+#define GL_MAX_RRL_ENDERBUFFER_SIZE 0x84E8
 #define GL_DEPTH_STENCIL 0x84F9
 #define GL_UNSIGNED_INT_24_8 0x84FA
 #define GL_DEPTH24_STENCIL8 0x88F0
@@ -707,11 +707,11 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_UNSIGNED_NORMALIZED 0x8C17
 #define GL_FRAMEBUFFER_BINDING 0x8CA6
 #define GL_DRAW_FRAMEBUFFER_BINDING 0x8CA6
-#define GL_RENDERBUFFER_BINDING 0x8CA7
+#define GL_RRL_ENDERBUFFER_BINDING 0x8CA7
 #define GL_READ_FRAMEBUFFER 0x8CA8
 #define GL_DRAW_FRAMEBUFFER 0x8CA9
 #define GL_READ_FRAMEBUFFER_BINDING 0x8CAA
-#define GL_RENDERBUFFER_SAMPLES 0x8CAB
+#define GL_RRL_ENDERBUFFER_SAMPLES 0x8CAB
 #define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE 0x8CD0
 #define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME 0x8CD1
 #define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL 0x8CD2
@@ -759,20 +759,20 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_DEPTH_ATTACHMENT 0x8D00
 #define GL_STENCIL_ATTACHMENT 0x8D20
 #define GL_FRAMEBUFFER 0x8D40
-#define GL_RENDERBUFFER 0x8D41
-#define GL_RENDERBUFFER_WIDTH 0x8D42
-#define GL_RENDERBUFFER_HEIGHT 0x8D43
-#define GL_RENDERBUFFER_INTERNAL_FORMAT 0x8D44
+#define GL_RRL_ENDERBUFFER 0x8D41
+#define GL_RRL_ENDERBUFFER_WIDTH 0x8D42
+#define GL_RRL_ENDERBUFFER_HEIGHT 0x8D43
+#define GL_RRL_ENDERBUFFER_INTERNAL_FORMAT 0x8D44
 #define GL_STENCIL_INDEX1 0x8D46
 #define GL_STENCIL_INDEX4 0x8D47
 #define GL_STENCIL_INDEX8 0x8D48
 #define GL_STENCIL_INDEX16 0x8D49
-#define GL_RENDERBUFFER_RED_SIZE 0x8D50
-#define GL_RENDERBUFFER_GREEN_SIZE 0x8D51
-#define GL_RENDERBUFFER_BLUE_SIZE 0x8D52
-#define GL_RENDERBUFFER_ALPHA_SIZE 0x8D53
-#define GL_RENDERBUFFER_DEPTH_SIZE 0x8D54
-#define GL_RENDERBUFFER_STENCIL_SIZE 0x8D55
+#define GL_RRL_ENDERBUFFER_RED_SIZE 0x8D50
+#define GL_RRL_ENDERBUFFER_GREEN_SIZE 0x8D51
+#define GL_RRL_ENDERBUFFER_BLUE_SIZE 0x8D52
+#define GL_RRL_ENDERBUFFER_ALPHA_SIZE 0x8D53
+#define GL_RRL_ENDERBUFFER_DEPTH_SIZE 0x8D54
+#define GL_RRL_ENDERBUFFER_STENCIL_SIZE 0x8D55
 #define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE 0x8D56
 #define GL_MAX_SAMPLES 0x8D57
 #define GL_FRAMEBUFFER_SRGB 0x8DB9
@@ -1280,12 +1280,12 @@ typedef void (APIENTRY *GLVULKANPROCNV)(void);
 #define GL_COLOR_COMPONENTS 0x8283
 #define GL_DEPTH_COMPONENTS 0x8284
 #define GL_STENCIL_COMPONENTS 0x8285
-#define GL_COLOR_RENDERABLE 0x8286
-#define GL_DEPTH_RENDERABLE 0x8287
-#define GL_STENCIL_RENDERABLE 0x8288
-#define GL_FRAMEBUFFER_RENDERABLE 0x8289
-#define GL_FRAMEBUFFER_RENDERABLE_LAYERED 0x828A
-#define GL_FRAMEBUFFER_BLEND 0x828B
+#define GL_COLOR_RRL_ENDERABLE 0x8286
+#define GL_DEPTH_RRL_ENDERABLE 0x8287
+#define GL_STENCIL_RRL_ENDERABLE 0x8288
+#define GL_FRAMEBUFFER_RRL_ENDERABLE 0x8289
+#define GL_FRAMEBUFFER_RRL_ENDERABLE_LAYERED 0x828A
+#define GL_FRAMEBUFFER_BLRL_END 0x828B
 #define GL_READ_PIXELS 0x828C
 #define GL_READ_PIXELS_FORMAT 0x828D
 #define GL_READ_PIXELS_TYPE 0x828E
@@ -1591,8 +1591,8 @@ GLAPI PFNGLFINISHPROC glad_glFinish;
 typedef void (APIENTRYP PFNGLFLUSHPROC)(void);
 GLAPI PFNGLFLUSHPROC glad_glFlush;
 #define glFlush glad_glFlush
-typedef void (APIENTRYP PFNGLBLENDFUNCPROC)(GLenum sfactor, GLenum dfactor);
-GLAPI PFNGLBLENDFUNCPROC glad_glBlendFunc;
+typedef void (APIENTRYP PFNGLBLRL_ENDFUNCPROC)(GLenum sfactor, GLenum dfactor);
+GLAPI PFNGLBLRL_ENDFUNCPROC glad_glBlendFunc;
 #define glBlendFunc glad_glBlendFunc
 typedef void (APIENTRYP PFNGLLOGICOPPROC)(GLenum opcode);
 GLAPI PFNGLLOGICOPPROC glad_glLogicOp;
@@ -1754,8 +1754,8 @@ GLAPI PFNGLGETCOMPRESSEDTEXIMAGEPROC glad_glGetCompressedTexImage;
 #ifndef GL_VERSION_1_4
 #define GL_VERSION_1_4 1
 GLAPI int GLAD_GL_VERSION_1_4;
-typedef void (APIENTRYP PFNGLBLENDFUNCSEPARATEPROC)(GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
-GLAPI PFNGLBLENDFUNCSEPARATEPROC glad_glBlendFuncSeparate;
+typedef void (APIENTRYP PFNGLBLRL_ENDFUNCSEPARATEPROC)(GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
+GLAPI PFNGLBLRL_ENDFUNCSEPARATEPROC glad_glBlendFuncSeparate;
 #define glBlendFuncSeparate glad_glBlendFuncSeparate
 typedef void (APIENTRYP PFNGLMULTIDRAWARRAYSPROC)(GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount);
 GLAPI PFNGLMULTIDRAWARRAYSPROC glad_glMultiDrawArrays;
@@ -1775,11 +1775,11 @@ GLAPI PFNGLPOINTPARAMETERIPROC glad_glPointParameteri;
 typedef void (APIENTRYP PFNGLPOINTPARAMETERIVPROC)(GLenum pname, const GLint *params);
 GLAPI PFNGLPOINTPARAMETERIVPROC glad_glPointParameteriv;
 #define glPointParameteriv glad_glPointParameteriv
-typedef void (APIENTRYP PFNGLBLENDCOLORPROC)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-GLAPI PFNGLBLENDCOLORPROC glad_glBlendColor;
+typedef void (APIENTRYP PFNGLBLRL_ENDCOLORPROC)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+GLAPI PFNGLBLRL_ENDCOLORPROC glad_glBlendColor;
 #define glBlendColor glad_glBlendColor
-typedef void (APIENTRYP PFNGLBLENDEQUATIONPROC)(GLenum mode);
-GLAPI PFNGLBLENDEQUATIONPROC glad_glBlendEquation;
+typedef void (APIENTRYP PFNGLBLRL_ENDEQUATIONPROC)(GLenum mode);
+GLAPI PFNGLBLRL_ENDEQUATIONPROC glad_glBlendEquation;
 #define glBlendEquation glad_glBlendEquation
 #endif
 #ifndef GL_VERSION_1_5
@@ -1797,8 +1797,8 @@ GLAPI PFNGLISQUERYPROC glad_glIsQuery;
 typedef void (APIENTRYP PFNGLBEGINQUERYPROC)(GLenum target, GLuint id);
 GLAPI PFNGLBEGINQUERYPROC glad_glBeginQuery;
 #define glBeginQuery glad_glBeginQuery
-typedef void (APIENTRYP PFNGLENDQUERYPROC)(GLenum target);
-GLAPI PFNGLENDQUERYPROC glad_glEndQuery;
+typedef void (APIENTRYP PFNGLRL_ENDQUERYPROC)(GLenum target);
+GLAPI PFNGLRL_ENDQUERYPROC glad_glEndQuery;
 #define glEndQuery glad_glEndQuery
 typedef void (APIENTRYP PFNGLGETQUERYIVPROC)(GLenum target, GLenum pname, GLint *params);
 GLAPI PFNGLGETQUERYIVPROC glad_glGetQueryiv;
@@ -1846,8 +1846,8 @@ GLAPI PFNGLGETBUFFERPOINTERVPROC glad_glGetBufferPointerv;
 #ifndef GL_VERSION_2_0
 #define GL_VERSION_2_0 1
 GLAPI int GLAD_GL_VERSION_2_0;
-typedef void (APIENTRYP PFNGLBLENDEQUATIONSEPARATEPROC)(GLenum modeRGB, GLenum modeAlpha);
-GLAPI PFNGLBLENDEQUATIONSEPARATEPROC glad_glBlendEquationSeparate;
+typedef void (APIENTRYP PFNGLBLRL_ENDEQUATIONSEPARATEPROC)(GLenum modeRGB, GLenum modeAlpha);
+GLAPI PFNGLBLRL_ENDEQUATIONSEPARATEPROC glad_glBlendEquationSeparate;
 #define glBlendEquationSeparate glad_glBlendEquationSeparate
 typedef void (APIENTRYP PFNGLDRAWBUFFERSPROC)(GLsizei n, const GLenum *bufs);
 GLAPI PFNGLDRAWBUFFERSPROC glad_glDrawBuffers;
@@ -2172,8 +2172,8 @@ GLAPI PFNGLISENABLEDIPROC glad_glIsEnabledi;
 typedef void (APIENTRYP PFNGLBEGINTRANSFORMFEEDBACKPROC)(GLenum primitiveMode);
 GLAPI PFNGLBEGINTRANSFORMFEEDBACKPROC glad_glBeginTransformFeedback;
 #define glBeginTransformFeedback glad_glBeginTransformFeedback
-typedef void (APIENTRYP PFNGLENDTRANSFORMFEEDBACKPROC)(void);
-GLAPI PFNGLENDTRANSFORMFEEDBACKPROC glad_glEndTransformFeedback;
+typedef void (APIENTRYP PFNGLRL_ENDTRANSFORMFEEDBACKPROC)(void);
+GLAPI PFNGLRL_ENDTRANSFORMFEEDBACKPROC glad_glEndTransformFeedback;
 #define glEndTransformFeedback glad_glEndTransformFeedback
 typedef void (APIENTRYP PFNGLBINDBUFFERRANGEPROC)(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
 GLAPI PFNGLBINDBUFFERRANGEPROC glad_glBindBufferRange;
@@ -2190,11 +2190,11 @@ GLAPI PFNGLGETTRANSFORMFEEDBACKVARYINGPROC glad_glGetTransformFeedbackVarying;
 typedef void (APIENTRYP PFNGLCLAMPCOLORPROC)(GLenum target, GLenum clamp);
 GLAPI PFNGLCLAMPCOLORPROC glad_glClampColor;
 #define glClampColor glad_glClampColor
-typedef void (APIENTRYP PFNGLBEGINCONDITIONALRENDERPROC)(GLuint id, GLenum mode);
-GLAPI PFNGLBEGINCONDITIONALRENDERPROC glad_glBeginConditionalRender;
+typedef void (APIENTRYP PFNGLBEGINCONDITIONALRRL_ENDERPROC)(GLuint id, GLenum mode);
+GLAPI PFNGLBEGINCONDITIONALRRL_ENDERPROC glad_glBeginConditionalRender;
 #define glBeginConditionalRender glad_glBeginConditionalRender
-typedef void (APIENTRYP PFNGLENDCONDITIONALRENDERPROC)(void);
-GLAPI PFNGLENDCONDITIONALRENDERPROC glad_glEndConditionalRender;
+typedef void (APIENTRYP PFNGLRL_ENDCONDITIONALRRL_ENDERPROC)(void);
+GLAPI PFNGLRL_ENDCONDITIONALRRL_ENDERPROC glad_glEndConditionalRender;
 #define glEndConditionalRender glad_glEndConditionalRender
 typedef void (APIENTRYP PFNGLVERTEXATTRIBIPOINTERPROC)(GLuint index, GLint size, GLenum type, GLsizei stride, const void *pointer);
 GLAPI PFNGLVERTEXATTRIBIPOINTERPROC glad_glVertexAttribIPointer;
@@ -2325,23 +2325,23 @@ GLAPI PFNGLCLEARBUFFERFIPROC glad_glClearBufferfi;
 typedef const GLubyte * (APIENTRYP PFNGLGETSTRINGIPROC)(GLenum name, GLuint index);
 GLAPI PFNGLGETSTRINGIPROC glad_glGetStringi;
 #define glGetStringi glad_glGetStringi
-typedef GLboolean (APIENTRYP PFNGLISRENDERBUFFERPROC)(GLuint renderbuffer);
-GLAPI PFNGLISRENDERBUFFERPROC glad_glIsRenderbuffer;
+typedef GLboolean (APIENTRYP PFNGLISRRL_ENDERBUFFERPROC)(GLuint renderbuffer);
+GLAPI PFNGLISRRL_ENDERBUFFERPROC glad_glIsRenderbuffer;
 #define glIsRenderbuffer glad_glIsRenderbuffer
-typedef void (APIENTRYP PFNGLBINDRENDERBUFFERPROC)(GLenum target, GLuint renderbuffer);
-GLAPI PFNGLBINDRENDERBUFFERPROC glad_glBindRenderbuffer;
+typedef void (APIENTRYP PFNGLBINDRRL_ENDERBUFFERPROC)(GLenum target, GLuint renderbuffer);
+GLAPI PFNGLBINDRRL_ENDERBUFFERPROC glad_glBindRenderbuffer;
 #define glBindRenderbuffer glad_glBindRenderbuffer
-typedef void (APIENTRYP PFNGLDELETERENDERBUFFERSPROC)(GLsizei n, const GLuint *renderbuffers);
-GLAPI PFNGLDELETERENDERBUFFERSPROC glad_glDeleteRenderbuffers;
+typedef void (APIENTRYP PFNGLDELETERRL_ENDERBUFFERSPROC)(GLsizei n, const GLuint *renderbuffers);
+GLAPI PFNGLDELETERRL_ENDERBUFFERSPROC glad_glDeleteRenderbuffers;
 #define glDeleteRenderbuffers glad_glDeleteRenderbuffers
-typedef void (APIENTRYP PFNGLGENRENDERBUFFERSPROC)(GLsizei n, GLuint *renderbuffers);
-GLAPI PFNGLGENRENDERBUFFERSPROC glad_glGenRenderbuffers;
+typedef void (APIENTRYP PFNGLGENRRL_ENDERBUFFERSPROC)(GLsizei n, GLuint *renderbuffers);
+GLAPI PFNGLGENRRL_ENDERBUFFERSPROC glad_glGenRenderbuffers;
 #define glGenRenderbuffers glad_glGenRenderbuffers
-typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEPROC)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-GLAPI PFNGLRENDERBUFFERSTORAGEPROC glad_glRenderbufferStorage;
+typedef void (APIENTRYP PFNGLRRL_ENDERBUFFERSTORAGEPROC)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+GLAPI PFNGLRRL_ENDERBUFFERSTORAGEPROC glad_glRenderbufferStorage;
 #define glRenderbufferStorage glad_glRenderbufferStorage
-typedef void (APIENTRYP PFNGLGETRENDERBUFFERPARAMETERIVPROC)(GLenum target, GLenum pname, GLint *params);
-GLAPI PFNGLGETRENDERBUFFERPARAMETERIVPROC glad_glGetRenderbufferParameteriv;
+typedef void (APIENTRYP PFNGLGETRRL_ENDERBUFFERPARAMETERIVPROC)(GLenum target, GLenum pname, GLint *params);
+GLAPI PFNGLGETRRL_ENDERBUFFERPARAMETERIVPROC glad_glGetRenderbufferParameteriv;
 #define glGetRenderbufferParameteriv glad_glGetRenderbufferParameteriv
 typedef GLboolean (APIENTRYP PFNGLISFRAMEBUFFERPROC)(GLuint framebuffer);
 GLAPI PFNGLISFRAMEBUFFERPROC glad_glIsFramebuffer;
@@ -2367,8 +2367,8 @@ GLAPI PFNGLFRAMEBUFFERTEXTURE2DPROC glad_glFramebufferTexture2D;
 typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE3DPROC)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
 GLAPI PFNGLFRAMEBUFFERTEXTURE3DPROC glad_glFramebufferTexture3D;
 #define glFramebufferTexture3D glad_glFramebufferTexture3D
-typedef void (APIENTRYP PFNGLFRAMEBUFFERRENDERBUFFERPROC)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-GLAPI PFNGLFRAMEBUFFERRENDERBUFFERPROC glad_glFramebufferRenderbuffer;
+typedef void (APIENTRYP PFNGLFRAMEBUFFERRRL_ENDERBUFFERPROC)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+GLAPI PFNGLFRAMEBUFFERRRL_ENDERBUFFERPROC glad_glFramebufferRenderbuffer;
 #define glFramebufferRenderbuffer glad_glFramebufferRenderbuffer
 typedef void (APIENTRYP PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC)(GLenum target, GLenum attachment, GLenum pname, GLint *params);
 GLAPI PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC glad_glGetFramebufferAttachmentParameteriv;
@@ -2379,8 +2379,8 @@ GLAPI PFNGLGENERATEMIPMAPPROC glad_glGenerateMipmap;
 typedef void (APIENTRYP PFNGLBLITFRAMEBUFFERPROC)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 GLAPI PFNGLBLITFRAMEBUFFERPROC glad_glBlitFramebuffer;
 #define glBlitFramebuffer glad_glBlitFramebuffer
-typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC)(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
-GLAPI PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glad_glRenderbufferStorageMultisample;
+typedef void (APIENTRYP PFNGLRRL_ENDERBUFFERSTORAGEMULTISAMPLEPROC)(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+GLAPI PFNGLRRL_ENDERBUFFERSTORAGEMULTISAMPLEPROC glad_glRenderbufferStorageMultisample;
 #define glRenderbufferStorageMultisample glad_glRenderbufferStorageMultisample
 typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURELAYERPROC)(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
 GLAPI PFNGLFRAMEBUFFERTEXTURELAYERPROC glad_glFramebufferTextureLayer;
@@ -2689,17 +2689,17 @@ GLAPI int GLAD_GL_VERSION_4_0;
 typedef void (APIENTRYP PFNGLMINSAMPLESHADINGPROC)(GLfloat value);
 GLAPI PFNGLMINSAMPLESHADINGPROC glad_glMinSampleShading;
 #define glMinSampleShading glad_glMinSampleShading
-typedef void (APIENTRYP PFNGLBLENDEQUATIONIPROC)(GLuint buf, GLenum mode);
-GLAPI PFNGLBLENDEQUATIONIPROC glad_glBlendEquationi;
+typedef void (APIENTRYP PFNGLBLRL_ENDEQUATIONIPROC)(GLuint buf, GLenum mode);
+GLAPI PFNGLBLRL_ENDEQUATIONIPROC glad_glBlendEquationi;
 #define glBlendEquationi glad_glBlendEquationi
-typedef void (APIENTRYP PFNGLBLENDEQUATIONSEPARATEIPROC)(GLuint buf, GLenum modeRGB, GLenum modeAlpha);
-GLAPI PFNGLBLENDEQUATIONSEPARATEIPROC glad_glBlendEquationSeparatei;
+typedef void (APIENTRYP PFNGLBLRL_ENDEQUATIONSEPARATEIPROC)(GLuint buf, GLenum modeRGB, GLenum modeAlpha);
+GLAPI PFNGLBLRL_ENDEQUATIONSEPARATEIPROC glad_glBlendEquationSeparatei;
 #define glBlendEquationSeparatei glad_glBlendEquationSeparatei
-typedef void (APIENTRYP PFNGLBLENDFUNCIPROC)(GLuint buf, GLenum src, GLenum dst);
-GLAPI PFNGLBLENDFUNCIPROC glad_glBlendFunci;
+typedef void (APIENTRYP PFNGLBLRL_ENDFUNCIPROC)(GLuint buf, GLenum src, GLenum dst);
+GLAPI PFNGLBLRL_ENDFUNCIPROC glad_glBlendFunci;
 #define glBlendFunci glad_glBlendFunci
-typedef void (APIENTRYP PFNGLBLENDFUNCSEPARATEIPROC)(GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
-GLAPI PFNGLBLENDFUNCSEPARATEIPROC glad_glBlendFuncSeparatei;
+typedef void (APIENTRYP PFNGLBLRL_ENDFUNCSEPARATEIPROC)(GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+GLAPI PFNGLBLRL_ENDFUNCSEPARATEIPROC glad_glBlendFuncSeparatei;
 #define glBlendFuncSeparatei glad_glBlendFuncSeparatei
 typedef void (APIENTRYP PFNGLDRAWARRAYSINDIRECTPROC)(GLenum mode, const void *indirect);
 GLAPI PFNGLDRAWARRAYSINDIRECTPROC glad_glDrawArraysIndirect;
@@ -2818,8 +2818,8 @@ GLAPI PFNGLDRAWTRANSFORMFEEDBACKSTREAMPROC glad_glDrawTransformFeedbackStream;
 typedef void (APIENTRYP PFNGLBEGINQUERYINDEXEDPROC)(GLenum target, GLuint index, GLuint id);
 GLAPI PFNGLBEGINQUERYINDEXEDPROC glad_glBeginQueryIndexed;
 #define glBeginQueryIndexed glad_glBeginQueryIndexed
-typedef void (APIENTRYP PFNGLENDQUERYINDEXEDPROC)(GLenum target, GLuint index);
-GLAPI PFNGLENDQUERYINDEXEDPROC glad_glEndQueryIndexed;
+typedef void (APIENTRYP PFNGLRL_ENDQUERYINDEXEDPROC)(GLenum target, GLuint index);
+GLAPI PFNGLRL_ENDQUERYINDEXEDPROC glad_glEndQueryIndexed;
 #define glEndQueryIndexed glad_glEndQueryIndexed
 typedef void (APIENTRYP PFNGLGETQUERYINDEXEDIVPROC)(GLenum target, GLuint index, GLenum pname, GLint *params);
 GLAPI PFNGLGETQUERYINDEXEDIVPROC glad_glGetQueryIndexediv;
@@ -3372,8 +3372,8 @@ GLAPI PFNGLGETNAMEDBUFFERSUBDATAPROC glad_glGetNamedBufferSubData;
 typedef void (APIENTRYP PFNGLCREATEFRAMEBUFFERSPROC)(GLsizei n, GLuint *framebuffers);
 GLAPI PFNGLCREATEFRAMEBUFFERSPROC glad_glCreateFramebuffers;
 #define glCreateFramebuffers glad_glCreateFramebuffers
-typedef void (APIENTRYP PFNGLNAMEDFRAMEBUFFERRENDERBUFFERPROC)(GLuint framebuffer, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-GLAPI PFNGLNAMEDFRAMEBUFFERRENDERBUFFERPROC glad_glNamedFramebufferRenderbuffer;
+typedef void (APIENTRYP PFNGLNAMEDFRAMEBUFFERRRL_ENDERBUFFERPROC)(GLuint framebuffer, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+GLAPI PFNGLNAMEDFRAMEBUFFERRRL_ENDERBUFFERPROC glad_glNamedFramebufferRenderbuffer;
 #define glNamedFramebufferRenderbuffer glad_glNamedFramebufferRenderbuffer
 typedef void (APIENTRYP PFNGLNAMEDFRAMEBUFFERPARAMETERIPROC)(GLuint framebuffer, GLenum pname, GLint param);
 GLAPI PFNGLNAMEDFRAMEBUFFERPARAMETERIPROC glad_glNamedFramebufferParameteri;
@@ -3423,17 +3423,17 @@ GLAPI PFNGLGETNAMEDFRAMEBUFFERPARAMETERIVPROC glad_glGetNamedFramebufferParamete
 typedef void (APIENTRYP PFNGLGETNAMEDFRAMEBUFFERATTACHMENTPARAMETERIVPROC)(GLuint framebuffer, GLenum attachment, GLenum pname, GLint *params);
 GLAPI PFNGLGETNAMEDFRAMEBUFFERATTACHMENTPARAMETERIVPROC glad_glGetNamedFramebufferAttachmentParameteriv;
 #define glGetNamedFramebufferAttachmentParameteriv glad_glGetNamedFramebufferAttachmentParameteriv
-typedef void (APIENTRYP PFNGLCREATERENDERBUFFERSPROC)(GLsizei n, GLuint *renderbuffers);
-GLAPI PFNGLCREATERENDERBUFFERSPROC glad_glCreateRenderbuffers;
+typedef void (APIENTRYP PFNGLCREATERRL_ENDERBUFFERSPROC)(GLsizei n, GLuint *renderbuffers);
+GLAPI PFNGLCREATERRL_ENDERBUFFERSPROC glad_glCreateRenderbuffers;
 #define glCreateRenderbuffers glad_glCreateRenderbuffers
-typedef void (APIENTRYP PFNGLNAMEDRENDERBUFFERSTORAGEPROC)(GLuint renderbuffer, GLenum internalformat, GLsizei width, GLsizei height);
-GLAPI PFNGLNAMEDRENDERBUFFERSTORAGEPROC glad_glNamedRenderbufferStorage;
+typedef void (APIENTRYP PFNGLNAMEDRRL_ENDERBUFFERSTORAGEPROC)(GLuint renderbuffer, GLenum internalformat, GLsizei width, GLsizei height);
+GLAPI PFNGLNAMEDRRL_ENDERBUFFERSTORAGEPROC glad_glNamedRenderbufferStorage;
 #define glNamedRenderbufferStorage glad_glNamedRenderbufferStorage
-typedef void (APIENTRYP PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEPROC)(GLuint renderbuffer, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
-GLAPI PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEPROC glad_glNamedRenderbufferStorageMultisample;
+typedef void (APIENTRYP PFNGLNAMEDRRL_ENDERBUFFERSTORAGEMULTISAMPLEPROC)(GLuint renderbuffer, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+GLAPI PFNGLNAMEDRRL_ENDERBUFFERSTORAGEMULTISAMPLEPROC glad_glNamedRenderbufferStorageMultisample;
 #define glNamedRenderbufferStorageMultisample glad_glNamedRenderbufferStorageMultisample
-typedef void (APIENTRYP PFNGLGETNAMEDRENDERBUFFERPARAMETERIVPROC)(GLuint renderbuffer, GLenum pname, GLint *params);
-GLAPI PFNGLGETNAMEDRENDERBUFFERPARAMETERIVPROC glad_glGetNamedRenderbufferParameteriv;
+typedef void (APIENTRYP PFNGLGETNAMEDRRL_ENDERBUFFERPARAMETERIVPROC)(GLuint renderbuffer, GLenum pname, GLint *params);
+GLAPI PFNGLGETNAMEDRRL_ENDERBUFFERPARAMETERIVPROC glad_glGetNamedRenderbufferParameteriv;
 #define glGetNamedRenderbufferParameteriv glad_glGetNamedRenderbufferParameteriv
 typedef void (APIENTRYP PFNGLCREATETEXTURESPROC)(GLenum target, GLsizei n, GLuint *textures);
 GLAPI PFNGLCREATETEXTURESPROC glad_glCreateTextures;

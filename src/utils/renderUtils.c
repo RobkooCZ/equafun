@@ -7,17 +7,17 @@
 
 #include <stdio.h>
 
-enum reh_error_code_e setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO){
+enum reh_error_code_e rru_SetupEbo(GLuint *indices, size_t indicesSize, GLuint *EBO){
   if (!indices){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Indices pointer is NULL in setupEBO()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Indices pointer is NULL in rru_SetupEbo()");
   }
 
   if (!EBO){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "EBO pointer is NULL in setupEBO()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "EBO pointer is NULL in rru_SetupEbo()");
   }
 
   if (indicesSize == 0){
-    SET_ERROR_RETURN(ERR_BUFFER_SETUP_FAILED, "Indices size is 0 in setupEBO()");
+    SET_ERROR_RETURN(ERR_BUFFER_SETUP_FAILED, "Indices size is 0 in rru_SetupEbo()");
   }
 
   // Clear any previous OpenGL errors
@@ -45,7 +45,7 @@ enum reh_error_code_e setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO)
     SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to bind Element Buffer Object", technical);
   }
 
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)indicesSize, indices, GL_STATIC_DRAW);
   err = glGetError();
   if (err != GL_NO_ERROR){
     char technical[256];
@@ -57,37 +57,37 @@ enum reh_error_code_e setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO)
     SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to upload index data to GPU", technical);
   }
 
-  logMsg(DEBUG, "Successfully set up EBO with %zu bytes of index data", indicesSize);
+  rl_LogMsg(RL_DEBUG, "Successfully set up EBO with %zu bytes of index data", indicesSize);
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e setupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO){
+enum reh_error_code_e rru_SetupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO){
   if (!vertices){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Vertices pointer is NULL in setupRenderData()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Vertices pointer is NULL in rru_SetupRenderData()");
   }
 
   if (!indices){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Indices pointer is NULL in setupRenderData()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Indices pointer is NULL in rru_SetupRenderData()");
   }
 
   if (!VAO){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "VAO pointer is NULL in setupRenderData()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "VAO pointer is NULL in rru_SetupRenderData()");
   }
 
   if (!VBO){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "VBO pointer is NULL in setupRenderData()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "VBO pointer is NULL in rru_SetupRenderData()");
   }
 
   if (!EBO){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "EBO pointer is NULL in setupRenderData()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "EBO pointer is NULL in rru_SetupRenderData()");
   }
 
   if (verticesSize == 0){
-    SET_ERROR_RETURN(ERR_BUFFER_SETUP_FAILED, "Vertices size is 0 in setupRenderData()");
+    SET_ERROR_RETURN(ERR_BUFFER_SETUP_FAILED, "Vertices size is 0 in rru_SetupRenderData()");
   }
 
   if (indicesSize == 0){
-    SET_ERROR_RETURN(ERR_BUFFER_SETUP_FAILED, "Indices size is 0 in setupRenderData()");
+    SET_ERROR_RETURN(ERR_BUFFER_SETUP_FAILED, "Indices size is 0 in rru_SetupRenderData()");
   }
 
   // Clear any previous OpenGL errors
@@ -149,7 +149,7 @@ enum reh_error_code_e setupRenderData(float *vertices, size_t verticesSize, GLui
     SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to bind Vertex Buffer Object", technical);
   }
 
-  glBufferData(GL_ARRAY_BUFFER, verticesSize, vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)verticesSize, vertices, GL_STATIC_DRAW);
   err = glGetError();
   if (err != GL_NO_ERROR){
     char technical[256];
@@ -187,20 +187,20 @@ enum reh_error_code_e setupRenderData(float *vertices, size_t verticesSize, GLui
   }
 
   // Setup EBO (BEFORE unbinding VBO)
-  enum reh_error_code_e eboErr = setupEBO(indices, indicesSize, EBO);
+  enum reh_error_code_e eboErr = rru_SetupEbo(indices, indicesSize, EBO);
   if (eboErr != ERR_SUCCESS){
     glDeleteBuffers(1, VBO);
     glDeleteVertexArrays(1, VAO);
     *VAO = 0;
     *VBO = 0;
-    SET_ERROR_RETURN(eboErr, "Failed to setup Element Buffer Object in setupRenderData()");
+    SET_ERROR_RETURN(eboErr, "Failed to setup Element Buffer Object in rru_SetupRenderData()");
   }
 
   // Unbind buffers and VAO
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
-  logMsg(DEBUG, "Successfully set up render data (VAO: %u, VBO: %u, EBO: %u, vertices: %zu bytes, indices: %zu bytes)", *VAO, *VBO, *EBO, verticesSize, indicesSize);
+  rl_LogMsg(RL_DEBUG, "Successfully set up render data (VAO: %u, VBO: %u, EBO: %u, vertices: %zu bytes, indices: %zu bytes)", *VAO, *VBO, *EBO, verticesSize, indicesSize);
 
   return ERR_SUCCESS;
 }

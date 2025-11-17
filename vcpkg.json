@@ -1,0 +1,11 @@
+{
+  "name": "equafun",
+  "version": "0.0.6",
+  "description": "Lightweight renderer",
+  "dependencies": [
+    "glfw3",
+    "freetype"
+  ],
+  "builtin-baseline": "3b594f574962619c134994f92cbd5e9a2b508b07"
+}
+

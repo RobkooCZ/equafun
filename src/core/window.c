@@ -2,21 +2,104 @@
 #include "core/logger.h"
 #include "core/errorHandler.h"
 
+#include <GLFW/glfw3.h>
 #include <stdio.h>
 
-void framebufferSizeCallback(GLFWwindow *window, int width, int height){
-  glViewport(0, 0, width, height);
-  logMsg(DEBUG, "Changing window resolution to: %d, %d", width, height);
+static const float GRAPH_HALF_HEIGHT = 10.0f;
+
+// define the viewport and adjust it based on the aspect ratio so the axes match symmetrically
+float worldYMin = -GRAPH_HALF_HEIGHT;
+float worldYMax =  GRAPH_HALF_HEIGHT;
+float worldXMin = -GRAPH_HALF_HEIGHT * ASPECT_RATIO;
+float worldXMax =  GRAPH_HALF_HEIGHT * ASPECT_RATIO;
+
+// by default WIDTH,HEIGHT
+float windowWidth  = WIDTH;
+float windowHeight = HEIGHT;
+
+// flag to tell main if we should rebuild the projection matrices
+bool rebuildProjection = false;
+// flag to tell main if we should redraw the window
+bool redrawWindow = true;
+
+static void recomputeWorldExtents(void){
+  if (windowHeight <= 0.0f){
+    windowHeight = 1.0f; // prevent division-by-zero; will be corrected by the next resize event
+  }
+
+  const float aspect = windowWidth / windowHeight;
+  const float halfSpanX = GRAPH_HALF_HEIGHT * aspect;
+
+  worldYMin = -GRAPH_HALF_HEIGHT;
+  worldYMax =  GRAPH_HALF_HEIGHT;
+  worldXMin = -halfSpanX;
+  worldXMax =  halfSpanX;
 }
 
-enum reh_error_code_e initGLFW(void){
+void rwh_FramebufferSizeCallback(GLFWwindow *window, int width, int height){
+  (void)window;
+  glViewport(0, 0, width, height);
+
+  windowWidth = (float)width;
+  windowHeight = (float)height;
+
+  recomputeWorldExtents();
+  rebuildProjection = true;
+  redrawWindow = true;
+
+  rl_LogMsg(RL_DEBUG, "Changing window resolution to: %d, %d", width, height);
+}
+
+void rwh_GlfwErrCallback(int errCode, const char* msg){
+  rl_LogMsg(RL_ERROR, "GLFW error (code: %d): %s", errCode, msg);
+}
+
+enum reh_error_code_e rwh_InitGLFW(void){
+  if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)){
+    rl_LogMsg(RL_DEBUG, "GLFW support for Wayland found.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
+  }
+  else if (glfwPlatformSupported(GLFW_PLATFORM_X11)){
+    rl_LogMsg(RL_DEBUG, "GLFW support for X11 found.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+  }
+  else if (glfwPlatformSupported(GLFW_PLATFORM_WIN32)){
+    rl_LogMsg(RL_DEBUG, "GLFW support for Windows found.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WIN32);
+  }
+  else { // fallback
+    rl_LogMsg(RL_DEBUG, "No GLFW platform found, using fallback.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_NULL);
+  }
+
   if (!glfwInit()){
     SET_ERROR_RETURN(ERR_GLFW_INIT_FAILED, "Failed to initialize GLFW library");
   }
- 
+
+  int platform = glfwGetPlatform();
+  switch (platform){
+    case GLFW_PLATFORM_X11:
+      rl_LogMsg(RL_DEBUG, "Using X11 platform.");
+      break;
+    case GLFW_PLATFORM_WAYLAND:
+      rl_LogMsg(RL_DEBUG, "Using the Wayland platform.");
+      break;
+    case GLFW_PLATFORM_WIN32:
+      rl_LogMsg(RL_DEBUG, "Using Windows platform.");
+      break;
+    case GLFW_PLATFORM_NULL:
+      rl_LogMsg(RL_DEBUG, "Using fallback platform.");
+      break;
+    default:
+      rl_LogMsg(RL_DEBUG, "Using unknown platform.");
+      break;
+  }
+
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VER_MAJOR);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VER_MINOR);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  glfwSetErrorCallback(rwh_GlfwErrCallback);
 
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -25,9 +108,9 @@ enum reh_error_code_e initGLFW(void){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e initWindow(GLFWwindow **window){
+enum reh_error_code_e rwh_InitWindow(GLFWwindow **window){
   if (!window){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Window pointer is NULL in initWindow()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Window pointer is NULL in rwh_InitWindow()");
   }
 
   *window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, nullptr, nullptr);
@@ -68,7 +151,7 @@ enum reh_error_code_e initWindow(GLFWwindow **window){
   }
 
   // on resize update width & height
-  glfwSetFramebufferSizeCallback(*window, framebufferSizeCallback);
+  glfwSetFramebufferSizeCallback(*window, rwh_FramebufferSizeCallback);
 
   return ERR_SUCCESS;
 }

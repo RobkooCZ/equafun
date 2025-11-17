@@ -1,5 +1,5 @@
 /*
-  id of these functions is 'rtr_..' which stands for Robkoo's Text Renderer
+  rtr - Robkoo's Text Renderer
 */
 
 #ifndef TEXT_H
@@ -19,24 +19,79 @@
 #define ASCII_CHAR_COUNT 128
 
 struct rtr_character_t {
-  FT_UInt           textureID;  // ID handle of the glyph texture
-  struct rm_vec2_t  size;       // Size of glyph
-  struct rm_vec2_t  bearing;    // Offset from baseline to left/top of the glyph
-  FT_UInt           advance;    // Offset to advance to the next glyph
+  FT_UInt           textureID;  /**< ID handle of the glyph texture */
+  struct rm_vec2_t  size;       /**< Size of glyph */
+  struct rm_vec2_t  bearing;    /**< Offset from baseline to left/top of the glyph */
+  FT_UInt           advance;    /**< Offset to advance to the next glyph */
 };
 
-enum reh_error_code_e rtr_initFt(FT_Library *library);
-enum reh_error_code_e rtr_initFtFace(FT_Library *library, FT_Face *face);
-enum reh_error_code_e rtr_loadChar(FT_Face face, uint8_t ch);
-enum reh_error_code_e rtr_loadCharactersIntoArray(FT_Face face, struct rtr_character_t *characters);
-enum reh_error_code_e rtr_createTextRenderVAO(GLuint *VAO, GLuint *VBO);
-enum reh_error_code_e rtr_renderText(GLuint program, GLuint VAO, GLuint VBO, const char *text, struct rtr_character_t *characters, float x, float y, float scale, struct rm_vec3_t color);
+/**
+  @brief Initializes FreeType library
+*/
+enum reh_error_code_e rtr_InitFt(FT_Library *library);
 
-// label rendering
-enum reh_error_code_e rtr_calculateTextWidth(const char *text, struct rtr_character_t *characters, float scale, float *totalWidth);
-enum reh_error_code_e rtr_calculateTextHeight(const char *text, struct rtr_character_t *characters, float scale, float *totalHeight, float *ascent);
-enum reh_error_code_e rtr_formatMarkerValue(float value, char* buffer, const int bufferSize);
-float rtr_ndcToPixelX(float ndcX);
-float rtr_ndcToPixelY(float ndcY);
-enum reh_error_code_e rtr_renderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color);
+/**
+  @brief Initializes FreeType face
+*/
+enum reh_error_code_e rtr_InitFtFace(FT_Library *library, FT_Face *face);
+
+/**
+  @brief Loads a single character glyph into a texture
+*/
+enum reh_error_code_e rtr_LoadChar(FT_Face face, uint8_t ch);
+
+/**
+  @brief Loads all ASCII characters into an array of struct rtr_character_t
+*/
+enum reh_error_code_e rtr_LoadCharactersIntoArray(FT_Face face, struct rtr_character_t *characters);
+
+/**
+  @brief Creates VAO and VBO for text rendering
+*/
+enum reh_error_code_e rtr_CreateTextRenderVAO(GLuint *VAO, GLuint *VBO);
+
+/**
+  @brief Renders text at the specified position, scale, and color
+*/
+enum reh_error_code_e rtr_RenderText(GLuint program, GLuint VAO, GLuint VBO, const char *text, struct rtr_character_t *characters, float x, float y, float scale, struct rm_vec3_t color);
+
+/**
+  @brief Calculates the width of the given text string when rendered
+*/
+enum reh_error_code_e rtr_CalculateTextWidth(const char *text, struct rtr_character_t *characters, float scale, float *totalWidth);
+
+/**
+  @brief Calculates the height of the given text string when rendered
+*/
+enum reh_error_code_e rtr_CalculateTextHeight(const char *text, struct rtr_character_t *characters, float scale, float *totalHeight, float *ascent);
+
+/**
+  @brief Formats a marker value into a string buffer
+*/
+enum reh_error_code_e rtr_FormatMarkerValue(float value, char* buffer, const int bufferSize);
+
+/**
+  @brief Converts NDC X coordinate to pixel X coordinate
+*/
+float rtr_NdcToPixelX(float ndcX);
+
+/**
+  @brief Converts NDC Y coordinate to pixel Y coordinate
+*/
+float rtr_NdcToPixelY(float ndcY);
+
+/**
+  @brief Converts world X coordinate to pixel X coordinate
+*/
+float rtr_WorldToPixelX(float worldX);
+
+/**
+  @brief Converts world Y coordinate to pixel Y coordinate
+*/
+float rtr_WorldToPixelY(float worldY);
+
+/**
+  @brief Renders axis labels
+*/
+enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color);
 #endif // TEXT_H

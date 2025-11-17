@@ -15,8 +15,8 @@
 struct rm_vec2_val_res_t rm_ValidateVec2(struct rm_vec2_t v){
   struct rm_vec2_val_res_t result = {IS_NORMAL};
 
-  result.xRes = rm_classifyNum(v.x);
-  result.yRes = rm_classifyNum(v.y);
+  result.xRes = rm_ClassifyNum(v.x);
+  result.yRes = rm_ClassifyNum(v.y);
 
   return result;
 }
@@ -88,7 +88,7 @@ enum reh_error_code_e rm_Vec2Normalize(struct rm_vec2_t v, struct rm_vec2_t *n_v
   CHECK_ERROR_CTX(rm_Vec2Magnitude(v, &magnitude), "Failed to get vector magnitude.");
 
   if (magnitude < FLT_EPSILON){
-    logMsg(WARNING, "Magnitude too close to 0 (%.2e), setting normalized vector to: <0,0>", magnitude);
+    rl_LogMsg(RL_WARNING, "Magnitude too close to 0 (%.2e), setting normalized vector to: <0,0>", (double)magnitude);
     n_v->x = 0;
     n_v->y = 0;
     return ERR_SUCCESS;
@@ -115,7 +115,7 @@ enum reh_error_code_e rm_Vec2Scale(struct rm_vec2_t v, float scalar, struct rm_v
   VALIDATE_VEC2_INPUT(v);
 
   // validate scalar
-  enum rm_num_classes_e scalarClass = rm_classifyNum(scalar);
+  enum rm_num_classes_e scalarClass = rm_ClassifyNum(scalar);
   enum reh_error_code_e scalarErr = rm_ReturnErrForNumClass(scalarClass);
   if (scalarErr != ERR_SUCCESS){
     SET_ERROR_RETURN(scalarErr, "Invalid scalar provided to rm_Vec2Scale()");
@@ -197,10 +197,10 @@ enum reh_error_code_e rm_Mat4Ortho(float left, float right, float bottom, float 
   }
 
   // Validate inputs (prevent division by zero)
-  if (right == left) {
+  if (fabsf(right - left) < FLT_EPSILON) {
     SET_ERROR_RETURN(ERR_INVALID_INPUT, "right == left in rm_Mat4Ortho() (division by zero)");
   }
-  if (top == bottom) {
+  if (fabsf(top - bottom) < FLT_EPSILON){
     SET_ERROR_RETURN(ERR_INVALID_INPUT, "top == bottom in rm_Mat4Ortho() (division by zero)");
   }
 
@@ -218,16 +218,3 @@ enum reh_error_code_e rm_Mat4Ortho(float left, float right, float bottom, float 
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rm_Mat4ValuePtr(struct rm_mat4_t *mat, float **result){
-  if (mat == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Matrix pointer in rm_Mat4ValuePtr is NULL");
-  }
-
-  if (result == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Result pointer in rm_Mat4ValuePtr is NULL");
-  }
-
-  *result = mat->data;
-
-  return ERR_SUCCESS;
-}

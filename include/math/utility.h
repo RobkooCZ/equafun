@@ -1,5 +1,11 @@
+/**
+  rm - Robkoo's Math
+*/
+
 #ifndef MATH_UTILITIES_H
 #define MATH_UTILITIES_H
+
+#include "core/errorHandler.h"
 
 typedef enum rm_num_classes_e {
   FUNC_ERROR   = -1,
@@ -12,8 +18,14 @@ typedef enum rm_num_classes_e {
   IS_NORMAL    =  6,
 } NumClasses;
 
-// Function that returns one of the above enum values based on the number provided.
-// Used in math functions for edge case checking
-enum rm_num_classes_e rm_classifyNum(float num);
+/**
+  @brief Classifies a floating-point number into various categories
+*/
+enum rm_num_classes_e rm_ClassifyNum(float num);
+
+/**
+  @brief Calculates the factorial of an integer
+*/
+enum reh_error_code_e rm_Factorial(int n, int *result);
 
 #endif // MATH_UTILITES_H
