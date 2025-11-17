@@ -8,19 +8,19 @@
 #include <string.h>
 
 
-void ree_print(struct ree_token_t *tokenVal){
-  printf("{%s, %s}\n", ree_tokenToStr(tokenVal->token_type), tokenVal->value);
+void ree_Print(struct ree_token_t *tokenVal){
+  printf("{%s, %s}\n", ree_TokenToStr(tokenVal->token_type), tokenVal->value);
 }
 
-void ree_skipWhitespace(struct ree_data_t *data){
+void ree_SkipWhitespace(struct ree_data_t *data){
   while (data->currentChar == ' ' || data->currentChar == '\t' || data->currentChar == '\n' || data->currentChar == '\r'){
-    ree_advance(data);
+    ree_Advance(data);
   }
 }
 
-void ree_advance(struct ree_data_t *data){
+void ree_Advance(struct ree_data_t *data){
   if (data == nullptr){
-    logMsg(ERROR, "Data pointer passed to ree_advance is NULL.");
+    rl_LogMsg(RL_ERROR, "Data pointer passed to ree_Advance is NULL.");
     return;
   }
 
@@ -36,20 +36,20 @@ void ree_advance(struct ree_data_t *data){
   data->charsLexed++;
 }
 
-void ree_readNumber(struct ree_data_t *data, char* number){
+void ree_ReadNumber(struct ree_data_t *data, char* number){
   if (number == nullptr){
-    logMsg(ERROR, "Number pointer passed to ree_readNumber is NULL.");
+    rl_LogMsg(RL_ERROR, "Number pointer passed to ree_ReadNumber is NULL.");
     return;
   }
   if (data == nullptr){
-    logMsg(ERROR, "Data pointer passed to ree_readNumber is NULL.");
+    rl_LogMsg(RL_ERROR, "Data pointer passed to ree_ReadNumber is NULL.");
     return;
   }
 
   int start = data->currentPosition;
 
   while (isdigit(data->currentChar)){
-    ree_advance(data);
+    ree_Advance(data);
   }
 
   // iterator i starts at start, e.g. the position of the number in the expression
@@ -59,20 +59,20 @@ void ree_readNumber(struct ree_data_t *data, char* number){
   }
 }
 
-void ree_readIdentifier(struct ree_data_t *data, char* identifier){
+void ree_ReadIdentifier(struct ree_data_t *data, char* identifier){
   if (identifier == nullptr){
-    logMsg(ERROR, "Identifier pointer passed to ree_readIdentifier is NULL.");
+    rl_LogMsg(RL_ERROR, "Identifier pointer passed to ree_ReadIdentifier is NULL.");
     return;
   }
   if (data == nullptr){
-    logMsg(ERROR, "Data pointer passed to ree_readIdentifier is NULL.");
+    rl_LogMsg(RL_ERROR, "Data pointer passed to ree_ReadIdentifier is NULL.");
     return;
   }
 
   int start = data->currentPosition;
 
   while (isalpha(data->currentChar)){
-    ree_advance(data);
+    ree_Advance(data);
   }
 
   // iterator i starts at start, e.g. the position of the number in the expression
@@ -82,24 +82,24 @@ void ree_readIdentifier(struct ree_data_t *data, char* identifier){
   }
 }
 
-enum reh_error_code_e ree_nextToken(struct ree_data_t *data, struct ree_token_t *nextToken){
+enum reh_error_code_e ree_NextToken(struct ree_data_t *data, struct ree_token_t *nextToken){
   if (data == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Data pointer passed to ree_nextToken is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Data pointer passed to ree_NextToken is NULL.");
   }
   if (nextToken == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Next token pointer passed to ree_nextToken is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Next token pointer passed to ree_NextToken is NULL.");
   }
 
-  ree_skipWhitespace(data);
+  ree_SkipWhitespace(data);
 
   if (isdigit(data->currentChar)){
     nextToken->token_type = TOKEN_NUMBER;
-    ree_readNumber(data, nextToken->value);
+    ree_ReadNumber(data, nextToken->value);
     return ERR_SUCCESS; // return early to prevent additional position increment
   }
   else if (isalpha(data->currentChar)){
     nextToken->token_type = TOKEN_IDENTIFIER;
-    ree_readIdentifier(data, nextToken->value);
+    ree_ReadIdentifier(data, nextToken->value);
     return ERR_SUCCESS; // return early to prevent additional position increment
   }
   else if (data->currentChar == '+'){
@@ -137,17 +137,17 @@ enum reh_error_code_e ree_nextToken(struct ree_data_t *data, struct ree_token_t 
 
   nextToken->value[0] = (char)data->currentChar;
 
-  ree_advance(data);
+  ree_Advance(data);
 
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e ree_lexer(char *expression, struct ree_token_t *tokens){
+enum reh_error_code_e ree_Lexer(char *expression, struct ree_token_t *tokens){
   if (expression == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Expression passed to ree_lexer is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Expression passed to ree_Lexer is NULL.");
   }
   if (tokens == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_lexer is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_Lexer is NULL.");
   }
 
   struct ree_data_t data;
@@ -165,7 +165,7 @@ enum reh_error_code_e ree_lexer(char *expression, struct ree_token_t *tokens){
     // make sure to set all the chars of the string in the struct to empty char to prevent gibberish
     struct ree_token_t token = {0, {' '}};
 
-    CHECK_ERROR_CTX(ree_nextToken(&data, &token), "Invalid character in lexed expression.");
+    CHECK_ERROR_CTX(ree_NextToken(&data, &token), "Invalid character in lexed expression.");
     tokens[i] = token;
     i++;
   }
@@ -173,12 +173,12 @@ enum reh_error_code_e ree_lexer(char *expression, struct ree_token_t *tokens){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e ree_countTokens(char* expression, int *tokenCount){
+enum reh_error_code_e ree_CountTokens(char* expression, int *tokenCount){
   if (expression == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Expression passed to ree_countTokens is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Expression passed to ree_CountTokens is NULL.");
   }
   if (tokenCount == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to tokenCount in ree_countTokens is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to tokenCount in ree_CountTokens is NULL.");
   }
 
   struct ree_data_t data;
@@ -197,7 +197,7 @@ enum reh_error_code_e ree_countTokens(char* expression, int *tokenCount){
     // make sure to set all the chars of the string in the struct to empty char to prevent gibberish
     struct ree_token_t token = {0, {' '}};
 
-    CHECK_ERROR_CTX(ree_nextToken(&data, &token), "Invalid character in lexed expression: %c", data.currentChar);
+    CHECK_ERROR_CTX(ree_NextToken(&data, &token), "Invalid character in lexed expression: %c", data.currentChar);
     i++;
   }
 

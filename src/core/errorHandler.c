@@ -2,17 +2,17 @@
 
 #include <string.h>
 
-static ErrorContext g_lastError = {0};
+static struct reh_error_context_t g_lastError = {0};
 
-const ErrorContext *getLastError(void){
+const struct reh_error_context_t *reh_GetLastError(void){
   return &g_lastError;
 }
 
-void clearError(void){
-  memset(&g_lastError, 0, sizeof(ErrorContext));
+void reh_ClearError(void){
+  memset(&g_lastError, 0, sizeof(struct reh_error_context_t));
 }
 
-void setError(enum reh_error_code_e code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo){
+void reh_SetError(enum reh_error_code_e code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo){
   if (file == nullptr) file = "Unknown File";
   if (fnName == nullptr) fnName = "Unknown Function";
 

@@ -7,15 +7,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-void ra_appContextCleanup(struct ra_app_context_t *context, const char *msg){
+void ra_AppContextCleanup(struct ra_app_context_t *context, const char *msg){
   if (context == nullptr){
-    logMsg(FAILURE, "NULL context passed to ra_appContextCleanup.");
+    rl_LogMsg(RL_FAILURE, "NULL context passed to ra_AppContextCleanup.");
     return;
   }
 
   // log errors
-  logLastError(ERROR);
-  logMsg(FAILURE, msg);
+  rl_LogLastError(RL_ERROR);
+  rl_LogMsg(RL_FAILURE, msg);
 
   // clean up resources conditionally
   if (context->window != nullptr){

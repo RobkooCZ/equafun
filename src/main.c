@@ -14,11 +14,11 @@
 
 int main(int argc, char** argv){
   #ifdef _WIN32
-    enableANSI();
+    rl_enableANSI();
   #endif
 
   if (argc > 16 + 1){
-    logMsg(FAILURE, "Too many arguments passed (%d). Max arguments: %d", argc - 1, 16);
+    rl_LogMsg(RL_FAILURE, "Too many arguments passed (%d). Max arguments: %d", argc - 1, 16);
     return -1;
   }
 
@@ -29,9 +29,9 @@ int main(int argc, char** argv){
   // initialize function manager and add some functions to test drawing
   struct ree_function_manager_t functions;
 
-  enum reh_error_code_e err = ree_initFunctionManager(&functions);
+  enum reh_error_code_e err = ree_InitFunctionManager(&functions);
   if (err != ERR_SUCCESS){
-    ra_appShutdown(&appContext, "Function manager initialization failed.");
+    ra_AppShutdown(&appContext, "Function manager initialization failed.");
     return -1;
   }
 
@@ -40,9 +40,9 @@ int main(int argc, char** argv){
     int colorIterator = 0;
     for (int i = 1; i < argc; ++i){
       char* fnDef = argv[i];
-      err = ree_addFunction(&functions, fnDef, &functionColorArray[colorIterator]);
+      err = ree_AddFunction(&functions, fnDef, &functionColorArray[colorIterator]);
       if (err != ERR_SUCCESS){
-        ra_appShutdown(&appContext, "Failed to add function f to the function manager.");
+        ra_AppShutdown(&appContext, "Failed to add function f to the function manager.");
         return -1;
       }
       // increment the color iterator, if its over the array length, put it back to zero
@@ -50,38 +50,38 @@ int main(int argc, char** argv){
     }
   }
   else {
-    ra_appShutdown(&appContext, "Please run the executable with a function definition as an argument.");
+    ra_AppShutdown(&appContext, "Please run the executable with a function definition as an argument.");
     return -1;
   }
   // factorials DON'T WORK but im too lazy to make a proper factorial function so next commit it is :)
 
   // Initialize application
-  err = ra_appInit(&appContext);
+  err = ra_AppInit(&appContext);
   if (err != ERR_SUCCESS){
-    ra_appShutdown(&appContext, "Application initialization failed.");
+    ra_AppShutdown(&appContext, "Application initialization failed.");
     return -1;
   }
 
   // Load characters
   struct rtr_character_t characters[ASCII_CHAR_COUNT];
-  err = rtr_loadCharactersIntoArray(appContext.face, characters);
+  err = rtr_LoadCharactersIntoArray(appContext.face, characters);
   if (err != ERR_SUCCESS){
-    ra_appShutdown(&appContext, "Failed to load characters");
+    ra_AppShutdown(&appContext, "Failed to load characters");
     return -1;
   }
-  logMsg(SUCCESS, "Characters loaded successfully");
+  rl_LogMsg(RL_SUCCESS, "Characters loaded successfully");
 
   // Main render loop
   while (!glfwWindowShouldClose(appContext.window)){
-    processInput(appContext.window);
+    rih_ProcessInput(appContext.window);
 
     if (redrawWindow == true){
-      err = ra_appRenderFrame(&appContext, characters, &functions);
+      err = ra_AppRenderFrame(&appContext, characters, &functions);
       if (err != ERR_SUCCESS){
-        ra_appShutdown(&appContext, "Rendering failed.");
+        ra_AppShutdown(&appContext, "Rendering failed.");
         return -1;
       }
-      logMsg(DEBUG, "Window redraw triggered.");
+      rl_LogMsg(RL_DEBUG, "Window redraw triggered.");
       glfwSwapBuffers(appContext.window);
       redrawWindow = false;
     }
@@ -90,6 +90,6 @@ int main(int argc, char** argv){
   }
 
   // Clean shutdown
-  ra_appShutdown(&appContext, "Application shutting down normally.");
+  ra_AppShutdown(&appContext, "Application shutting down normally.");
   return 0;
 }

@@ -10,29 +10,29 @@
 
 #include <stdlib.h>
 
-enum reh_error_code_e setupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
+enum reh_error_code_e rgr_SetupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
   if (!program || !VAO || !VBO || !EBO){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "One or more output pointers are NULL in setupGraph()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "One or more output pointers are NULL in rgr_SetupGraph()");
   }
 
   char* vertexShaderSrc = nullptr;
   char* fragmentShaderSrc = nullptr;
 
-  CHECK_ERROR_CTX(loadShaderSource("data/shaders/lineRender.vert", &vertexShaderSrc), "Failed to load vertex shader for graph axis");
+  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/lineRender.vert", &vertexShaderSrc), "Failed to load vertex shader for graph axis");
 
-  CHECK_ERROR_CTX(loadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for graph axis");
+  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for graph axis");
 
   GLuint vertexShader = 0;
   GLuint fragShader = 0;
 
-  enum reh_error_code_e err = compileShader(vertexShaderSrc, GL_VERTEX_SHADER, &vertexShader);
+  enum reh_error_code_e err = rsu_CompileShader(vertexShaderSrc, GL_VERTEX_SHADER, &vertexShader);
   if (err != ERR_SUCCESS){
     free(vertexShaderSrc);
     free(fragmentShaderSrc);
     ADD_ERROR_CONTEXT_RETURN(err, "Failed to compile vertex shader for graph axis");
   }
 
-  err = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, &fragShader);
+  err = rsu_CompileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, &fragShader);
   if (err != ERR_SUCCESS){
     free(vertexShaderSrc);
     free(fragmentShaderSrc);
@@ -40,7 +40,7 @@ enum reh_error_code_e setupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLui
     ADD_ERROR_CONTEXT_RETURN(err, "Failed to compile fragment shader for graph axis");
   }
 
-  err = linkShaders(vertexShader, fragShader, program);
+  err = rsu_LinkShaders(vertexShader, fragShader, program);
   free(vertexShaderSrc);
   free(fragmentShaderSrc);
 
@@ -63,22 +63,22 @@ enum reh_error_code_e setupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLui
     2, 3  // y axis
   };
 
-  enum reh_error_code_e renderErr = setupRenderData(vertices, sizeof(vertices), indices, sizeof(indices), VAO, VBO, EBO);
+  enum reh_error_code_e renderErr = rru_SetupRenderData(vertices, sizeof(vertices), indices, sizeof(indices), VAO, VBO, EBO);
   if (renderErr != ERR_SUCCESS){
     ADD_ERROR_CONTEXT_RETURN(renderErr, "Failed to setup render data for graph axis");
   }
 
-  logMsg(SUCCESS, "Graph axis rendering initialized successfully");
+  rl_LogMsg(RL_SUCCESS, "Graph axis rendering initialized successfully");
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e renderGraph(GLuint *program, GLuint *VAO, GLuint *VBO, float **projectionMatrixPtr){
+enum reh_error_code_e rgr_RenderGraph(GLuint *program, GLuint *VAO, GLuint *VBO, float **projectionMatrixPtr){
   if (program == nullptr || *program == 0){
-    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid program in renderGraph()");
+    SET_ERROR_RETURN(ERR_RRL_ENDER_INVALID_PARAMS, "Invalid program in rgr_RenderGraph()");
   }
 
   if (VAO == nullptr || *VAO == 0){
-    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid VAO in renderGraph()");
+    SET_ERROR_RETURN(ERR_RRL_ENDER_INVALID_PARAMS, "Invalid VAO in rgr_RenderGraph()");
   }
 
   // get new graph vertices again as the resolution might've changed
@@ -94,9 +94,9 @@ enum reh_error_code_e renderGraph(GLuint *program, GLuint *VAO, GLuint *VBO, flo
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   glUseProgram(*program);
-  gluSetMat4(*program, "graphProjection", *projectionMatrixPtr);
+  rsu_GluSetMat4(*program, "graphProjection", *projectionMatrixPtr);
   glBindVertexArray(*VAO);
-  gluSet4f(*program, "color", 1.0f, 1.0f, 1.0f, 1.0f);
+  rsu_GluSet4f(*program, "color", 1.0f, 1.0f, 1.0f, 1.0f);
   glLineWidth(2.0f);
   glDrawElements(GL_LINES, 4, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
@@ -105,28 +105,28 @@ enum reh_error_code_e renderGraph(GLuint *program, GLuint *VAO, GLuint *VBO, flo
 }
 
 
-enum reh_error_code_e setupMarkerShaders(GLuint *program){
+enum reh_error_code_e rgr_SetupMarkerShaders(GLuint *program){
   if (!program){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Program pointer is NULL in setupMarkerShaders()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Program pointer is NULL in rgr_SetupMarkerShaders()");
   }
 
   char* vertexShaderSrc = nullptr;
   char* fragmentShaderSrc = nullptr;
 
-  CHECK_ERROR_CTX(loadShaderSource("data/shaders/lineRender.vert", &vertexShaderSrc), "Failed to load vertex shader for graph markers");
-  CHECK_ERROR_CTX(loadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for graph markers");
+  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/lineRender.vert", &vertexShaderSrc), "Failed to load vertex shader for graph markers");
+  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for graph markers");
 
   GLuint vertexShader = 0;
   GLuint fragShader = 0;
 
-  enum reh_error_code_e err = compileShader(vertexShaderSrc, GL_VERTEX_SHADER, &vertexShader);
+  enum reh_error_code_e err = rsu_CompileShader(vertexShaderSrc, GL_VERTEX_SHADER, &vertexShader);
   if (err != ERR_SUCCESS){
     free(vertexShaderSrc);
     free(fragmentShaderSrc);
     ADD_ERROR_CONTEXT_RETURN(err, "Failed to compile vertex shader for graph markers");
   }
 
-  err = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, &fragShader);
+  err = rsu_CompileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, &fragShader);
   if (err != ERR_SUCCESS){
     free(vertexShaderSrc);
     free(fragmentShaderSrc);
@@ -134,7 +134,7 @@ enum reh_error_code_e setupMarkerShaders(GLuint *program){
     ADD_ERROR_CONTEXT_RETURN(err, "Failed to compile fragment shader for graph markers");
   }
 
-  err = linkShaders(vertexShader, fragShader, program);
+  err = rsu_LinkShaders(vertexShader, fragShader, program);
   free(vertexShaderSrc);
   free(fragmentShaderSrc);
   
@@ -142,13 +142,13 @@ enum reh_error_code_e setupMarkerShaders(GLuint *program){
     ADD_ERROR_CONTEXT_RETURN(err, "Failed to link shaders for graph marker program");
   }
 
-  logMsg(SUCCESS, "Graph marker shaders initialized successfully");
+  rl_LogMsg(RL_SUCCESS, "Graph marker shaders initialized successfully");
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e setupMarkerBuffers(GLuint *VAO, GLuint *VBO, GLuint *EBO){
+enum reh_error_code_e rgr_SetupMarkerBuffers(GLuint *VAO, GLuint *VBO, GLuint *EBO){
   if (!VAO || !VBO || !EBO){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "One or more output pointers are NULL in setupMarkerBuffers()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "One or more output pointers are NULL in rgr_SetupMarkerBuffers()");
   }
 
   // Generate buffers
@@ -173,17 +173,17 @@ enum reh_error_code_e setupMarkerBuffers(GLuint *VAO, GLuint *VBO, GLuint *EBO){
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
-  logMsg(SUCCESS, "Graph marker buffers initialized successfully");
+  rl_LogMsg(RL_SUCCESS, "Graph marker buffers initialized successfully");
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e renderMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO, float **projectionMatrixPtr){
+enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO, float **projectionMatrixPtr){
   if (!program || *program == 0){
-    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid program in renderMarkers()");
+    SET_ERROR_RETURN(ERR_RRL_ENDER_INVALID_PARAMS, "Invalid program in rgr_RenderMarkers()");
   }
 
   if (!VAO || *VAO == 0 || !VBO || *VBO == 0 || !EBO || *EBO == 0){
-    SET_ERROR_RETURN(ERR_RENDER_INVALID_PARAMS, "Invalid VAO/VBO/EBO in renderMarkers()");
+    SET_ERROR_RETURN(ERR_RRL_ENDER_INVALID_PARAMS, "Invalid VAO/VBO/EBO in rgr_RenderMarkers()");
   }
 
   // set useful vars
@@ -294,8 +294,8 @@ enum reh_error_code_e renderMarkers(GLuint *program, GLuint *VAO, GLuint *VBO, G
 
   // Render
   glUseProgram(*program);
-  gluSet4f(*program, "color", 1.0f, 1.0f, 1.0f, 1.0f);
-  gluSetMat4(*program, "graphProjection", *projectionMatrixPtr);
+  rsu_GluSet4f(*program, "color", 1.0f, 1.0f, 1.0f, 1.0f);
+  rsu_GluSetMat4(*program, "graphProjection", *projectionMatrixPtr);
   glLineWidth(2.0f);
   glDrawElements(GL_LINES, vertexCount, GL_UNSIGNED_INT, 0);
 

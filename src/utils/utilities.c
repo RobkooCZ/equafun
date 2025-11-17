@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-bool rgu_isStrInArray(const char **arr, int arrSize, const char *str){
+bool rgu_IsStrInArray(const char **arr, int arrSize, const char *str){
   if (arr == nullptr || str == nullptr || arrSize <= 0){
     return false;
   }
@@ -16,7 +16,7 @@ bool rgu_isStrInArray(const char **arr, int arrSize, const char *str){
   return false;
 }
 
-void rgu_trimStr(char *str){
+void rgu_TrimStr(char *str){
   if (str == nullptr){
     return;
   }

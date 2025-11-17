@@ -3,11 +3,11 @@
 ## Alpha v0.0.6 (currently being developed)
 
 ### Added
-- a basic lexer
-    - splits a hardcoded expression into tokens and value 'pairs'
+- a lexer
+    - splits the provided expression into tokens and value 'pairs'
     - ignores whitespaces
     - support for numbers, identifiers, equals sign, functions (predefined), unary and binary operators (including factorial)
-- a basic parser
+- a parser
     - takes the 'lexed' tokens and parses them using the Shunting Yard algorithm
     - supports parentheses
     - distinguishes between unary and binary minus (and plus) operators
@@ -23,7 +23,6 @@
 - a global utilities file with
     - a function to search for a string in an array of strings
     - a function to trim the leading whitespace in a string
-- some planned functions to work with a manager of functions to allow multiple functions at the same time
 - on window resize:
     - projection matrices get recalculated
     - graph VBO gets updated
@@ -43,15 +42,15 @@
 - `_msg_buf` in `SET_ERROR_RETURN()` macro size to 512
 - graph, marker and text rendering to use world coordinates instead of NDC coordinates
 - the graph now stays square (as in, if you extended the markers, everything would look like squares) instead of rectangles and similar
-- split up main into 3 functions - ra_appInit, ra_apprenderFrame and ra_appShutdown
-- cleaned up repetitive error checking code in ra_appInit
+- split up main into 3 functions - ra_AppInit, ra_apprenderFrame and ra_AppShutdown
+- cleaned up repetitive error checking code in ra_AppInit
 - centralized cleanup after a failure
 - modified the build script to be able to choose between make and CMake
 - undefined points don't get connected anymore
 
 ### Fixed
 - minor rendering issues
-- null-pointer bug in `setError()`
+- null-pointer bug in `reh_SetError()`
 - a bug where fread() and ftell() returned with different byte values on Windows
 - error handler not printing all the error messages
 
@@ -74,7 +73,7 @@
     - Mat4 orthographic projection
     - type conversion function (`rm_Mat4ValuePtr()`)
 - shader utilities
-    - `gluSetMat4()` for setting matrix uniforms
+    - `rsu_GluSetMat4()` for setting matrix uniforms
 
 ### Changed
 - graph markers now use dynamic vertex allocation
@@ -92,23 +91,23 @@
 
 ### Added
 - comprehensive two-layer error handling system
-    - `ErrorContext` struct to store error details (code, file, line, function name, message, technical details)
-    - global error context tracking via `getLastError()`, `setError()`, and `clearError()` functions
+    - `struct reh_error_context_t` struct to store error details (code, file, line, function name, message, technical details)
+    - global error context tracking via `reh_GetLastError()`, `reh_SetError()`, and `reh_ClearError()` functions
     - error code enumeration (`enum reh_error_code_e`) with categorized error codes (File I/O, Memory, Shader, OpenGL/Graphics, Render, Generic)
 - error handling macros to reduce boilerplate
     - `SET_ERROR_RETURN()` - set error with message and return error code
     - `SET_ERROR_TECHNICAL_RETURN()` - set error with technical details and return
     - `CHECK_ERROR_CTX()` - check error code and propagate with additional context
 - logger integration with error system
-    - `logError()` - log error context with technical details
-    - `logLastError()` - log the most recent error from global context
+    - `rl_LogError()` - log error context with technical details
+    - `rl_LogLastError()` - log the most recent error from global context
 - thorough OpenGL error checking using `glGetError()` after all OpenGL calls in render utilities
 
 ### Changed
 - all (error-possible) function signatures now return `enum reh_error_code_e`
 - error handling architecture follows two-layer pattern
-    - utilities: silent error detection, stores technical details in `ErrorContext`, returns error codes
-    - setup/main: checks error codes, adds high-level context, logs errors with `logLastError()`
+    - utilities: silent error detection, stores technical details in `struct reh_error_context_t`, returns error codes
+    - setup/main: checks error codes, adds high-level context, logs errors with `rl_LogLastError()`
 - main function now checks all initialization and setup calls for errors and handles graceful shutdown
 - all utility functions now validate input parameters (NULL checks, size checks) before operations
 - `.gitattributes` now explicitly tells linguist that all .h and .c files are C,`.md` files are documentation and shaders are GLSL
@@ -130,12 +129,12 @@
 ### Added
 - simple logger
     - prints the provided text (with formatting) to the console using one of 5 severity levels
-    - if the user wishes to not have `DEBUG` messages printed, they can comment/remove the macro `_DEBUG_ENABLE` located in `include/core/logger.h`
+    - if the user wishes to not have `RL_DEBUG` messages printed, they can comment/remove the macro `_DEBUG_ENABLE` located in `include/core/logger.h`
 - simple input function that checks for the `ESC` key to be pressed to close the window
 
 ### Changed
 - minor changes in `README.md`
-- changed `[f]printf()` messages to the custom log function `logMsg()`
+- changed `[f]printf()` messages to the custom log function `rl_LogMsg()`
 - changed OpenGL version to 3.3 for compatibility
 
 ### Fixed

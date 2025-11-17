@@ -8,9 +8,9 @@
 struct rm_vec3_t functionColorArray[] = {RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK, GRAY, WHITE};
 const int functionColorArrayLength = sizeof(functionColorArray) / sizeof(functionColorArray[0]);
 
-enum reh_error_code_e ree_initFunctionManager(struct ree_function_manager_t *manager){
+enum reh_error_code_e ree_InitFunctionManager(struct ree_function_manager_t *manager){
   if (manager == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to manager passed to ree_initFunctionManager is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to manager passed to ree_InitFunctionManager is NULL.");
   }
 
   manager->functionCount = 0;
@@ -18,7 +18,7 @@ enum reh_error_code_e ree_initFunctionManager(struct ree_function_manager_t *man
   return ERR_SUCCESS;
 }
 
-int ree_getFunction(struct ree_function_manager_t *manager, const char *name, struct ree_function_t *function){
+int ree_GetFunction(struct ree_function_manager_t *manager, const char *name, struct ree_function_t *function){
   if (manager == nullptr){
     return -1;
   }
@@ -39,36 +39,45 @@ int ree_getFunction(struct ree_function_manager_t *manager, const char *name, st
   return -1; // uh oh
 }
 
-enum reh_error_code_e ree_addFunction(struct ree_function_manager_t *manager, char *definition, struct rm_vec3_t *functionColor){
+bool ree_IsFunctionInManager(struct ree_function_manager_t *manager, const char* name){
+  for (int i = 0; i < manager->functionCount; ++i){
+    if (strcmp(manager->functions[i].name, name) == 0){
+      return true; // yes it is
+    }
+  }
+  return false; // no its not
+}
+
+enum reh_error_code_e ree_AddFunction(struct ree_function_manager_t *manager, char *definition, struct rm_vec3_t *functionColor){
   if (manager == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Manager passed to ree_addFunction is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Manager passed to ree_AddFunction is NULL.");
   }
   else if (definition == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Definition passed to ree_addFunction is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Definition passed to ree_AddFunction is NULL.");
   }
   else if (manager->functionCount >= REE_MAX_FUNCTIONS){
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Function manager has reached maximum function capacity.");
   }
   else if (functionColor == nullptr){
-    logMsg(WARNING, "No function color (NULL) provided to ree_addFunction, assigning next available color.");
+    rl_LogMsg(RL_WARNING, "No function color (NULL) provided to ree_AddFunction, assigning next available color.");
     // assign a color from the array based on the current function count
     functionColor = &functionColorArray[manager->functionCount % functionColorArrayLength];
   }
 
   // add the function to the manager
-  CHECK_ERROR_CTX(ree_parseFunction(definition, &manager->functions[manager->functionCount], functionColor), "Failed to parse function definition.");
+  CHECK_ERROR_CTX(ree_ParseFunction(definition, &manager->functions[manager->functionCount], manager, functionColor), "Failed to parse function definition.");
 
   manager->functionCount++;
 
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e ree_removeFunction(struct ree_function_manager_t *manager, const char *name){
+enum reh_error_code_e ree_RemoveFunction(struct ree_function_manager_t *manager, const char *name){
   if (manager == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Manager passed to ree_removeFunction is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Manager passed to ree_RemoveFunction is NULL.");
   }
   else if (name == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Name passed to ree_removeFunction is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Name passed to ree_RemoveFunction is NULL.");
   }
 
   bool functionExists = false;
@@ -84,7 +93,7 @@ enum reh_error_code_e ree_removeFunction(struct ree_function_manager_t *manager,
   }
 
   if (functionExists == false){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "Function with name %s passed to ree_removeFunction wasn't found.", name);
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "Function with name %s passed to ree_RemoveFunction wasn't found.", name);
   }
 
   // free the function data

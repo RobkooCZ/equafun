@@ -1,3 +1,7 @@
+/**
+  reh - Robkoo's Error Handler
+*/
+
 #ifndef ERROR_HANDLER_H
 #define ERROR_HANDLER_H
 
@@ -39,7 +43,7 @@ enum reh_error_code_e {
   // Render errors (5xx)
   ERR_GRAPH_SETUP_FAILED = 500,
   ERR_MARKER_SETUP_FAILED = 501,
-  ERR_RENDER_INVALID_PARAMS = 502,
+  ERR_RRL_ENDER_INVALID_PARAMS = 502,
 
   // Font/Text errors (6xx)
   ERR_FT_FAILED_TO_INIT = 600,
@@ -72,14 +76,14 @@ enum reh_error_code_e {
 };
 
 // error context struct
-typedef struct reh_error_context_t {
+struct reh_error_context_t {
   enum reh_error_code_e code; // Error code of the error
   const char* file;           // File where it happened (__FILE__)
   int line;                   // Line where it happened (__LINE__)
   const char* fnName;         // Name of the function (__func__)
   char message[256];          // Human-readable context message
   char technicalDetails[512]; // Lower level technical info
-} ErrorContext;
+};
 
 // macros to remove boilerplate from code
 
@@ -88,17 +92,17 @@ typedef struct reh_error_context_t {
   do {                                                               \
     char _msg_buf[512];                                              \
     snprintf(_msg_buf, sizeof(_msg_buf), msg, ##__VA_ARGS__);        \
-    setError(code, __FILE__, __LINE__, __func__, _msg_buf, nullptr); \
+    reh_SetError(code, __FILE__, __LINE__, __func__, _msg_buf, nullptr); \
     return code;                                                     \
   } while(0)
 
 // Add context to existing error without clearing technical details203
 #define ADD_ERROR_CONTEXT_RETURN(code, msg, ...)                                    \
   do {                                                                              \
-    const ErrorContext* _ctx = getLastError();                                      \
+    const struct reh_error_context_t* _ctx = reh_GetLastError();                                      \
     char _new_msg[256];                                                             \
     snprintf(_new_msg, sizeof(_new_msg), msg, ##__VA_ARGS__);                       \
-    setError(code, __FILE__, __LINE__, __func__, _new_msg, _ctx->technicalDetails); \
+    reh_SetError(code, __FILE__, __LINE__, __func__, _new_msg, _ctx->technicalDetails); \
     return code;                                                                    \
   } while(0)
 
@@ -107,7 +111,7 @@ typedef struct reh_error_context_t {
   do {                                                                 \
     char _msg_buf[256];                                                \
     snprintf(_msg_buf, sizeof(_msg_buf), msg, ##__VA_ARGS__);          \
-    setError(code, __FILE__, __LINE__, __func__, _msg_buf, technical); \
+    reh_SetError(code, __FILE__, __LINE__, __func__, _msg_buf, technical); \
     return code;                                                       \
   } while(0)
 
@@ -116,17 +120,28 @@ typedef struct reh_error_context_t {
   do {                                                                                  \
     enum reh_error_code_e _err = call;                                                  \
     if (_err != ERR_SUCCESS){                                                           \
-      const ErrorContext* _ctx = getLastError();                                        \
-      logError(_ctx, ERROR);                                                            \
+      const struct reh_error_context_t* _ctx = reh_GetLastError();                                        \
+      rl_LogError(_ctx, RL_ERROR);                                                            \
       char _new_msg[256];                                                               \
       snprintf(_new_msg, sizeof(_new_msg), msg, ##__VA_ARGS__);                         \
-      setError(_err, __FILE__, __LINE__, __func__, _new_msg, _ctx->technicalDetails);   \
+      reh_SetError(_err, __FILE__, __LINE__, __func__, _new_msg, _ctx->technicalDetails);   \
       return _err;                                                                      \
     }                                                                                   \
   } while(0)
 
-void setError(enum reh_error_code_e code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo);
-const ErrorContext* getLastError(void);
-void clearError(void);
+/**
+  @brief Sets the current error context.
+*/
+void reh_SetError(enum reh_error_code_e code, const char* file, int line, const char* fnName, const char* message, const char* technicalInfo);
+
+/**
+  @brief Gets the last error context.
+*/
+const struct reh_error_context_t* reh_GetLastError(void);
+
+/**
+  @brief Clears the current error context.
+*/
+void reh_ClearError(void);
 
 #endif // ERROR_HANDLER_H

@@ -3,7 +3,7 @@
 #include <float.h>
 #include <math.h>
 
-enum rm_num_classes_e rm_classifyNum(float num){
+enum rm_num_classes_e rm_ClassifyNum(float num){
   switch (fpclassify(num)){
     case FP_NAN:
       return IS_NAN;
@@ -22,9 +22,9 @@ enum rm_num_classes_e rm_classifyNum(float num){
   }
 }
 
-enum reh_error_code_e rm_factorial(int n, int *result){
+enum reh_error_code_e rm_Factorial(int n, int *result){
   if (result == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to result in rm_factorial is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to result in rm_Factorial is NULL.");
   }
 
   if (n == 0){
@@ -33,7 +33,7 @@ enum reh_error_code_e rm_factorial(int n, int *result){
   }
   else if (n < 0){
     *result = 0;
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "n lower than 0 (%d) in rm_factorial.", n);
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "n lower than 0 (%d) in rm_Factorial.", n);
   }
 
   *result = 1;

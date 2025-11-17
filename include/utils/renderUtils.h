@@ -1,3 +1,7 @@
+/**
+  rru - Robkoo's Render Utilities
+*/
+
 #ifndef RENDER_UTILS_H
 #define RENDER_UTILS_H
 
@@ -5,7 +9,14 @@
 
 #include "core/errorHandler.h"
 
-enum reh_error_code_e setupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO);
-enum reh_error_code_e setupEBO(GLuint *indices, size_t indicesSize, GLuint *EBO);
+/**
+  @brief Sets up the VAO, VBO, and EBO for rendering
+*/
+enum reh_error_code_e rru_SetupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO);
+
+/**
+  @brief Sets up the VBO for rendering
+*/
+enum reh_error_code_e rru_SetupEbo(GLuint *indices, size_t indicesSize, GLuint *EBO);
 
 #endif // RENDER_UTILS_H

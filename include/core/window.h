@@ -1,3 +1,7 @@
+/**
+  rwh - Robkoo's Window Handler
+*/
+
 #ifndef WINDOW_H
 #define WINDOW_H
 
@@ -31,10 +35,10 @@ extern bool redrawWindow;
 #define GL_VER_MAJOR 3
 #define GL_VER_MINOR 3
 
-void glfwErrCallback(int errCode, const char* msg);
-void framebufferSizeCallback(GLFWwindow *window, int width, int height);
+void rwh_GlfwErrCallback(int errCode, const char* msg);
+void rwh_FramebufferSizeCallback(GLFWwindow *window, int width, int height);
 
-enum reh_error_code_e initGLFW(void);
-enum reh_error_code_e initWindow(GLFWwindow **window);
+enum reh_error_code_e rwh_InitGLFW(void);
+enum reh_error_code_e rwh_InitWindow(GLFWwindow **window);
 
 #endif // WINDOW_H

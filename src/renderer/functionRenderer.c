@@ -11,30 +11,30 @@
 #include <stdlib.h>
 #include <math.h>
 
-enum reh_error_code_e rfr_init(struct ra_app_context_t *context){
+enum reh_error_code_e rfr_Init(struct ra_app_context_t *context){
   if (context == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "context structure passed to rfr_init is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "context structure passed to rfr_Init is NULL.");
   }
 
   char* vertexShaderSrc   = nullptr;
   char* fragmentShaderSrc = nullptr;
 
-  CHECK_ERROR_CTX(loadShaderSource("data/shaders/functionRender.vert", &vertexShaderSrc), "Failed to load vertex shader for the function renderer.");
+  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/functionRender.vert", &vertexShaderSrc), "Failed to load vertex shader for the function renderer.");
 
-  CHECK_ERROR_CTX(loadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for the function renderer.");
+  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for the function renderer.");
 
   GLuint vertexShader = 0;
   GLuint fragShader = 0;
   context->fProgram = 0;
 
-  enum reh_error_code_e _err = compileShader(vertexShaderSrc, GL_VERTEX_SHADER, &vertexShader);
+  enum reh_error_code_e _err = rsu_CompileShader(vertexShaderSrc, GL_VERTEX_SHADER, &vertexShader);
   if (_err != ERR_SUCCESS){
     free(vertexShaderSrc);
     free(fragmentShaderSrc);
     ADD_ERROR_CONTEXT_RETURN(_err, "Failed to compile vertex shader for the function renderer.");
   }
 
-  _err = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, &fragShader);
+  _err = rsu_CompileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER, &fragShader);
   if (_err != ERR_SUCCESS){
     free(vertexShaderSrc);
     free(fragmentShaderSrc);
@@ -42,7 +42,7 @@ enum reh_error_code_e rfr_init(struct ra_app_context_t *context){
     ADD_ERROR_CONTEXT_RETURN(_err, "Failed to compile fragment shader for the function renderer.");
   }
 
-  _err = linkShaders(vertexShader, fragShader, &context->fProgram);
+  _err = rsu_LinkShaders(vertexShader, fragShader, &context->fProgram);
   free(vertexShaderSrc);
   free(fragmentShaderSrc);
   glDeleteShader(vertexShader);
@@ -154,18 +154,18 @@ enum reh_error_code_e rfr_init(struct ra_app_context_t *context){
 
   return ERR_SUCCESS;
 }
-enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float worldXRangeMin, float worldXRangeMax, float worldStep, struct rfr_function_point_data_t *pointsData){
+enum reh_error_code_e rfr_SampleFunction(struct ree_function_t *function, float worldXRangeMin, float worldXRangeMax, float worldStep, struct rfr_function_point_data_t *pointsData){
   if (function == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_sampleFunction is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_SampleFunction is NULL.");
   }
   if (worldXRangeMin > worldXRangeMax){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "worldXRangeMin is bigger than worldXRangeMax (%f > %f) in rfr_sampleFunction.", (double)worldXRangeMin, (double)worldXRangeMax);
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "worldXRangeMin is bigger than worldXRangeMax (%f > %f) in rfr_SampleFunction.", (double)worldXRangeMin, (double)worldXRangeMax);
   }
   if (worldStep <= 0){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid step provided to rfr_sampleFunction (%f)", (double)worldStep);
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid step provided to rfr_SampleFunction (%f)", (double)worldStep);
   }
   if (pointsData == nullptr ){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "vertices array passed to rfr_sampleFunction is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "vertices array passed to rfr_SampleFunction is NULL.");
   }
 
   // calculate samplecount
@@ -177,14 +177,14 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
   pointsData->vertices = (float *)malloc(sizeof(float) * sampleCount * 2);
 
   if (pointsData->vertices == nullptr){
-    SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for vertices in rfr_sampleFunction");
+    SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for vertices in rfr_SampleFunction");
   }
 
   // allocate memory for undefined points
   pointsData->undefinedPoints = (float *)malloc(sizeof(float) * sampleCount);
   pointsData->undefinedPointsCount = 0;
   if (pointsData->undefinedPoints == nullptr){
-    SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for undefinedPoints in rfr_sampleFunction");
+    SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for undefinedPoints in rfr_SampleFunction");
   }
 
   // fill vertices (sample the function)
@@ -195,11 +195,11 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
     struct ree_variable_t variables[] = {{function->parameter, x}};
 
     // gutted CHECK_ERROR_CTX macro
-    enum reh_error_code_e _err = ree_evaluateRpn(function->rpn, (size_t)function->rpnCount, variables, 1, &y);
+    enum reh_error_code_e _err = ree_EvaluateRpn(function->rpn, (size_t)function->rpnCount, variables, 1, &y);
 
     if (!isfinite(y) || (fabsf(y) > ((worldYMax - worldYMin) * 10))){
         pointsData->undefinedPoints[pointsData->undefinedPointsCount++] = x;
-        clearError();
+        reh_ClearError();
         continue;
     }
 
@@ -208,14 +208,14 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
           _err == ERR_LOG_OUT_OF_DOMAIN || _err == ERR_LN_OUT_OF_DOMAIN ||
           _err == ERR_INVALID_SQRT){
         pointsData->undefinedPoints[pointsData->undefinedPointsCount++] = x;
-        clearError();
+        reh_ClearError();
         continue;
       }
-      const ErrorContext *_ctx = getLastError();
-      logError(_ctx, ERROR);
+      const struct reh_error_context_t *_ctx = reh_GetLastError();
+      rl_LogError(_ctx, RL_ERROR);
       char _new_msg[256];
       snprintf(_new_msg, sizeof(_new_msg), "Failed to evaluate RPN.");
-      setError(_err, __FILE__, __LINE__, __func__, _new_msg, getLastError()->message);
+      reh_SetError(_err, __FILE__, __LINE__, __func__, _new_msg, reh_GetLastError()->message);
       free(pointsData->vertices);
       pointsData->vertices = nullptr;
       pointsData->vertexCount = 0;
@@ -231,15 +231,15 @@ enum reh_error_code_e rfr_sampleFunction(struct ree_function_t *function, float 
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rfr_render(struct ra_app_context_t *context, struct ree_function_manager_t *functions, float **projectionMatrixPtr){
+enum reh_error_code_e rfr_Render(struct ra_app_context_t *context, struct ree_function_manager_t *functions, float **projectionMatrixPtr){
   if (context == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "context passed to rfr_render is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "context passed to rfr_Render is NULL.");
   }
   else if (functions == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_render is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_Render is NULL.");
   }
   else if (projectionMatrixPtr == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Projection matrix pointer passed to rfr_render is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Projection matrix pointer passed to rfr_Render is NULL.");
   }
 
   for (size_t i = 0; i < (size_t)functions->functionCount; ++i){
@@ -251,7 +251,7 @@ enum reh_error_code_e rfr_render(struct ra_app_context_t *context, struct ree_fu
     struct rfr_function_point_data_t pointData;
 
     // sample the function
-    CHECK_ERROR_CTX(rfr_sampleFunction(function, worldXMin, worldXMax, 0.01f, &pointData), "Failed to sample function.");
+    CHECK_ERROR_CTX(rfr_SampleFunction(function, worldXMin, worldXMax, 0.01f, &pointData), "Failed to sample function.");
 
     // bind VAO, VBO and grow if needed
     glBindVertexArray(context->fVAO);
@@ -268,8 +268,8 @@ enum reh_error_code_e rfr_render(struct ra_app_context_t *context, struct ree_fu
     }
 
     glUseProgram(context->fProgram);
-    gluSetMat4(context->fProgram, "functionProjection", *projectionMatrixPtr);
-    gluSet4f(context->fProgram, "color", function->color.x, function->color.y, function->color.z, 1.0f);
+    rsu_GluSetMat4(context->fProgram, "functionProjection", *projectionMatrixPtr);
+    rsu_GluSet4f(context->fProgram, "color", function->color.x, function->color.y, function->color.z, 1.0f);
     glLineWidth(2.0f);
 
     size_t start = 0;

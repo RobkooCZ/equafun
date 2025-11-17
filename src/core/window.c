@@ -36,7 +36,7 @@ static void recomputeWorldExtents(void){
   worldXMax =  halfSpanX;
 }
 
-void framebufferSizeCallback(GLFWwindow *window, int width, int height){
+void rwh_FramebufferSizeCallback(GLFWwindow *window, int width, int height){
   (void)window;
   glViewport(0, 0, width, height);
 
@@ -47,28 +47,28 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height){
   rebuildProjection = true;
   redrawWindow = true;
 
-  logMsg(DEBUG, "Changing window resolution to: %d, %d", width, height);
+  rl_LogMsg(RL_DEBUG, "Changing window resolution to: %d, %d", width, height);
 }
 
-void glfwErrCallback(int errCode, const char* msg){
-  logMsg(ERROR, "GLFW error (code: %d): %s", errCode, msg);
+void rwh_GlfwErrCallback(int errCode, const char* msg){
+  rl_LogMsg(RL_ERROR, "GLFW error (code: %d): %s", errCode, msg);
 }
 
-enum reh_error_code_e initGLFW(void){
+enum reh_error_code_e rwh_InitGLFW(void){
   if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)){
-    logMsg(DEBUG, "GLFW support for Wayland found.");
+    rl_LogMsg(RL_DEBUG, "GLFW support for Wayland found.");
     glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
   }
   else if (glfwPlatformSupported(GLFW_PLATFORM_X11)){
-    logMsg(DEBUG, "GLFW support for X11 found.");
+    rl_LogMsg(RL_DEBUG, "GLFW support for X11 found.");
     glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
   }
   else if (glfwPlatformSupported(GLFW_PLATFORM_WIN32)){
-    logMsg(DEBUG, "GLFW support for Windows found.");
+    rl_LogMsg(RL_DEBUG, "GLFW support for Windows found.");
     glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WIN32);
   }
   else { // fallback
-    logMsg(DEBUG, "No GLFW platform found, using fallback.");
+    rl_LogMsg(RL_DEBUG, "No GLFW platform found, using fallback.");
     glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_NULL);
   }
 
@@ -79,19 +79,19 @@ enum reh_error_code_e initGLFW(void){
   int platform = glfwGetPlatform();
   switch (platform){
     case GLFW_PLATFORM_X11:
-      logMsg(DEBUG, "Using X11 platform.");
+      rl_LogMsg(RL_DEBUG, "Using X11 platform.");
       break;
     case GLFW_PLATFORM_WAYLAND:
-      logMsg(DEBUG, "Using the Wayland platform.");
+      rl_LogMsg(RL_DEBUG, "Using the Wayland platform.");
       break;
     case GLFW_PLATFORM_WIN32:
-      logMsg(DEBUG, "Using Windows platform.");
+      rl_LogMsg(RL_DEBUG, "Using Windows platform.");
       break;
     case GLFW_PLATFORM_NULL:
-      logMsg(DEBUG, "Using fallback platform.");
+      rl_LogMsg(RL_DEBUG, "Using fallback platform.");
       break;
     default:
-      logMsg(DEBUG, "Using unknown platform.");
+      rl_LogMsg(RL_DEBUG, "Using unknown platform.");
       break;
   }
 
@@ -99,7 +99,7 @@ enum reh_error_code_e initGLFW(void){
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VER_MINOR);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  glfwSetErrorCallback(glfwErrCallback);
+  glfwSetErrorCallback(rwh_GlfwErrCallback);
 
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -108,9 +108,9 @@ enum reh_error_code_e initGLFW(void){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e initWindow(GLFWwindow **window){
+enum reh_error_code_e rwh_InitWindow(GLFWwindow **window){
   if (!window){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Window pointer is NULL in initWindow()");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Window pointer is NULL in rwh_InitWindow()");
   }
 
   *window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, nullptr, nullptr);
@@ -151,7 +151,7 @@ enum reh_error_code_e initWindow(GLFWwindow **window){
   }
 
   // on resize update width & height
-  glfwSetFramebufferSizeCallback(*window, framebufferSizeCallback);
+  glfwSetFramebufferSizeCallback(*window, rwh_FramebufferSizeCallback);
 
   return ERR_SUCCESS;
 }

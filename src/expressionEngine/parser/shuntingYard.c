@@ -10,7 +10,7 @@
 const char* validFunctions[] = {"sin", "cos", "tan", "sqrt", "abs", "ln", "log"};
 const int functionArrLength = sizeof(validFunctions) / sizeof(validFunctions[0]);
 
-const char* ree_outputTokenToStr(enum ree_output_type_e outputToken){
+const char* ree_OutputTokenToStr(enum ree_output_type_e outputToken){
   switch (outputToken){
     case OUTPUT_NUMBER:   return "OUTPUT_NUMBER";
     case OUTPUT_OPERATOR: return "OUTPUT_OPERATOR";
@@ -19,9 +19,9 @@ const char* ree_outputTokenToStr(enum ree_output_type_e outputToken){
   }
 }
 
-enum reh_error_code_e ree_operatorPrecedence(enum ree_token_type_e tokenType, int *precedence){
+enum reh_error_code_e ree_OperatorPrecedence(enum ree_token_type_e tokenType, int *precedence){
   if (precedence == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to precedence in ree_operatorPrecedence is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to precedence in ree_OperatorPrecedence is NULL.");
   }
 
   switch (tokenType){
@@ -53,7 +53,7 @@ enum reh_error_code_e ree_operatorPrecedence(enum ree_token_type_e tokenType, in
   return ERR_SUCCESS;
 }
 
-int ree_determineArity(enum ree_token_type_e tokenType){
+int ree_DetermineArity(enum ree_token_type_e tokenType){
   switch (tokenType){
     case TOKEN_UNARY_PLUS:
     case TOKEN_UNARY_MINUS:
@@ -73,15 +73,15 @@ int ree_determineArity(enum ree_token_type_e tokenType){
   }
 }
 
-enum reh_error_code_e ree_markUnaryOperators(struct ree_token_t *tokens, const int tokenCount){
+enum reh_error_code_e ree_MarkUnaryOperators(struct ree_token_t *tokens, const int tokenCount){
   if (tokens == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_markUnaryOperators is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_MarkUnaryOperators is NULL.");
   }
   else if (tokenCount <= 0){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_markUnaryOperators is less than or equal to 0.");
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_MarkUnaryOperators is less than or equal to 0.");
   }
   else if (tokenCount > REE_MAX_TOKENS){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_markUnaryOperators exceeds maximum allowed tokens (%d > %d).", tokenCount, REE_MAX_TOKENS);
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_MarkUnaryOperators exceeds maximum allowed tokens (%d > %d).", tokenCount, REE_MAX_TOKENS);
   }
 
   struct ree_token_t currentToken, previousToken;
@@ -141,22 +141,22 @@ enum reh_error_code_e ree_markUnaryOperators(struct ree_token_t *tokens, const i
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int tokenCount, struct ree_output_token_t *outputQueue, int *outputCount){
+enum reh_error_code_e ree_ParseToPostfix(struct ree_token_t *tokens, const int tokenCount, struct ree_output_token_t *outputQueue, int *outputCount){
   if (outputCount == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to outputCount in ree_parseToPostfix is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to outputCount in ree_ParseToPostfix is NULL.");
   }
   else if (tokens == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_parseToPostfix is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Tokens array passed to ree_ParseToPostfix is NULL.");
   }
   else if (outputQueue == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Output queue passed to ree_parseToPostfix is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Output queue passed to ree_ParseToPostfix is NULL.");
   }
 
   if (tokenCount <= 0){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_parseToPostfix is less than or equal to 0.");
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_ParseToPostfix is less than or equal to 0.");
   }
   if (tokenCount > REE_MAX_TOKENS){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_parseToPostfix exceeds maximum allowed tokens (%d > %d).", tokenCount, REE_MAX_TOKENS);
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "tokenCount passed to ree_ParseToPostfix exceeds maximum allowed tokens (%d > %d).", tokenCount, REE_MAX_TOKENS);
   }
 
   *outputCount = 0;
@@ -179,7 +179,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
     }
     else if (currentToken.token_type == TOKEN_IDENTIFIER){ 
       // check if the identifier matches any of the supported functions 
-      if (rgu_isStrInArray(validFunctions, functionArrLength, currentToken.value) == true){
+      if (rgu_IsStrInArray(validFunctions, functionArrLength, currentToken.value) == true){
         stack[operatorStackPointer++] = currentToken;
       }
       // check if its a parameter
@@ -219,7 +219,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
         else {
           struct ree_output_token_t outputToken = {
             .type = OUTPUT_OPERATOR,
-            .arity = ree_determineArity(topOperator.token_type),
+            .arity = ree_DetermineArity(topOperator.token_type),
             .value = 0.0f // not used in the case of an operator
           };
           strcpy(outputToken.symbol, topOperator.value);
@@ -240,7 +240,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
 
         struct ree_output_token_t outputToken = {
           .type = OUTPUT_FUNCTION,
-          .arity = ree_determineArity(functionToken.token_type),
+          .arity = ree_DetermineArity(functionToken.token_type),
           .value = 0.0f // not used in the case of an operator
         };
         strcpy(outputToken.symbol, functionToken.value);
@@ -252,7 +252,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
     else if (currentToken.token_type == TOKEN_FACTORIAL){
       struct ree_output_token_t outputToken = {
         .type = OUTPUT_FUNCTION,
-        .arity = ree_determineArity(currentToken.token_type),
+        .arity = ree_DetermineArity(currentToken.token_type),
         .value = 0.0f // not used in the case of an operator
       };
       strcpy(outputToken.symbol, currentToken.value);
@@ -271,7 +271,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
     ){
       // get precedence and associativity of current operator
       int currentPrecedence;
-      ree_operatorPrecedence(currentToken.token_type, &currentPrecedence);
+      ree_OperatorPrecedence(currentToken.token_type, &currentPrecedence);
       // ^ and unary -, + are the only right associativity operators
       int currentOpIsRightAssoc = (currentToken.token_type == TOKEN_POWER || 
                                     currentToken.token_type == TOKEN_UNARY_PLUS ||
@@ -286,7 +286,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
         if (topOperator.token_type == TOKEN_PAREN_OPEN) break;
 
         int topPrecedence = 0;
-        ree_operatorPrecedence(topOperator.token_type, &topPrecedence);
+        ree_OperatorPrecedence(topOperator.token_type, &topPrecedence);
 
         /*
           Shuting Yard rule:
@@ -316,7 +316,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
 
           struct ree_output_token_t outputToken = {
             .type = OUTPUT_OPERATOR,
-            .arity = ree_determineArity(poppedOperator.token_type),
+            .arity = ree_DetermineArity(poppedOperator.token_type),
             .value = 0.0f // not used in the case of an operator
           };
           strcpy(outputToken.symbol, symbolName);
@@ -361,7 +361,7 @@ enum reh_error_code_e ree_parseToPostfix(struct ree_token_t *tokens, const int t
 
     struct ree_output_token_t outputToken = {
       .type =  outputTokenType,
-      .arity = ree_determineArity(remainingOperator.token_type),
+      .arity = ree_DetermineArity(remainingOperator.token_type),
       .value = 0.0f // not used in the case of an operator
     };
     strcpy(outputToken.symbol, symbolName);

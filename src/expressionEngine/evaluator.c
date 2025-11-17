@@ -22,19 +22,19 @@
     }                                   \
     float num1 = stack[--stackIndex];
 
-enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpnCount, struct ree_variable_t *variables, size_t variableCount, float *result){
+enum reh_error_code_e ree_EvaluateRpn(struct ree_output_token_t *rpn, size_t rpnCount, struct ree_variable_t *variables, size_t variableCount, float *result){
   if (rpn == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "RPN provided to ree_evaluateRpn is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "RPN provided to ree_EvaluateRpn is NULL.");
   }
   if (variables == nullptr && variableCount != 0){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Variables provided to ree_evaluateRpn are NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Variables provided to ree_EvaluateRpn are NULL.");
   }
   if (result == nullptr){
-    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Result provided to ree_evaluateRpn is NULL.");
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Result provided to ree_EvaluateRpn is NULL.");
   }
 
   if (rpnCount == 0){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "rpnCount provided to ree_evaluateRpn is 0.");
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "rpnCount provided to ree_EvaluateRpn is 0.");
   }
 
   float stack[rpnCount];
@@ -55,7 +55,7 @@ enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpn
         }
 
         // variable not found, can't substitute
-        if (variableFound == false) SET_ERROR_RETURN(ERR_INVALID_INPUT, "No value provided for variable %s in ree_evaluateRpn.", rpn[i].symbol);
+        if (variableFound == false) SET_ERROR_RETURN(ERR_INVALID_INPUT, "No value provided for variable %s in ree_EvaluateRpn.", rpn[i].symbol);
       }
       // error - symbol found but no variable (well, variableCount is just zero) was provided
       else if (isalpha((unsigned char)rpn[i].symbol[0]) && variableCount == 0){
@@ -112,7 +112,7 @@ enum reh_error_code_e ree_evaluateRpn(struct ree_output_token_t *rpn, size_t rpn
         // declared so we dont pass a raw float into the factorial function
         int n = (int)roundf(num1);
         int localResult;
-        CHECK_ERROR_CTX(rm_factorial(n, &localResult), "Failed to calculate factorial.");
+        CHECK_ERROR_CTX(rm_Factorial(n, &localResult), "Failed to calculate factorial.");
         stack[stackIndex++] = (float)localResult;
       }
       else if (strcmp(rpn[i].symbol, "NEG") == 0){

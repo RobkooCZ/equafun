@@ -1,3 +1,7 @@
+/**
+  ree - Robkoo's Expression Engine
+*/
+
 #ifndef FUNCTION_MANAGER_H
 #define FUNCTION_MANAGER_H
 
@@ -24,28 +28,47 @@ extern struct rm_vec3_t functionColorArray[];
 extern const int functionColorArrayLength;
 
 struct ree_function_t {
-  char name[MAX_FN_NAME_LEN + 1];         // f, g, h, etc
-  char parameter[MAX_PARAM_NAME_LEN + 1]; // x for example
+  char name[MAX_FN_NAME_LEN + 1];         /**< Function name, e.g., f, g, h */
+  char parameter[MAX_PARAM_NAME_LEN + 1]; /**< Parameter name, e.g., 'x' */
 
-  struct ree_token_t *tokens;             // tokens from the lexer without 'f(x) ='
-  int tokenCount;                         // token count
+  struct ree_token_t *tokens;             /**< Tokens from the lexer without 'f(x) =' */
+  int tokenCount;                         /**< Token count */
   int tokenCapacity;
 
-  struct ree_output_token_t *rpn;         // rpn of the function definition
-  int rpnCount;                           // rpn token count
-
-  bool isVisible;                         // flag to determine whether the function is to be rendered
-  struct rm_vec3_t color;                 // color of the function
+  struct ree_output_token_t *rpn;         /**< RPN of the function definition */
+  int rpnCount;                           /**< RPN token count */
+  bool isVisible;                         /**< Flag to determine whether the function is to be rendered */
+  struct rm_vec3_t color;                 /**< Color of the function */
 };
 
 struct ree_function_manager_t {
-  struct ree_function_t functions[REE_MAX_FUNCTIONS];
-  int functionCount;
+  struct ree_function_t functions[REE_MAX_FUNCTIONS];  /**< Array of functions managed */
+  int functionCount;                                   /**< Current number of functions */
 };
 
-enum reh_error_code_e ree_initFunctionManager(struct ree_function_manager_t *manager);
-enum reh_error_code_e ree_addFunction(struct ree_function_manager_t *manager, char *definition, struct rm_vec3_t *functionColor);
-enum reh_error_code_e ree_removeFunction(struct ree_function_manager_t *manager, const char* name);
-int ree_getFunction(struct ree_function_manager_t *manager, const char *name, struct ree_function_t *function);
+/**
+  @brief Initializes the function manager
+*/
+enum reh_error_code_e ree_InitFunctionManager(struct ree_function_manager_t *manager);
+
+/**
+  @brief Adds a function to the function manager
+*/
+enum reh_error_code_e ree_AddFunction(struct ree_function_manager_t *manager, char *definition, struct rm_vec3_t *functionColor);
+
+/**
+  @brief Removes a function from the function manager
+*/
+enum reh_error_code_e ree_RemoveFunction(struct ree_function_manager_t *manager, const char* name);
+
+/**
+  @brief Retrieves a function from the function manager based on name
+*/
+int ree_GetFunction(struct ree_function_manager_t *manager, const char *name, struct ree_function_t *function);
+
+/**
+  @brief Checks if a function is in the function manager
+*/
+bool ree_IsFunctionInManager(struct ree_function_manager_t *manager, const char* name);
 
 #endif//FUNCTION_MANAGER_H

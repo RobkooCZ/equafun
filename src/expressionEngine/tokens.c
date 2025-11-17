@@ -1,6 +1,6 @@
 #include "expressionEngine/tokens.h"
 
-const char* ree_tokenToStr(enum ree_token_type_e tokenType){
+const char* ree_TokenToStr(enum ree_token_type_e tokenType){
   switch (tokenType){
     case TOKEN_NUMBER:       return "TOKEN_NUMBER";
     case TOKEN_IDENTIFIER:   return "TOKEN_IDENTIFIER";
@@ -10,7 +10,7 @@ const char* ree_tokenToStr(enum ree_token_type_e tokenType){
     case TOKEN_PAREN_CLOSE:  return "TOKEN_PAREN_CLOSE";
     case TOKEN_COMMA:        return "TOKEN_COMMA";
     case TOKEN_VARIABLE:     return "TOKEN_VARIABLE";
-    case TOKEN_END:          return "TOKEN_END";
+    case TOKEN_RL_END:          return "TOKEN_RL_END";
     case TOKEN_PLUS:         return "TOKEN_PLUS";
     case TOKEN_MINUS:        return "TOKEN_MINUS";
     case TOKEN_MULTIPLY:     return "TOKEN_MULTIPLY";
