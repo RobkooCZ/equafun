@@ -36,7 +36,7 @@ endif()
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 # --- Compiler flag for all configurations ---
-add_compile_options(-Wall)
+add_compile_options(-Wall -D_POSIX_C_SOURCE=199309L)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -D_DEBUG_NEABLE -Og -Wextra -Werror")

@@ -7,9 +7,10 @@
 
 #include <GLFW/glfw3.h>
 
+#define PI 3.14159265358979323846f
 // lenght between points on graph
 #define GRID_SPACING_NDC          0.1f
-#define GRID_SPACING_WORLD        1.0f  // one marker per world unit
+#define GRID_SPACING_WORLD        1.0f // one marker per world unit
 #define POINT_MARKER_HEIGHT_NDC   0.03f
 #define POINT_MARKER_HEIGHT_WORLD 0.3f
 

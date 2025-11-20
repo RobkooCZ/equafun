@@ -1,7 +1,7 @@
 # Compiler and default flags
 CC := gcc
-CFLAGS := -std=c23 -Wall -MMD -MP
-LIBS := -lglfw -lGL -lpthread -lXrandr -lXi -ldl -lfreetype -lm
+CFLAGS := -std=c23 -Wall -MMD -MP -D_POSIX_C_SOURCE=199309L
+LIBS := -lglfw -lGL -lpthread -lXrandr -lXi -ldl -lfreetype -lm -lrt
 INCLUDE_PATHS := -Iinclude -Ilibs/include $(shell pkg-config --cflags freetype2 | awk '{print $1}')
 
 # Directories

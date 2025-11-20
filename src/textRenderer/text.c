@@ -8,6 +8,7 @@
 #include <math.h>
 
 #include "textRenderer/text.h"
+#include "core/input.h"
 #include "core/window.h"
 #include "freetype/freetype.h"
 #include "freetype/fttypes.h"
@@ -263,14 +264,71 @@ enum reh_error_code_e rtr_FormatMarkerValue(float value, char *buffer, const int
     SET_ERROR_TECHNICAL_RETURN(ERR_INVALID_INPUT, "bufferSize <= 0 (%d)", "Buffer size provided to rtr_FormatMarkerValue is 0 or less. (%d)", bufferSize);
   }
 
+  if (fabsf(value) < FLT_EPSILON){
+    snprintf(buffer, (size_t)bufferSize, "0");
+    return ERR_SUCCESS;
+  }
+
+  // detect k * pi (integer multiples) and n * (pi/2) (half multiples)
+  float ratio = value / PI;           // value / pi
+  float twoRatio = ratio * 2.0f;      // value / (pi/2)
+
+  int k = (int)roundf(ratio);
+  if (fabsf(ratio - (float)k) <= FLT_EPSILON){
+    // k * pi
+    if (k == 0){
+      snprintf(buffer, (size_t)bufferSize, "0");
+    }
+    else if (k == 1){
+      snprintf(buffer, (size_t)bufferSize, "pi");
+    }
+    else if (k == -1){
+      snprintf(buffer, (size_t)bufferSize, "-pi");
+    }
+    else {
+      snprintf(buffer, (size_t)bufferSize, "%dpi", k);
+    }
+    return ERR_SUCCESS;
+  }
+
+  int n = (int)roundf(twoRatio);
+  if (fabsf(twoRatio - (float)n) <= FLT_EPSILON){
+    /* n * (pi/2) */
+    if (n == 0){
+      snprintf(buffer, (size_t)bufferSize, "0");
+    }
+    else if (n % 2 == 0){
+      // even -> reduces to k*pi
+      int kk = n / 2;
+      if (kk == 1) snprintf(buffer, (size_t)bufferSize, "pi");
+      else if (kk == -1) snprintf(buffer, (size_t)bufferSize, "-pi");
+      else snprintf(buffer, (size_t)bufferSize, "%dpi", kk);
+    }
+    else {
+      // odd -> keep as (m)pi/2
+      int sign = (n < 0) ? -1 : 1;
+      int absn = abs(n);
+      if (absn == 1){
+        snprintf(buffer, (size_t)bufferSize, (sign < 0) ? "-pi/2" : "pi/2");
+      }
+      else {
+        // format like "3pi/2" or "-3pi/2"
+        snprintf(buffer, (size_t)bufferSize, "%s%dpi/2", (sign < 0) ? "-" : "", absn);
+      }
+    }
+    return ERR_SUCCESS;
+  }
+
   // Check if value is effectively an integer (e.g., 1.00, -5.00)
   if (fmodf(value, 1.0f) < FLT_EPSILON){
     // It's an integer, format without decimals
     snprintf(buffer, (size_t)bufferSize, "%d", (int)value);
-  } else {
+  }
+  else {
     // Has decimal places, format with 2 decimals
     snprintf(buffer, (size_t)bufferSize, "%.2f", (double)value);
   }
+
 
   return ERR_SUCCESS;
 }
@@ -294,7 +352,7 @@ float rtr_WorldToPixelY(float worldY){
 enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color){
   // [0,0] point
   int value = 0;
-  char zeroLabel[5];
+  char zeroLabel[2];
   CHECK_ERROR_CTX(rtr_FormatMarkerValue((float)value, zeroLabel, 5), "Failed to format marker value."); // put the value into the string
 
   CHECK_ERROR_CTX(rtr_RenderText(program, VAO, VBO, zeroLabel, characters, rtr_WorldToPixelX(0.0f + POINT_MARKER_HEIGHT_WORLD * 0.5f), rtr_WorldToPixelY(0.0f - POINT_MARKER_HEIGHT_WORLD * 1.5f), scale, color), "Failed to render point [0,0]");
@@ -306,11 +364,14 @@ enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VB
   float usableYMin = worldYMin + POINT_MARKER_HEIGHT_WORLD;
   float usableYMax = worldYMax - POINT_MARKER_HEIGHT_WORLD;
 
+  float gridSpacingWorldX = (isXPiLabeled) ? PI/2 : GRID_SPACING_WORLD;
+  float gridSpacingWorldY = GRID_SPACING_WORLD;
+
   // positive x axis labels
-  for (float worldX = GRID_SPACING_WORLD; worldX <= usableXMax; worldX += GRID_SPACING_WORLD){
+  for (float worldX = gridSpacingWorldX; worldX <= usableXMax; worldX += gridSpacingWorldX){
     // print the label into the buffer
-    char label[5];
-    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldX, label, 5), "Failed to format marker value.");
+    char label[15];
+    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldX, label, 15), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textWidth;
@@ -327,10 +388,10 @@ enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VB
   }
 
   // negative x axis labels
-  for (float worldX = -GRID_SPACING_WORLD; worldX >= usableXMin; worldX -= GRID_SPACING_WORLD){
+  for (float worldX = -gridSpacingWorldX; worldX >= usableXMin; worldX -= gridSpacingWorldX){
     // print the label into the buffer
-    char label[6];
-    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldX, label, 6), "Failed to format marker value.");
+    char label[16];
+    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldX, label, 16), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textWidth;
@@ -347,10 +408,10 @@ enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VB
   }
 
   // positive y axis labels
-  for (float worldY = GRID_SPACING_WORLD; worldY <= usableYMax; worldY += GRID_SPACING_WORLD){
+  for (float worldY = gridSpacingWorldY; worldY <= usableYMax; worldY += gridSpacingWorldY){
     // print the label into the buffer
-    char label[5];
-    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldY, label, 5), "Failed to format marker value.");
+    char label[15];
+    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldY, label, 15), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textHeight;
@@ -368,10 +429,10 @@ enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VB
   }
 
   // negative y axis labels
-  for (float worldY = -GRID_SPACING_WORLD; worldY >= usableYMin; worldY -= GRID_SPACING_WORLD){
+  for (float worldY = -gridSpacingWorldY; worldY >= usableYMin; worldY -= gridSpacingWorldY){
     // print the label into the buffer
-    char label[6];
-    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldY, label, 6), "Failed to format marker value.");
+    char label[16];
+    CHECK_ERROR_CTX(rtr_FormatMarkerValue(worldY, label, 16), "Failed to format marker value.");
 
     // get the text width so we can center the label below the marker
     float textHeight;

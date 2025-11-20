@@ -8,6 +8,8 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
+extern bool isXPiLabeled;
+
 /**
   @brief Processes input for the given GLFW window.
 */

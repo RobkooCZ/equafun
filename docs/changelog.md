@@ -1,5 +1,17 @@
 # Changelog
 
+## Alpha v0.0.6.2
+
+### Added
+- debounce to input
+- custom function for sleeping in ms (both operating systems)
+- pressing 'P' toggles the x-axis labels' between integer values (1, 2, 3, ...) to pi values (pi/2, pi, 3pi/2, ...)
+
+## Alpha v0.0.6.1
+
+### Added
+- decimal support
+
 ## Alpha v0.0.6
 
 ### Added

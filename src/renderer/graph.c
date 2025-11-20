@@ -1,3 +1,4 @@
+#include "core/input.h"
 #include "core/logger.h"
 #include "core/window.h"
 #include "glad/glad.h"
@@ -187,7 +188,8 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   }
 
   // set useful vars
-  float gridSpacingWorld = GRID_SPACING_WORLD;
+  float gridSpacingWorldX = (isXPiLabeled) ? PI/2 : GRID_SPACING_WORLD;
+  float gridSpacingWorldY = GRID_SPACING_WORLD;
   float pointMarkerHeight = POINT_MARKER_HEIGHT_WORLD;
 
   // set padding
@@ -202,12 +204,12 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
 
   // Count how many markers we need
   int xMarkerCount = 0;
-  for (float x = 0.0f; x <= rightEdge; x += gridSpacingWorld) xMarkerCount++;
-  for (float x = -gridSpacingWorld; x >= leftEdge; x -= gridSpacingWorld) xMarkerCount++;
+  for (float x = 0.0f; x <= rightEdge; x += gridSpacingWorldX) xMarkerCount++;
+  for (float x = -gridSpacingWorldX; x >= leftEdge; x -= gridSpacingWorldX) xMarkerCount++;
 
   int yMarkerCount = 0;
-  for (float y = 0.0f; y <= topEdge; y += gridSpacingWorld) yMarkerCount++;
-  for (float y = -gridSpacingWorld; y >= bottomEdge; y -= gridSpacingWorld) yMarkerCount++;
+  for (float y = 0.0f; y <= topEdge; y += gridSpacingWorldY) yMarkerCount++;
+  for (float y = -gridSpacingWorldY; y >= bottomEdge; y -= gridSpacingWorldY) yMarkerCount++;
 
   int totalMarkers = xMarkerCount + yMarkerCount;
   int vertexCount = totalMarkers * 2; // 2 vertices per marker (top and bottom of tick)
@@ -228,7 +230,7 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   int indicesVal = 0;
 
   // X-axis markers (positive)
-  for (float x = 0.0f; x <= rightEdge; x += gridSpacingWorld){
+  for (float x = 0.0f; x <= rightEdge; x += gridSpacingWorldX){
     vertices[v++] = x;
     vertices[v++] = 0.0f + pointMarkerHeight;
     vertices[v++] = 0.0f;
@@ -242,7 +244,7 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   }
 
   // X-axis markers (negative)
-  for (float x = -gridSpacingWorld; x >= leftEdge; x -= gridSpacingWorld){
+  for (float x = -gridSpacingWorldX; x >= leftEdge; x -= gridSpacingWorldX){
     vertices[v++] = x;
     vertices[v++] = 0.0f + pointMarkerHeight;
     vertices[v++] = 0.0f;
@@ -256,7 +258,7 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   }
 
   // Y-axis markers (positive)
-  for (float y = 0.0f; y <= topEdge; y += gridSpacingWorld){
+  for (float y = 0.0f; y <= topEdge; y += gridSpacingWorldY){
     vertices[v++] = 0.0f + pointMarkerHeight;
     vertices[v++] = y;
     vertices[v++] = 0.0f;
@@ -270,7 +272,7 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   }
 
   // Y-axis markers (negative)
-  for (float y = -gridSpacingWorld; y >= bottomEdge; y -= gridSpacingWorld){
+  for (float y = -gridSpacingWorldY; y >= bottomEdge; y -= gridSpacingWorldY){
     vertices[v++] = 0.0f + pointMarkerHeight;
     vertices[v++] = y;
     vertices[v++] = 0.0f;
