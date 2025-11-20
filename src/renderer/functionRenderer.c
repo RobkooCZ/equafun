@@ -164,7 +164,7 @@ enum reh_error_code_e rfr_SampleFunction(struct ree_function_t *function, float 
   if (worldStep <= 0){
     SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid step provided to rfr_SampleFunction (%f)", (double)worldStep);
   }
-  if (pointsData == nullptr ){
+  if (pointsData == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "vertices array passed to rfr_SampleFunction is NULL.");
   }
 

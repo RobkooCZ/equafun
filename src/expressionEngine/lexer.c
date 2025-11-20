@@ -48,7 +48,7 @@ void ree_ReadNumber(struct ree_data_t *data, char* number){
 
   int start = data->currentPosition;
 
-  while (isdigit(data->currentChar)){
+  while (isdigit(data->currentChar) || data->currentChar == '.'){
     ree_Advance(data);
   }
 
