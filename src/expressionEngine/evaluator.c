@@ -103,17 +103,10 @@ enum reh_error_code_e ree_EvaluateRpn(struct ree_output_token_t *rpn, size_t rpn
       }
       else if (strcmp(rpn[i].symbol, "!") == 0){
         POP_1_NUM();
-        // check if num1 is an int
-        if (!(fabsf(num1 - roundf(num1)) < FLT_EPSILON)){
-          // not an int (result of the calculation above is bigger than FLT_EPSILON)
-          SET_ERROR_RETURN(ERR_INVALID_INPUT, "Non-integer value provided for factorial calculation.");
-        }
 
-        // declared so we dont pass a raw float into the factorial function
-        int n = (int)roundf(num1);
-        int localResult;
-        CHECK_ERROR_CTX(rm_Factorial(n, &localResult), "Failed to calculate factorial.");
-        stack[stackIndex++] = (float)localResult;
+        float localResult;
+        CHECK_ERROR_CTX(rm_Factorial(num1, &localResult), "Failed to calculate factorial.");
+        stack[stackIndex++] = localResult;
       }
       else if (strcmp(rpn[i].symbol, "NEG") == 0){
         POP_1_NUM();

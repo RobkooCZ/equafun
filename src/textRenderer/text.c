@@ -269,7 +269,7 @@ enum reh_error_code_e rtr_FormatMarkerValue(float value, char *buffer, const int
     return ERR_SUCCESS;
   }
 
-  float eps = 10e-4;
+  float eps = (float)10e-4;
   // detect k * pi (integer multiples) and n * (pi/2) (half multiples)
   float ratio = value / PI;           // value / pi
   float twoRatio = ratio * 2.0f;      // value / (pi/2)

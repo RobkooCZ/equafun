@@ -1,5 +1,11 @@
 # Changelog
 
+## Alpha v0.0.6.3
+
+### Added
+- support for factorial of a real number using the Lanczos aproximation
+    - the precision is an issue but without hampering performace, it is simply unsolvable as of now
+
 ## Alpha v0.0.6.2.1
 
 ### Fixed

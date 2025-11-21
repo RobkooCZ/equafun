@@ -53,7 +53,7 @@ int main(int argc, char** argv){
     ra_AppShutdown(&appContext, "Please run the executable with a function definition as an argument.");
     return -1;
   }
-  // factorials DON'T WORK but im too lazy to make a proper factorial function so next commit it is :)
+  // factorials DON'T WORK but im too lazy to make a proper factorial function so next commit it is :) (it, infact, was more than one commit)
 
   // Initialize application
   err = ra_AppInit(&appContext);
