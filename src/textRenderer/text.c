@@ -269,12 +269,13 @@ enum reh_error_code_e rtr_FormatMarkerValue(float value, char *buffer, const int
     return ERR_SUCCESS;
   }
 
+  float eps = 10e-4;
   // detect k * pi (integer multiples) and n * (pi/2) (half multiples)
   float ratio = value / PI;           // value / pi
   float twoRatio = ratio * 2.0f;      // value / (pi/2)
 
   int k = (int)roundf(ratio);
-  if (fabsf(ratio - (float)k) <= FLT_EPSILON){
+  if (fabsf(ratio - (float)k) <= eps){
     // k * pi
     if (k == 0){
       snprintf(buffer, (size_t)bufferSize, "0");
@@ -292,7 +293,7 @@ enum reh_error_code_e rtr_FormatMarkerValue(float value, char *buffer, const int
   }
 
   int n = (int)roundf(twoRatio);
-  if (fabsf(twoRatio - (float)n) <= FLT_EPSILON){
+  if (fabsf(twoRatio - (float)n) <= eps){
     /* n * (pi/2) */
     if (n == 0){
       snprintf(buffer, (size_t)bufferSize, "0");

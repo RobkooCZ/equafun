@@ -1,5 +1,10 @@
 # Changelog
 
+## Alpha v0.0.6.2.1
+
+### Fixed
+- precision issue causing the pi value detector to not correctly detect higher multiples of pi (such as 4pi and more)
+
 ## Alpha v0.0.6.2
 
 ### Added
