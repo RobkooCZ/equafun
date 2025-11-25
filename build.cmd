@@ -47,7 +47,7 @@ if "%arg%"=="-t" (
   echo Options:
   echo   -h             | display this help
   echo   -t [buildType] | provide a build type to the compile utility
-  echo     Valid options are: Debug, Release, MinSizeRel, Flags"
+  echo     Valid options are: Debug, Release, MinSizeRel, Flags
   echo Example use case: '.\build.cmd -t "Debug"'
   echo Note: without any arguments, the script defaults to using %type% as the build type.
 ) else (

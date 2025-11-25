@@ -3,7 +3,7 @@
 # Default values
 BEAR=false
 BUILD_TYPE="Release"
-UTILITY="CMake"
+UTILITY="cmake"
 
 # Parse command-line options
 while getopts "bt:u:h" opt; do

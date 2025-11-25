@@ -6,10 +6,14 @@
 #include "expressionEngine/evaluator.h"
 #include "expressionEngine/functionManager.h"
 #include "utils/shaderUtils.h"
+#include "math/utility.h"
 
+#include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
+bool higherPrecisionRender = false;
 
 enum reh_error_code_e rfr_Init(struct ra_app_context_t *context){
   if (context == nullptr){
@@ -154,76 +158,135 @@ enum reh_error_code_e rfr_Init(struct ra_app_context_t *context){
 
   return ERR_SUCCESS;
 }
-enum reh_error_code_e rfr_SampleFunction(struct ree_function_t *function, float worldXRangeMin, float worldXRangeMax, float worldStep, struct rfr_function_point_data_t *pointsData){
+
+enum reh_error_code_e rfr_SampleFunction(struct ree_function_t *function, float worldXRangeMin, float worldXRangeMax, float startStep, struct rfr_function_point_data_t *pointsData){
   if (function == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Function struct (ree_function_t) passed to rfr_SampleFunction is NULL.");
   }
   if (worldXRangeMin > worldXRangeMax){
     SET_ERROR_RETURN(ERR_INVALID_INPUT, "worldXRangeMin is bigger than worldXRangeMax (%f > %f) in rfr_SampleFunction.", (double)worldXRangeMin, (double)worldXRangeMax);
   }
-  if (worldStep <= 0){
-    SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid step provided to rfr_SampleFunction (%f)", (double)worldStep);
+  if (startStep <= 0){
+    SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid step provided to rfr_SampleFunction (%f)", (double)startStep);
   }
-  if (pointsData == nullptr ){
+  if (pointsData == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "vertices array passed to rfr_SampleFunction is NULL.");
   }
 
   // calculate samplecount
   float span = worldXRangeMax - worldXRangeMin;
-  size_t sampleCount = (size_t)floorf(span / worldStep) + 1;
+  // estimate of size
+  size_t sampleCount = (size_t)floorf(span / startStep) + 1;
+  size_t sampleCapacity = sampleCount * 2;
   size_t sample = 0;
 
   // allocate memory for the vertices
-  pointsData->vertices = (float *)malloc(sizeof(float) * sampleCount * 2);
+  pointsData->vertices = (float *)malloc(sizeof(float) * sampleCapacity);
 
   if (pointsData->vertices == nullptr){
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for vertices in rfr_SampleFunction");
   }
 
   // allocate memory for undefined points
-  pointsData->undefinedPoints = (float *)malloc(sizeof(float) * sampleCount);
+  size_t undefinedPointsCapacity = sampleCount;
+  pointsData->undefinedPoints = (float *)malloc(sizeof(float) * undefinedPointsCapacity);
   pointsData->undefinedPointsCount = 0;
   if (pointsData->undefinedPoints == nullptr){
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for undefinedPoints in rfr_SampleFunction");
   }
 
-  // fill vertices (sample the function)
-  for (size_t i = 0; i < sampleCount; ++i){
-    float x = (float)(worldXRangeMin + (float)i * worldStep);
-    // evaluate function at current x (get y)
-    float y;
-    struct ree_variable_t variables[] = {{function->parameter, x}};
+  // sample the function
+  float x = worldXRangeMin;
+  float currentStep = startStep;
 
-    // gutted CHECK_ERROR_CTX macro
-    enum reh_error_code_e _err = ree_EvaluateRpn(function->rpn, (size_t)function->rpnCount, variables, 1, &y);
+  // calculate the f0 once, then it gets set to f1 after each iteration
+  // interestingly, if i calculate f0 each iteration, at the cost of more computational power, the tough functions can get rendered with more precision
+  float f0; // left endpoint
+  struct ree_variable_t variables[] = {{function->parameter, x}};
+  enum reh_error_code_e _err = ree_EvaluateRpn(function->rpn, (size_t)function->rpnCount, variables, 1, &f0);
+  RFR_CHECK_EVALUATOR_RETURN(_err, x);
 
-    if (!isfinite(y) || (fabsf(y) > ((worldYMax - worldYMin) * 10))){
-        pointsData->undefinedPoints[pointsData->undefinedPointsCount++] = x;
-        reh_ClearError();
-        continue;
+  bool accepted = false;
+  while (x < worldXRangeMax){
+    // without using higher precision render, sampler acts odd (in stuff like x! or similar) but im lazy to try and fix this rn
+    if (higherPrecisionRender == true){
+      struct ree_variable_t variablesF0[] = {{function->parameter, x}};
+      _err = ree_EvaluateRpn(function->rpn, (size_t)function->rpnCount, variablesF0, 1, &f0);
+      RFR_CHECK_EVALUATOR_RETURN(_err, x);
     }
 
-    if (_err != ERR_SUCCESS){
-      if (_err == ERR_DIVISION_BY_ZERO || _err == ERR_TAN_OUT_OF_DOMAIN ||
-          _err == ERR_LOG_OUT_OF_DOMAIN || _err == ERR_LN_OUT_OF_DOMAIN ||
-          _err == ERR_INVALID_SQRT){
+    float f1; // right endpoint
+    float x1 = x + currentStep;
+    struct ree_variable_t variablesNext[] = {{function->parameter, x1}};
+    _err = ree_EvaluateRpn(function->rpn, (size_t)function->rpnCount, variablesNext, 1, &f1);
+    RFR_CHECK_EVALUATOR_RETURN(_err, variablesNext[0].value);
+
+    // linear interpolation
+    float xm = x + currentStep * 0.5f;
+    float fm; // midpoint
+    variables[0].value = xm;
+    _err = ree_EvaluateRpn(function->rpn, (size_t)function->rpnCount, variables, 1, &fm);
+    RFR_CHECK_EVALUATOR_RETURN(_err, xm);
+
+    // get error
+    float err = fabsf(fm - ((f0 + f1) / (2.0f)));
+
+    // determine whether we change the step
+    {
+      float maxAbs = RM_MAX_3(fabsf(f0), fabsf(f1), fabsf(fm));
+      float threshold = (float)RFR_ABSOLUTE_TOLERANCE + (float)RFR_RELATIVE_TOLERANCE * maxAbs;
+      accepted = err <= threshold;
+    }
+
+    if (accepted == false){
+      if ((currentStep / 2.0f) < (startStep / RFR_BOTTOM_STEP_CAP)){
+        RFR_CHECK_UNDEFINED_POINTS_MEMORY;
+        // mark current point as undefined and advance
         pointsData->undefinedPoints[pointsData->undefinedPointsCount++] = x;
-        reh_ClearError();
-        continue;
+        currentStep = startStep;
+        x += currentStep;
       }
-      const struct reh_error_context_t *_ctx = reh_GetLastError();
-      rl_LogError(_ctx, RL_ERROR);
-      char _new_msg[256];
-      snprintf(_new_msg, sizeof(_new_msg), "Failed to evaluate RPN.");
-      reh_SetError(_err, __FILE__, __LINE__, __func__, _new_msg, reh_GetLastError()->message);
-      free(pointsData->vertices);
-      pointsData->vertices = nullptr;
-      pointsData->vertexCount = 0;
-      return _err;
+      else currentStep /= 2.0f;
     }
-    // add the coordinates into the vertex array
-    (pointsData->vertices)[sample++] = x;
-    (pointsData->vertices)[sample++] = y;
+    else {
+      if ((sample + 2) > sampleCapacity){
+        // we need to allocate more memory for vertices
+        sampleCapacity *= 2;
+        rl_LogMsg(RL_DEBUG, "Doubling memory for pointsData->vertices (Now at: %zu bytes)", sampleCapacity * sizeof(float));
+        float* tmp = (float *)realloc(pointsData->vertices, sampleCapacity * sizeof(float));
+        if (tmp == nullptr){
+          free(pointsData->vertices);
+          SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to reallocate memory for vertices data in sampler.");
+        }
+        else {
+          pointsData->vertices = tmp;
+        }
+      }
+      (pointsData->vertices)[sample++] = x;
+      (pointsData->vertices)[sample++] = f0;
+      f0 = f1;
+      x += currentStep;
+      currentStep *= 2;
+
+      if (x >= worldXRangeMax){
+        if ((sample + 2) > sampleCapacity){
+          // we need to allocate space for one more point
+          sampleCapacity += 2;
+          float* tmp = (float *)realloc(pointsData->vertices, sampleCapacity * sizeof(float));
+          if (tmp == nullptr){
+            free(pointsData->vertices);
+            SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to reallocate memory for vertices data in sampler.");
+          }
+          else {
+            pointsData->vertices = tmp;
+          }
+        }
+        x = worldXRangeMax;
+        (pointsData->vertices)[sample++] = x;
+        (pointsData->vertices)[sample++] = f0;
+      }
+      accepted = true;
+    }
   }
 
   pointsData->vertexCount = sample / 2;
@@ -251,7 +314,19 @@ enum reh_error_code_e rfr_Render(struct ra_app_context_t *context, struct ree_fu
     struct rfr_function_point_data_t pointData;
 
     // sample the function
-    CHECK_ERROR_CTX(rfr_SampleFunction(function, worldXMin, worldXMax, 0.01f, &pointData), "Failed to sample function.");
+    enum reh_error_code_e _err = rfr_SampleFunction(function, worldXMin, worldXMax, 0.001f, &pointData);
+    if (_err != ERR_SUCCESS){
+      if (_err == ERR_SAMPLER_STEP_TOO_SMALL){
+        reh_ClearError();
+        continue;
+      }
+      const struct reh_error_context_t *_ctx = reh_GetLastError();
+      rl_LogError(_ctx, RL_ERROR);
+      char _new_msg[256];
+      snprintf(_new_msg, sizeof(_new_msg), "Failed to sample function.");
+      reh_SetError(_err, __FILE__, __LINE__, __func__, _new_msg, reh_GetLastError()->message);
+      return _err;
+    }
 
     // bind VAO, VBO and grow if needed
     glBindVertexArray(context->fVAO);

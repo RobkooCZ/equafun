@@ -9,6 +9,7 @@
 #include "textRenderer/text.h"
 #include "core/app.h"
 #include "core/window.h"
+#include "utils/utilities.h"
 
 #include <string.h>
 
@@ -85,7 +86,7 @@ int main(int argc, char** argv){
       glfwSwapBuffers(appContext.window);
       redrawWindow = false;
     }
-
+    rgu_msleep(16);
     glfwPollEvents();
   }
 

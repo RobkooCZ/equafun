@@ -23,6 +23,53 @@ struct rm_complex_t {
   float imag;
 };
 
+// C11 type generic max macros
+
+#define RETURN_2_NUMS { return a > b ? a : b; }
+
+static int rm_MaxI(int a, int b) RETURN_2_NUMS
+static long rm_MaxL(long a, long b) RETURN_2_NUMS
+static unsigned int rm_MaxUI(unsigned int a, unsigned int b) RETURN_2_NUMS
+static unsigned long rm_MaxUL(unsigned long a, unsigned long b) RETURN_2_NUMS
+static float rm_MaxF(float a, float b) RETURN_2_NUMS
+static double rm_MaxD(double a, double b) RETURN_2_NUMS
+static long double rm_MaxLD(long double a, long double b) RETURN_2_NUMS
+
+#define RM_MAX_2(a, b)                \
+  _Generic((a) + (b),                 \
+           long double: rm_MaxLD,     \
+           double: rm_MaxD,           \
+           float: rm_MaxF,            \
+           long: rm_MaxL,             \
+           int: rm_MaxI,              \
+           unsigned long: rm_MaxUL,   \
+           unsigned int: rm_MaxUI,    \
+           default: rm_MaxD)          \
+  ((a), (b))
+
+
+#define RETURN_3_NUMS { return  (a > b ? (a > c ? a : c) : b); }
+
+static int rm_Max3I(int a, int b, int c) RETURN_3_NUMS
+static long rm_Max3L(long a, long b, long c) RETURN_3_NUMS
+static unsigned int rm_Max3UI(unsigned int a, unsigned int b, unsigned int c) RETURN_3_NUMS
+static unsigned long rm_Max3UL(unsigned long a, unsigned long b, unsigned long c) RETURN_3_NUMS
+static float rm_Max3F(float a, float b, float c) RETURN_3_NUMS
+static double rm_Max3D(double a, double b, double c) RETURN_3_NUMS
+static long double rm_Max3LD(long double a, long double b, long double c) RETURN_3_NUMS
+
+#define RM_MAX_3(a, b, c)             \
+  _Generic((a) + (b) + (c),           \
+           long double: rm_Max3LD,    \
+           double: rm_Max3D,          \
+           float: rm_Max3F,           \
+           long: rm_Max3L,            \
+           int: rm_Max3I,             \
+           unsigned long: rm_Max3UL,  \
+           unsigned int: rm_Max3UI,   \
+           default: rm_Max3D)         \
+  ((a), (b), (c))
+
 /**
   @brief Classifies a floating-point number into various categories
 */

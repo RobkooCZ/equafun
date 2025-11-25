@@ -1,6 +1,7 @@
 #include "core/input.h"
 #include "core/logger.h"
 #include "core/window.h"
+#include "renderer/functionRenderer.h"
 #include "utils/utilities.h"
 
 bool isXPiLabeled = false;
@@ -20,7 +21,12 @@ void rih_ProcessInput(GLFWwindow *window){
     rl_LogMsg(RL_DEBUG, "P key pressed, changing x-axis labels.");
     isXPiLabeled = !isXPiLabeled;
     redrawWindow = true;
-    rl_LogMsg(RL_DEBUG, "Value of isXPiLabeled: %d", isXPiLabeled);
+    rgu_msleep(150);
+  }
+  else if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
+    rl_LogMsg(RL_DEBUG, "R key pressed, changing precision.");
+    higherPrecisionRender = !higherPrecisionRender;
+    redrawWindow = true;
     rgu_msleep(150);
   }
 }

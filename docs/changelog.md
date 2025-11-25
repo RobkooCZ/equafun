@@ -1,10 +1,24 @@
 # Changelog
 
+## Alpha v0.0.6.4
+
+### Added
+- a hardcoded 16ms sleep into main to prevent cpu waste
+- a keybind "R" to toggle higher precision rendering
+
+### Changed
+- static step an adaptive step based on tolerance and set precision
+    - able to comfortably sample even the most difficult of functions without an issue
+    - dynamically resizes the vertices & undefinedPoints array
+
+### Fixed
+- default utility in `build.sh` was incorrect
+- removed a lone " in `build.cmd`
+
 ## Alpha v0.0.6.3
 
 ### Added
 - support for factorial of a real number using the Lanczos aproximation
-    - the precision is an issue but without hampering performace, it is simply unsolvable as of now
 
 ## Alpha v0.0.6.2.1
 

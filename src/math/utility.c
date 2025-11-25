@@ -65,9 +65,6 @@ enum reh_error_code_e rm_Factorial(float z, float *result){
   }
 
   double gammaVal = gammaLanczos((double)(z + 1.0f));
-  if (gammaVal > (double)FLT_MAX){
-    rl_LogMsg(RL_WARNING, "Result of factorial exceeded FLT_MAX.");
-  }
 
   *result = (float)gammaVal;
 
