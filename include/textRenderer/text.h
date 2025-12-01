@@ -6,6 +6,7 @@
 #define TEXT_H
 
 // FT documentation recommended way of including FT
+#include "expressionEngine/functionManager.h"
 #include <GL/gl.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -17,6 +18,24 @@
 #include "core/errorHandler.h"
 
 #define ASCII_CHAR_COUNT 128
+
+#define VAR_SIZE 256
+
+#define DISPLAY_VAR(var, format, label) \
+  do { \
+    topLeftY -= windowHeight * gap; \
+    char buffer[VAR_SIZE]; \
+    snprintf(buffer, VAR_SIZE, "%s: " format, label, var); \
+    rtr_RenderText(program, VAO, VBO, buffer, characters, topLeftX, topLeftY, scale * fontScale , color); \
+  } while (0)
+
+#define DISPLAY_FUNCTION_DEFINITION(var, color) \
+  do { \
+    topLeftY -= windowHeight * gap; \
+    char buffer[VAR_SIZE]; \
+    snprintf(buffer, VAR_SIZE, "%s", var); \
+    rtr_RenderText(program, VAO, VBO, buffer, characters, topLeftX, topLeftY, scale * fontScale , color); \
+  } while (0)
 
 struct rtr_character_t {
   FT_UInt           textureID;  /**< ID handle of the glyph texture */
@@ -94,4 +113,7 @@ float rtr_WorldToPixelY(float worldY);
   @brief Renders axis labels
 */
 enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color);
+
+enum reh_error_code_e rtr_RenderDebugInfo(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color, struct ree_function_manager_t *manager);
+
 #endif // TEXT_H

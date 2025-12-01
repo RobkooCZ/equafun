@@ -9,6 +9,7 @@
 #include "utils/shaderUtils.h"
 #include "core/errorHandler.h"
 
+#include <stddef.h>
 #include <stdlib.h>
 
 enum reh_error_code_e rgr_SetupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
@@ -215,8 +216,8 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   int vertexCount = totalMarkers * 2; // 2 vertices per marker (top and bottom of tick)
 
   // Allocate arrays
-  float *vertices = malloc((long unsigned int)vertexCount * (long unsigned int)3 * sizeof(float));
-  GLuint *indices = malloc((long unsigned int)vertexCount * sizeof(GLuint));
+  float *vertices = malloc((size_t)vertexCount * (size_t)3 * sizeof(float));
+  GLuint *indices = malloc((size_t)vertexCount * sizeof(GLuint));
 
   if (vertices == nullptr || indices == nullptr){
     free(vertices);
@@ -289,10 +290,10 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   glBindVertexArray(*VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-  glBufferData(GL_ARRAY_BUFFER, (long unsigned int)vertexCount * (long unsigned int)3 * sizeof(float), vertices, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, (size_t)vertexCount * (size_t)3 * sizeof(float), vertices, GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, (long unsigned int)vertexCount * sizeof(GLuint), indices, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, (size_t)vertexCount * sizeof(GLuint), indices, GL_DYNAMIC_DRAW);
 
   // Render
   glUseProgram(*program);

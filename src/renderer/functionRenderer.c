@@ -281,7 +281,12 @@ enum reh_error_code_e rfr_SampleFunction(struct ree_function_t *function, float 
             pointsData->vertices = tmp;
           }
         }
+        // clamp x to the world limit and calculate y
         x = worldXRangeMax;
+        struct ree_variable_t variables[] = {{function->parameter, x}};
+        _err = ree_EvaluateRpn(function->rpn, (size_t)function->rpnCount, variables, 1, &f0);
+        RFR_CHECK_EVALUATOR_RETURN(_err, variablesNext[0].value);
+
         (pointsData->vertices)[sample++] = x;
         (pointsData->vertices)[sample++] = f0;
       }

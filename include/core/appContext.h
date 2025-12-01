@@ -22,6 +22,12 @@ struct ra_app_context_t {
   GLuint gEBO;                  /**< Element Buffer Object for graphs; 0 on failure. */
   GLuint gProgram;              /**< Shader program for graphs; 0 on failure. */
 
+  /* UI resources */
+  GLuint uiVAO;                  /**< Vertex Array Object for UI; 0 on failure. */
+  GLuint uiVBO;                  /**< Vertex Buffer Object for UI; 0 on failure. */
+  GLuint uiEBO;                  /**< Element Buffer Object for UI; 0 on failure. */
+  GLuint uiProgram;              /**< Shader program for UI; 0 on failure. */
+
   /* Marker resources */
   GLuint gmVAO;                 /**< Vertex Array Object for markers; 0 on failure. */
   GLuint gmVBO;                 /**< Vertex Buffer Object for markers; 0 on failure. */

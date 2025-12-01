@@ -64,6 +64,9 @@ enum reh_error_code_e ree_AddFunction(struct ree_function_manager_t *manager, ch
     functionColor = &functionColorArray[manager->functionCount % functionColorArrayLength];
   }
 
+  // copy the definition into the manager
+  strcpy(manager->functions[manager->functionCount].definition, definition);
+
   // add the function to the manager
   CHECK_ERROR_CTX(ree_ParseFunction(definition, &manager->functions[manager->functionCount], manager, functionColor), "Failed to parse function definition.");
 
@@ -101,7 +104,7 @@ enum reh_error_code_e ree_RemoveFunction(struct ree_function_manager_t *manager,
   free(manager->functions[functionPos].rpn);
 
   // move the functions that were after this removed one back (to not have holes in the arr)
-  memmove(&manager->functions[functionPos], &manager->functions[functionPos + 1], (long unsigned int)(manager->functionCount - functionPos - 1) * sizeof *manager->functions);
+  memmove(&manager->functions[functionPos], &manager->functions[functionPos + 1], (size_t)(manager->functionCount - functionPos - 1) * sizeof *manager->functions);
 
   manager->functionCount--;
 

@@ -61,3 +61,12 @@ int rgu_msleep(long ms){
     return 0;
   #endif
 }
+
+int rgu_hash(const char *input){
+  int hash = 5381;
+  int character;
+
+  while ((character = *input++)) hash = ((hash << 5) + hash) + character;
+
+  return hash;
+}

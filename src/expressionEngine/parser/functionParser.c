@@ -55,7 +55,7 @@ enum reh_error_code_e ree_ImplicitMultiplication(struct ree_token_t **tokens, in
         newCapacity *= 2;
       }
 
-      struct ree_token_t *tmp = realloc(*tokens, (long unsigned int)newCapacity * sizeof **tokens);
+      struct ree_token_t *tmp = realloc(*tokens, (size_t)newCapacity * sizeof **tokens);
       if (tmp == nullptr){
         SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to expand token buffer in ree_ImplicitMultiplication.");
       }
@@ -66,7 +66,7 @@ enum reh_error_code_e ree_ImplicitMultiplication(struct ree_token_t **tokens, in
     // shift the array to the right by one slot to have space to insert the multiplication token
     memmove(&(*tokens)[i+2],
             &(*tokens)[i+1],
-            (long unsigned int)(*tokenCount - (i + 1)) * sizeof **tokens);
+            (size_t)(*tokenCount - (i + 1)) * sizeof **tokens);
 
     (*tokens)[i+1].token_type = TOKEN_MULTIPLY;
     strcpy((*tokens)[i+1].value, "*");
@@ -156,7 +156,7 @@ enum reh_error_code_e ree_ParseFunction(char *definition, struct ree_function_t 
 
   // fill tokens array with all tokens besides the ones defining the function name and variable (as the parser doesn't handle 'f(x) =' or 'y =')
   // allocate token array
-  function->tokens = malloc((long unsigned int)tokenCount * sizeof(struct ree_token_t));
+  function->tokens = malloc((size_t)tokenCount * sizeof(struct ree_token_t));
   if (function->tokens == NULL){
     free(function->tokens);
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for function tokens.");
@@ -175,7 +175,7 @@ enum reh_error_code_e ree_ParseFunction(char *definition, struct ree_function_t 
   ree_ImplicitMultiplication(&function->tokens, &function->tokenCount, &function->tokenCapacity);
 
   // allocate RPN array
-  function->rpn = malloc((long unsigned int)function->tokenCount * sizeof(struct ree_output_token_t));
+  function->rpn = malloc((size_t)function->tokenCount * sizeof(struct ree_output_token_t));
   if (function->rpn == NULL){
     free(function->tokens);
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate memory for RPN array.");

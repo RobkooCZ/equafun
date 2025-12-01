@@ -9,6 +9,8 @@
 #include "textRenderer/text.h"
 #include "core/app.h"
 #include "core/window.h"
+#include "ui/ui.h"
+#include "ui/uiInternal.h"
 #include "utils/utilities.h"
 
 #include <string.h>
@@ -26,6 +28,9 @@ int main(int argc, char** argv){
   // Initialize application context
   struct ra_app_context_t appContext;
   memset(&appContext, 0, sizeof appContext);
+
+  // initialize ui context
+  struct rui_context_t uiCtx;
 
   // initialize function manager and add some functions to test drawing
   struct ree_function_manager_t functions;
@@ -54,7 +59,6 @@ int main(int argc, char** argv){
     ra_AppShutdown(&appContext, "Please run the executable with a function definition as an argument.");
     return -1;
   }
-  // factorials DON'T WORK but im too lazy to make a proper factorial function so next commit it is :) (it, infact, was more than one commit)
 
   // Initialize application
   err = ra_AppInit(&appContext);
@@ -75,17 +79,12 @@ int main(int argc, char** argv){
   // Main render loop
   while (!glfwWindowShouldClose(appContext.window)){
     rih_ProcessInput(appContext.window);
-
-    if (redrawWindow == true){
-      err = ra_AppRenderFrame(&appContext, characters, &functions);
-      if (err != ERR_SUCCESS){
-        ra_AppShutdown(&appContext, "Rendering failed.");
-        return -1;
-      }
-      rl_LogMsg(RL_DEBUG, "Window redraw triggered.");
-      glfwSwapBuffers(appContext.window);
-      redrawWindow = false;
+    err = ra_AppRenderFrame(&appContext, &uiCtx, characters, &functions);
+    if (err != ERR_SUCCESS){
+      ra_AppShutdown(&appContext, "Rendering failed.");
+      return -1;
     }
+    glfwSwapBuffers(appContext.window);
     rgu_msleep(16);
     glfwPollEvents();
   }

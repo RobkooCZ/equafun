@@ -9,6 +9,7 @@
 #include "core/appContext.h"
 #include "expressionEngine/functionManager.h"
 #include "textRenderer/text.h"
+#include "ui/uiInternal.h"
 
 /**
   @brief Initializes the application context
@@ -20,7 +21,7 @@ enum reh_error_code_e ra_AppInit(struct ra_app_context_t *ctx);
   @brief Renders a frame using the provided application context, characters, and function manager
   @returns An error code indicating success or failure
 */
-enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rtr_character_t *chars, struct ree_function_manager_t *functions);
+enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui_context_t *uiCtx, struct rtr_character_t *chars, struct ree_function_manager_t *functions);
 
 /**
   @brief Shuts down the application with an optional message

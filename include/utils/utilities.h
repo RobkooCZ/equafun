@@ -20,4 +20,9 @@ void rgu_TrimStr(char *str);
 */
 int rgu_msleep(long ms);
 
+/**
+  @brief Hashes the input string with the djb3 algorithm and returns the hash as an int
+*/
+int rgu_hash(const char* input);
+
 #endif // UTILITIES_H

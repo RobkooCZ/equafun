@@ -39,14 +39,14 @@ enum reh_error_code_e rsu_LoadShaderSource(const char *path, char **outSource){
 
   rl_LogMsg(RL_DEBUG, "Size of read file contents: %ld bytes.", fSize);
 
-  char* shaderSrc = (char*)malloc((long unsigned int)(fSize + 1) * sizeof(char));
+  char* shaderSrc = (char*)malloc((size_t)(fSize + 1) * sizeof(char));
   if (!shaderSrc){
     fclose(shaderSrcFile);
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate %ld bytes for shader source", fSize + 1);
   }
 
   // reads 161 bytes (win)
-  size_t bytesRead = fread(shaderSrc, 1, (long unsigned int)fSize, shaderSrcFile);
+  size_t bytesRead = fread(shaderSrc, 1, (size_t)fSize, shaderSrcFile);
   fclose(shaderSrcFile);
 
   if (bytesRead != (size_t)fSize){

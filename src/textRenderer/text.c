@@ -10,9 +10,11 @@
 #include "textRenderer/text.h"
 #include "core/input.h"
 #include "core/window.h"
+#include "expressionEngine/functionManager.h"
 #include "freetype/freetype.h"
 #include "freetype/fttypes.h"
 #include "renderer/graph.h"
+#include "ui/uiInternal.h"
 #include "utils/shaderUtils.h"
 #include "core/errorHandler.h"
 #include "math/Vec2.h"
@@ -449,6 +451,42 @@ enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VB
     // render
     CHECK_ERROR_CTX(rtr_RenderText(program, VAO, VBO, label, characters, labelX, labelY, scale, color), "Failed to render text.");
   }
+
+  return ERR_SUCCESS;
+}
+
+enum reh_error_code_e rtr_RenderDebugInfo(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color, struct ree_function_manager_t *manager){
+  // get dimensions of where to place the text
+  float topLeftX = windowWidth * 0.7f; // 70% from the left
+  float topLeftY = windowHeight - (windowHeight * 0.05f); // 5% from the top
+
+  // scale text size accordingly
+  float aspectRatio = windowWidth / windowHeight;
+  float fontScale = sqrtf(aspectRatio) * 0.75f;
+
+  float gap = (0.03f) * aspectRatio;
+
+  DISPLAY_VAR(windowHeight, "%.0f", "Height");
+  DISPLAY_VAR(windowWidth, "%.0f", "Width");
+
+  // display the functions' definitions
+  for (size_t i = 0; i < manager->functionCount; ++i){
+    DISPLAY_FUNCTION_DEFINITION(manager->functions[i].definition, manager->functions[i].color);
+  }
+
+  // aspect ratio
+  DISPLAY_VAR(aspectRatio, "%.2f", "AR");
+
+  // display the scale
+  DISPLAY_VAR(fontScale, "%f", "AC");
+
+  // display
+  DISPLAY_VAR(gap, "%f", "gap");
+
+  // mouse state
+  DISPLAY_VAR(ruiState.mouseDown, "%d", "Mouse Down");
+  DISPLAY_VAR(ruiState.mouseX, "%f", "Mouse X");
+  DISPLAY_VAR(ruiState.mouseY, "%f", "Mouse Y");
 
   return ERR_SUCCESS;
 }

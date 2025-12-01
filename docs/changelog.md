@@ -1,5 +1,33 @@
 # Changelog
 
+## Alpha v0.0.6.6
+
+### Added
+- debug text to the window, which includes:
+    - currently rendered functions
+    - info about the window size, cursor position and left mouse click bool
+    - some other misc info
+- groundwork for an UI library that I will use for this project
+    - so far able to render a rectangle at a given {x,y} and width, height
+    - Immediate GUI style
+- basic showcase of the rectangle UI to the window
+
+### Changed
+- `long unsigned int` to `size_t` for cross platform compatibility
+
+### Fixed
+- wrong rendering if step went very high
+
+### Removed
+- window only redrawing when `redrawWindow` flag was set to true
+
+## Alpha v0.0.6.5
+
+### Added
+- function to render variables' values to the screen for debug purposes
+    - alongside it a macro to remove boiler plate in the function
+- definition field in the `ree_function_t` struct for storing the user-provided definition
+
 ## Alpha v0.0.6.4
 
 ### Added

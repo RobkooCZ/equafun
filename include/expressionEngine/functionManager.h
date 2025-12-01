@@ -12,7 +12,8 @@
 #define MAX_FN_NAME_LEN    1
 #define MAX_PARAM_NAME_LEN 1
 
-#define REE_MAX_FUNCTIONS      16
+#define REE_MAX_FUNCTIONS         16
+#define REE_MAX_DEFINITION_LENGTH 255
 
 #define WHITE  {1.0f, 1.0f, 1.0f}       // RGB: 255, 255, 255
 #define RED    {1.0f, 0.0f, 0.0f}       // RGB: 255, 0, 0
@@ -28,17 +29,18 @@ extern struct rm_vec3_t functionColorArray[];
 extern const int functionColorArrayLength;
 
 struct ree_function_t {
-  char name[MAX_FN_NAME_LEN + 1];         /**< Function name, e.g., f, g, h */
-  char parameter[MAX_PARAM_NAME_LEN + 1]; /**< Parameter name, e.g., 'x' */
+  char definition[REE_MAX_DEFINITION_LENGTH + 1];   /**< Function definition inputted by the user */
+  char name[MAX_FN_NAME_LEN + 1];                   /**< Function name, e.g., f, g, h */
+  char parameter[MAX_PARAM_NAME_LEN + 1];           /**< Parameter name, e.g., 'x' */
 
-  struct ree_token_t *tokens;             /**< Tokens from the lexer without 'f(x) =' */
-  int tokenCount;                         /**< Token count */
-  int tokenCapacity;
+  struct ree_token_t *tokens;                       /**< Tokens from the lexer without 'f(x) =' */
+  int tokenCount;                                   /**< Token count */
+  int tokenCapacity;                                /**< Token capacity */
 
-  struct ree_output_token_t *rpn;         /**< RPN of the function definition */
-  int rpnCount;                           /**< RPN token count */
-  bool isVisible;                         /**< Flag to determine whether the function is to be rendered */
-  struct rm_vec3_t color;                 /**< Color of the function */
+  struct ree_output_token_t *rpn;                   /**< RPN of the function definition */
+  int rpnCount;                                     /**< RPN token count */
+  bool isVisible;                                   /**< Flag to determine whether the function is to be rendered */
+  struct rm_vec3_t color;                           /**< Color of the function */
 };
 
 struct ree_function_manager_t {

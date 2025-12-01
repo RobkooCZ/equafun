@@ -7,6 +7,9 @@
 #include "core/window.h"
 #include "renderer/functionRenderer.h"
 #include "renderer/graph.h"
+#include "textRenderer/text.h"
+#include "ui/ui.h"
+#include "ui/uiInternal.h"
 #include "utils/shaderUtils.h"
 #include "math/Mat4.h"
 #include "math/Vec3.h"
@@ -46,6 +49,10 @@ enum reh_error_code_e ra_AppInit(struct ra_app_context_t *ctx){
   if (err != ERR_SUCCESS) return err;
 
   err = rgr_SetupMarkerBuffers(&ctx->gmVAO, &ctx->gmVBO, &ctx->gmEBO);
+  if (err != ERR_SUCCESS) return err;
+
+  // Setup UI resources
+  err = rui_SetupRenderData(&ctx->uiProgram, &ctx->uiVAO, &ctx->uiVBO, &ctx->uiEBO);
   if (err != ERR_SUCCESS) return err;
 
   // Setup function resources
@@ -109,7 +116,7 @@ enum reh_error_code_e ra_AppInit(struct ra_app_context_t *ctx){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rtr_character_t *chars, struct ree_function_manager_t *functions){
+enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui_context_t *uiCtx, struct rtr_character_t *chars, struct ree_function_manager_t *functions){
   if (ctx == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Context pointer is NULL in ra_AppRenderFrame()");
   }
@@ -148,7 +155,7 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rtr
     struct rm_mat4_t textProjection;
     rm_Mat4Ortho(0.0f, windowWidth, 0.0f, windowHeight, &textProjection);
 
-    float *textProjectionPtr = nullptr;
+    float* textProjectionPtr = nullptr;
     rm_Mat4ValuePtr(&textProjection, &textProjectionPtr);
     rsu_GluSetMat4(ctx->textProgram, "textProjection", textProjectionPtr);
 
@@ -183,15 +190,27 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rtr
 
   struct rm_vec3_t textColor = {1.0f, 1.0f, 1.0f};
   err = rtr_RenderAxisLabels(ctx->textProgram, ctx->textVAO, ctx->textVBO, chars, 1.0f, textColor);
+
   if (err != ERR_SUCCESS) return err;
+  err = rtr_RenderDebugInfo(ctx->textProgram, ctx->textVAO, ctx->textVBO, chars, 1.0f, textColor, functions);
+
+  rui_Begin(uiCtx);
+  rui_RenderRect(uiCtx, 10, 10, "a", 150, 500, (struct rm_vec3_t){1.0f, 1.0f, 1.0f});
+  rui_RenderRect(uiCtx, 165, 10, "yo", 500, 100, (struct rm_vec3_t){1.0f, 1.0f, 1.0f});
+
+  struct rm_mat4_t textProjection;
+  rm_Mat4Ortho(0.0f, windowWidth, 0.0f, windowHeight, &textProjection);
+
+  float* textProjectionPtr = nullptr;
+  rm_Mat4ValuePtr(&textProjection, &textProjectionPtr);
+  rsu_GluSetMat4(ctx->textProgram, "textProjection", textProjectionPtr);
+
+
+  rui_End(uiCtx, &ctx->uiProgram, &ctx->uiVAO, &ctx->uiVBO, &ctx->uiEBO, &textProjectionPtr);
 
   return ERR_SUCCESS;
 }
 
-// yo this is a test
-/*
-   test pls work
-*/
 void ra_AppShutdown(struct ra_app_context_t *ctx, const char *msg){
   ra_AppContextCleanup(ctx, msg);
 }
