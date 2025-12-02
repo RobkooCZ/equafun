@@ -12,7 +12,7 @@
 /**
   @brief Sets up the VAO, VBO, and EBO for rendering
 */
-enum reh_error_code_e rru_SetupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO);
+enum reh_error_code_e rru_SetupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO, bool colorAttrib);
 
 /**
   @brief Sets up the VBO for rendering

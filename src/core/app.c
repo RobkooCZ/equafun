@@ -14,6 +14,7 @@
 #include "math/Mat4.h"
 #include "math/Vec3.h"
 #include "math/typeConvert.h"
+#include "ui/uiRectOnEvent.h"
 
 enum reh_error_code_e ra_AppInit(struct ra_app_context_t *ctx){
   if (ctx == nullptr){
@@ -195,8 +196,31 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
   err = rtr_RenderDebugInfo(ctx->textProgram, ctx->textVAO, ctx->textVBO, chars, 1.0f, textColor, functions);
 
   rui_Begin(uiCtx);
-  rui_RenderRect(uiCtx, 10, 10, "a", 150, 500, (struct rm_vec3_t){1.0f, 1.0f, 1.0f});
-  rui_RenderRect(uiCtx, 165, 10, "yo", 500, 100, (struct rm_vec3_t){1.0f, 1.0f, 1.0f});
+
+  rui_RenderRect(uiCtx, 10, 10, "a", 150, 500, (struct rm_vec3_t){1.0f, 1.0f, 1.0f}, rui_RectOnHoverGreen, rui_RectOnClickBlue);
+  rui_RenderRect(uiCtx, 165, 10, "yo", 500, 100, (struct rm_vec3_t){1.0f, 1.0f, 1.0f}, rui_RectOnHoverRed, rui_RectOnClickGray);
+  rui_RenderRect(uiCtx, 70, 255, "square", 100, 100, (struct rm_vec3_t){0.0f, 0.0f, 1.0f}, rui_RectOnHoverGray, rui_RectOnClickGreen);
+
+  int id;
+  rui_AACursorCheck(&id);
+
+  if (ruiState.mouseDown){
+    ruiState.activeItem = id;
+    for (size_t i = 0; i < uiCtx->commandCount; i++){
+      struct rui_command_t *currentCommand = &uiCtx->commands[i];
+
+      if (ruiState.activeItem == currentCommand->id) currentCommand->rect.onClick(RECT_SELF);
+    }
+  }
+  else {
+    ruiState.hotItem = id;
+
+    for (size_t i = 0; i < uiCtx->commandCount; i++){
+      struct rui_command_t *currentCommand = &uiCtx->commands[i];
+
+      if (ruiState.hotItem == currentCommand->id) currentCommand->rect.onHover(RECT_SELF);
+    }
+  }
 
   struct rm_mat4_t textProjection;
   rm_Mat4Ortho(0.0f, windowWidth, 0.0f, windowHeight, &textProjection);

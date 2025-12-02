@@ -1,7 +1,9 @@
 #include "core/input.h"
 #include "core/logger.h"
 #include "core/window.h"
+#include "math/Vec3.h"
 #include "renderer/functionRenderer.h"
+#include "ui/ui.h"
 #include "ui/uiInternal.h"
 #include "utils/utilities.h"
 #include <GLFW/glfw3.h>
@@ -18,7 +20,9 @@ void rih_ProcessInput(GLFWwindow *window){
   glfwGetCursorPos(window, &ruiState.mouseX, &ruiState.mouseY);
   int leftMouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
-  if (leftMouseButton == GLFW_PRESS) ruiState.mouseDown = 1;
+  if (leftMouseButton == GLFW_PRESS){
+    ruiState.mouseDown = 1;
+  }
   if (leftMouseButton == GLFW_RELEASE) ruiState.mouseDown = 0;
 
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){

@@ -29,9 +29,6 @@ int main(int argc, char** argv){
   struct ra_app_context_t appContext;
   memset(&appContext, 0, sizeof appContext);
 
-  // initialize ui context
-  struct rui_context_t uiCtx;
-
   // initialize function manager and add some functions to test drawing
   struct ree_function_manager_t functions;
 

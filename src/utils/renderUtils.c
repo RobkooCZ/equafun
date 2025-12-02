@@ -61,7 +61,7 @@ enum reh_error_code_e rru_SetupEbo(GLuint *indices, size_t indicesSize, GLuint *
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rru_SetupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO){
+enum reh_error_code_e rru_SetupRenderData(float *vertices, size_t verticesSize, GLuint *indices, size_t indicesSize, GLuint *VAO, GLuint *VBO, GLuint *EBO, bool colorAttrib){
   if (!vertices){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Vertices pointer is NULL in rru_SetupRenderData()");
   }
@@ -161,8 +161,10 @@ enum reh_error_code_e rru_SetupRenderData(float *vertices, size_t verticesSize, 
     SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to upload vertex data to GPU", technical);
   }
 
+  unsigned int size = (colorAttrib) ? 6 : 3;
+
   // Set vertex attribute pointer
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size * sizeof(float), (void*)0);
   err = glGetError();
   if (err != GL_NO_ERROR){
     char technical[256];
@@ -184,6 +186,33 @@ enum reh_error_code_e rru_SetupRenderData(float *vertices, size_t verticesSize, 
     *VAO = 0;
     *VBO = 0;
     SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to enable vertex attribute array", technical);
+  }
+
+  if (colorAttrib){
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    err = glGetError();
+    if (err != GL_NO_ERROR){
+      char technical[256];
+      snprintf(technical, sizeof(technical), "glVertexAttribPointer failed with error: 0x%04X", err);
+      glDeleteBuffers(1, VBO);
+      glDeleteVertexArrays(1, VAO);
+      *VAO = 0;
+      *VBO = 0;
+      SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to set vertex attribute pointer", technical);
+    }
+
+    glEnableVertexAttribArray(1);
+
+    err = glGetError();
+    if (err != GL_NO_ERROR){
+      char technical[256];
+      snprintf(technical, sizeof(technical), "glEnableVertexAttribArray failed with error: 0x%04X", err);
+      glDeleteBuffers(1, VBO);
+      glDeleteVertexArrays(1, VAO);
+      *VAO = 0;
+      *VBO = 0;
+      SET_ERROR_TECHNICAL_RETURN(ERR_BUFFER_SETUP_FAILED, "Failed to enable vertex attribute array", technical);
+    }
   }
 
   // Setup EBO (BEFORE unbinding VBO)

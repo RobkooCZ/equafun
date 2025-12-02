@@ -9,6 +9,7 @@
 #include <string.h>
 #include "core/logger.h"
 
+struct rui_context_t uiCtx;
 struct rui_state_t ruiState = {0, 0, 0, 0, 0};
 
 enum reh_error_code_e rui_Begin(struct rui_context_t *uiCtx){
@@ -20,7 +21,7 @@ enum reh_error_code_e rui_Begin(struct rui_context_t *uiCtx){
   return ERR_SUCCESS;
 }
 
-enum reh_error_code_e rui_RenderRect(struct rui_context_t *uiCtx, float x, float y, const char* label, float w, float h, struct rm_vec3_t color){
+enum reh_error_code_e rui_RenderRect(struct rui_context_t *uiCtx, float x, float y, const char* label, float w, float h, struct rm_vec3_t color, void (*onHover)(struct rui_command_rect_t *), void (*onClick)(struct rui_command_rect_t *)){
   if (x < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative x passed to rui_RenderRect.");
   if (y < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative y passed to rui_RenderRect.");
   if (w < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative w passed to rui_RenderRect.");
@@ -38,6 +39,8 @@ enum reh_error_code_e rui_RenderRect(struct rui_context_t *uiCtx, float x, float
   command->rect.w = w;
   command->rect.h = h;
   command->rect.color = color;
+  command->rect.onHover = onHover;
+  command->rect.onClick = onClick;
 
   return ERR_SUCCESS;
 }
@@ -57,20 +60,36 @@ enum reh_error_code_e rui_DrawRect(float x, float y, float w, float h, struct rm
   drawData->vertices[drawData->verticesCount++] = topYGL;
   drawData->vertices[drawData->verticesCount++] = drawData->commandCount / 10000.0f;
 
+  drawData->vertices[drawData->verticesCount++] = color.x;
+  drawData->vertices[drawData->verticesCount++] = color.y;
+  drawData->vertices[drawData->verticesCount++] = color.z;
+
   // top right
   drawData->vertices[drawData->verticesCount++] = x + w;
   drawData->vertices[drawData->verticesCount++] = topYGL;
   drawData->vertices[drawData->verticesCount++] = drawData->commandCount / 10000.0f;
+
+  drawData->vertices[drawData->verticesCount++] = color.x;
+  drawData->vertices[drawData->verticesCount++] = color.y;
+  drawData->vertices[drawData->verticesCount++] = color.z;
 
   // bottom left
   drawData->vertices[drawData->verticesCount++] = x;
   drawData->vertices[drawData->verticesCount++] = bottomYGL;
   drawData->vertices[drawData->verticesCount++] = drawData->commandCount / 10000.0f;
 
+  drawData->vertices[drawData->verticesCount++] = color.x;
+  drawData->vertices[drawData->verticesCount++] = color.y;
+  drawData->vertices[drawData->verticesCount++] = color.z;
+
   // bottom right
   drawData->vertices[drawData->verticesCount++] = x + w;
   drawData->vertices[drawData->verticesCount++] = bottomYGL;
   drawData->vertices[drawData->verticesCount++] = drawData->commandCount / 10000.0f;
+
+  drawData->vertices[drawData->verticesCount++] = color.x;
+  drawData->vertices[drawData->verticesCount++] = color.y;
+  drawData->vertices[drawData->verticesCount++] = color.z;
 
   size_t base = drawData->vertexCount;
 
@@ -93,9 +112,9 @@ enum reh_error_code_e rui_SetupRenderData(GLuint *program, GLuint *VAO, GLuint *
   char* vertexShaderSrc = nullptr;
   char* fragmentShaderSrc = nullptr;
 
-  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/lineRender.vert", &vertexShaderSrc), "Failed to load vertex shader for UI");
+  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/ui.vert", &vertexShaderSrc), "Failed to load vertex shader for UI");
 
-  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/basicColor.frag", &fragmentShaderSrc), "Failed to load fragment shader for UI");
+  CHECK_ERROR_CTX(rsu_LoadShaderSource("data/shaders/ui.frag", &fragmentShaderSrc), "Failed to load fragment shader for UI");
 
   GLuint vertexShader = 0;
   GLuint fragShader = 0;
@@ -123,7 +142,7 @@ enum reh_error_code_e rui_SetupRenderData(GLuint *program, GLuint *VAO, GLuint *
     ADD_ERROR_CONTEXT_RETURN(err, "Failed to link shaders for UI program");
   }
 
-  size_t maxVertices = 3 * 4 * RUI_MAX_COMMANDS;
+  size_t maxVertices = 3 * 2 * 4 * RUI_MAX_COMMANDS;
   size_t maxIndices  = 6 * RUI_MAX_COMMANDS;
 
   float *vertices = (float *)malloc(sizeof(float) * maxVertices);
@@ -137,7 +156,7 @@ enum reh_error_code_e rui_SetupRenderData(GLuint *program, GLuint *VAO, GLuint *
     SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate temporary indices in rui_SetupRenderData()");
   }
  
-  enum reh_error_code_e renderErr = rru_SetupRenderData(vertices, sizeof(float) * maxVertices, indices, sizeof(GLuint) * maxIndices, VAO, VBO, EBO);
+  enum reh_error_code_e renderErr = rru_SetupRenderData(vertices, sizeof(float) * maxVertices, indices, sizeof(GLuint) * maxIndices, VAO, VBO, EBO, true);
   free(vertices);
   free(indices);
 
@@ -151,7 +170,7 @@ enum reh_error_code_e rui_SetupRenderData(GLuint *program, GLuint *VAO, GLuint *
 enum reh_error_code_e rui_End(struct rui_context_t *uiCtx, GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO, float **projectionMatrixPtr){
   struct rui_draw_data_t drawData;
 
-  drawData.vertices = malloc(sizeof(float) * 3 * 4 * uiCtx->commandCount);
+  drawData.vertices = malloc(sizeof(float) * 3 * 2 * 4 * uiCtx->commandCount);
   drawData.indices = malloc(sizeof(unsigned int) * 6 * uiCtx->commandCount);
   drawData.commandCount = 0;
   drawData.vertexCount = 0;
@@ -181,9 +200,8 @@ enum reh_error_code_e rui_End(struct rui_context_t *uiCtx, GLuint *program, GLui
   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indicesBytes, drawData.indices);
 
   glUseProgram(*program);
-  rsu_GluSetMat4(*program, "graphProjection", *projectionMatrixPtr);
+  rsu_GluSetMat4(*program, "uiProjection", *projectionMatrixPtr);
   glBindVertexArray(*VAO);
-  rsu_GluSet4f(*program, "color", 1.0f, 1.0f, 1.0f, 1.0f);
   glLineWidth(2.0f);
   glDrawElements(GL_TRIANGLES, (GLsizei)drawData.indicesCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
@@ -207,6 +225,24 @@ enum reh_error_code_e rui_AABBCollisionCheck(struct rui_command_t *A, struct rui
   bool AisBelowB = A->rect.y > (B->rect.y + B->rect.h);
 
   *collision = !(AisToTheRightOfB || AisToTheLeftOfB || AisAboveB || AisBelowB);
+
+  return ERR_SUCCESS;
+}
+
+enum reh_error_code_e rui_AACursorCheck(int *id){
+  // start at the end of the array to check widgets that could be on top of other widgets
+  for (size_t i = uiCtx.commandCount; i >= 0; --i){
+    struct rui_command_t *command = &uiCtx.commands[i];
+    bool isCursorInsideX = false, isCursorInsideY = false;
+    if (ruiState.mouseX > command->rect.x && ruiState.mouseX < command->rect.x + command->rect.w) isCursorInsideX = true;
+
+    if (ruiState.mouseY > command->rect.y && ruiState.mouseY < command->rect.y + command->rect.h) isCursorInsideY = true;
+
+    if (isCursorInsideX && isCursorInsideY){
+      *id = command->id;
+      return ERR_SUCCESS;
+    }
+  }
 
   return ERR_SUCCESS;
 }

@@ -65,7 +65,7 @@ enum reh_error_code_e rgr_SetupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, 
     2, 3  // y axis
   };
 
-  enum reh_error_code_e renderErr = rru_SetupRenderData(vertices, sizeof(vertices), indices, sizeof(indices), VAO, VBO, EBO);
+  enum reh_error_code_e renderErr = rru_SetupRenderData(vertices, sizeof(vertices), indices, sizeof(indices), VAO, VBO, EBO, false);
   if (renderErr != ERR_SUCCESS){
     ADD_ERROR_CONTEXT_RETURN(renderErr, "Failed to setup render data for graph axis");
   }

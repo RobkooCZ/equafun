@@ -16,8 +16,12 @@ enum rui_command_type_e {
 };
 
 struct rui_command_rect_t {
-  float x, y, w, h; // x, y = top left of the drawn object
-  struct rm_vec3_t color;
+  float x, y; // x, y = top left of the drawn object
+  float w, h;
+  struct rm_vec3_t color; /**< color normalized (0.0f - 1.0f)*/
+
+  void (*onHover)(struct rui_command_rect_t *); /**< what to do on hover */
+  void (*onClick)(struct rui_command_rect_t *); /**< what to do on click */
 };
 
 struct rui_command_t {
@@ -39,8 +43,8 @@ struct rui_context_t {
   double mouseY;
   int mouseDown;
 
-  int hotItem;
-  int activeItem;
+  int hotItem;  /**<< Id of hot item */
+  int activeItem;  /**<< Id of active item */
 };
 
 // not thread-safe

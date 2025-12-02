@@ -1,5 +1,13 @@
 # Changelog
 
+## Alpha v0.0.6.7
+
+### Added
+- color to each rectangle
+- check for which (if any) widget was clicked or is hovered on
+- 'onHover' and 'onClick' 'events' for the rectangles
+- some comments
+
 ## Alpha v0.0.6.6
 
 ### Added
