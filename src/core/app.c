@@ -209,7 +209,7 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
     for (size_t i = 0; i < uiCtx->commandCount; i++){
       struct rui_command_t *currentCommand = &uiCtx->commands[i];
 
-      if (ruiState.activeItem == currentCommand->id) currentCommand->rect.onClick(RECT_SELF);
+      if (ruiState.activeItem == currentCommand->id) currentCommand->rect.onClick(&currentCommand->rect);
     }
   }
   else {
@@ -218,7 +218,7 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
     for (size_t i = 0; i < uiCtx->commandCount; i++){
       struct rui_command_t *currentCommand = &uiCtx->commands[i];
 
-      if (ruiState.hotItem == currentCommand->id) currentCommand->rect.onHover(RECT_SELF);
+      if (ruiState.hotItem == currentCommand->id) currentCommand->rect.onHover(&currentCommand->rect);
     }
   }
 

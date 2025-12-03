@@ -1,5 +1,10 @@
 # Changelog
 
+## Alpha v0.0.6.7.1
+
+### Fixed
+- removed use of undeclared macro `RECT_SELF`
+
 ## Alpha v0.0.6.7
 
 ### Added
