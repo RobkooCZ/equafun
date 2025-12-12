@@ -1,5 +1,10 @@
 # Changelog
 
+## Alpha v0.0.6.7.2
+
+### Fixed
+- not looking for glfw3 package whilst compiling with CMake on Windows
+
 ## Alpha v0.0.6.7.1
 
 ### Fixed

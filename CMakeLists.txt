@@ -10,7 +10,7 @@ endif()
 
 # --- Set VCPKG triplets ---
 if (WIN32)
-  set(PROJECT_TRIPLET "x64-mingw-dynamic")
+  set(PROJECT_TRIPLET "x64-mingw-static")
 elseif(UNIX)
   set(PROJECT_TRIPLET "x64-linux")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -102,6 +102,8 @@ if(UNIX)
   endif()
 
   list(APPEND EXTRA_LIBS m)  # math library for Linux
+elseif(WIN32)
+  find_package(glfw3 CONFIG REQUIRED)
 endif()
 
 # --- Link libraries ---
