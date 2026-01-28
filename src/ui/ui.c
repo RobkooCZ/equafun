@@ -1,6 +1,6 @@
 #include "ui/ui.h"
-#include "core/appContext.h"
 #include "core/errorHandler.h"
+#include "ui/inputField.h"
 #include "ui/uiInternal.h"
 #include "utils/renderUtils.h"
 #include "utils/shaderUtils.h"
@@ -33,6 +33,7 @@ enum reh_error_code_e rui_RenderRect(struct rui_context_t *uiCtx, float x, float
   struct rui_command_t *command = &uiCtx->commands[uiCtx->commandCount++];
 
   command->id = rgu_hash(label) ^ (int)x;
+
   command->type = RUI_RECT;
   command->rect.x = x;
   command->rect.y = y;
@@ -42,6 +43,53 @@ enum reh_error_code_e rui_RenderRect(struct rui_context_t *uiCtx, float x, float
   command->rect.onHover = onHover;
   command->rect.onClick = onClick;
 
+  return ERR_SUCCESS;
+}
+
+enum reh_error_code_e rui_RenderInputField(struct rui_context_t *uiCtx, float x, float y, const char* label, float w, float h, float borderSize, float innerPadding, struct rm_vec3_t color, struct rm_vec3_t borderColor, void (*onClick)(struct rui_command_input_field_t *)){
+  if (x < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative x passed to rui_RenderRect.");
+  if (y < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative y passed to rui_RenderRect.");
+  if (w < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative w passed to rui_RenderRect.");
+  if (h < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative h passed to rui_RenderRect.");
+  if (label == nullptr) SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to label passed to rui_RenderRect is NULL.");
+  if (uiCtx == nullptr) SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to uiCtx passed to rui_RenderRect is NULL.");
+  if (uiCtx->commandCount >= RUI_MAX_COMMANDS) SET_ERROR_RETURN(ERR_OUT_OF_BOUNDS, "Too many commands in uiCtx (passed to rui_RenderRect).");
+
+  struct rui_command_t *command = &uiCtx->commands[uiCtx->commandCount++];
+
+  struct rui_input_cursor_data_t cursor = {0.0f, 0};
+  struct rui_input_field_data_t inputField = {
+    .isInitialized = 1,
+    .cursor = &cursor,
+    .inputX = 0.0f,
+    .inputY = 0.0f,
+    .textScale = 0.0f,
+    .inputText = (char*)malloc(INPUT_FIELD_CHAR_CAP * sizeof(char)),
+    .charCount = 0
+  };
+
+  if (inputField.inputText == nullptr) SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate space for inputText");
+  strcpy(inputField.inputText, "");
+
+  command->id = rgu_hash(label) ^ (int)x;
+  command->type = RUI_INPUT_FIELD;
+  command->input.x = x;
+  command->input.y = y;
+  command->input.w = w;
+  command->input.h = h;
+
+  if (g_inputFields[uiCtx->commandCount - 1].data.isInitialized == 0){
+    g_inputFields[uiCtx->commandCount - 1].id = command->id;
+    g_inputFields[uiCtx->commandCount - 1].data = inputField;
+  }
+
+  command->input.innerPadding = innerPadding;
+
+  command->input.color = color;
+  command->input.borderColor = borderColor;
+  command->input.borderSize = borderSize;
+
+  command->input.onClick = onClick;
   return ERR_SUCCESS;
 }
 
@@ -108,6 +156,20 @@ enum reh_error_code_e rui_DrawRect(float x, float y, float w, float h, struct rm
   return ERR_SUCCESS;
 }
 
+enum reh_error_code_e rui_DrawInputField(float x, float y, float w, float h, float borderSize, struct rm_vec3_t color, struct rm_vec3_t borderColor, struct rui_draw_data_t *drawData){
+  if (drawData == nullptr){
+    SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to drawData in rui_DrawInputFIeld is NULL");
+  }
+
+  // "border"
+  rui_DrawRect(x - borderSize, y - borderSize, w + (borderSize * 2.0f), h + (borderSize * 2.0f), borderColor, drawData);
+
+  rui_DrawRect(x, y, w, h, color, drawData);
+
+  return ERR_SUCCESS;
+}
+
+
 enum reh_error_code_e rui_SetupRenderData(GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO){
   char* vertexShaderSrc = nullptr;
   char* fragmentShaderSrc = nullptr;
@@ -142,8 +204,8 @@ enum reh_error_code_e rui_SetupRenderData(GLuint *program, GLuint *VAO, GLuint *
     ADD_ERROR_CONTEXT_RETURN(err, "Failed to link shaders for UI program");
   }
 
-  size_t maxVertices = 3 * 2 * 4 * RUI_MAX_COMMANDS;
-  size_t maxIndices  = 6 * RUI_MAX_COMMANDS;
+  size_t maxVertices = 3 * 2 * 2 * 4 * RUI_MAX_COMMANDS;
+  size_t maxIndices  = 6 * 2 * RUI_MAX_COMMANDS;
 
   float *vertices = (float *)malloc(sizeof(float) * maxVertices);
   if (vertices == nullptr){
@@ -170,8 +232,10 @@ enum reh_error_code_e rui_SetupRenderData(GLuint *program, GLuint *VAO, GLuint *
 enum reh_error_code_e rui_End(struct rui_context_t *uiCtx, GLuint *program, GLuint *VAO, GLuint *VBO, GLuint *EBO, float **projectionMatrixPtr){
   struct rui_draw_data_t drawData;
 
-  drawData.vertices = malloc(sizeof(float) * 3 * 2 * 4 * uiCtx->commandCount);
-  drawData.indices = malloc(sizeof(unsigned int) * 6 * uiCtx->commandCount);
+  // multiply by two due to input fields being two rectangles
+  drawData.vertices = malloc(sizeof(float) * 3 * 2 * 4 * uiCtx->commandCount * 2);
+  drawData.indices = malloc(sizeof(unsigned int) * 6 * uiCtx->commandCount * 2);
+
   drawData.commandCount = 0;
   drawData.vertexCount = 0;
   drawData.indicesCount = 0;
@@ -183,6 +247,9 @@ enum reh_error_code_e rui_End(struct rui_context_t *uiCtx, GLuint *program, GLui
     switch (currentCommand.type){
       case RUI_RECT:
         rui_DrawRect(currentCommand.rect.x, currentCommand.rect.y, currentCommand.rect.w, currentCommand.rect.h, currentCommand.rect.color, &drawData);
+        break;
+      case RUI_INPUT_FIELD:
+        rui_DrawInputField(currentCommand.input.x, currentCommand.input.y, currentCommand.input.w, currentCommand.input.h, currentCommand.input.borderSize, currentCommand.input.color, currentCommand.input.borderColor, &drawData);
         break;
       default: break;
     }
@@ -219,10 +286,50 @@ enum reh_error_code_e rui_AABBCollisionCheck(struct rui_command_t *A, struct rui
   if (collision == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to collision in rui_AABBCollisionCheck is NULL");
   }
-  bool AisToTheRightOfB = A->rect.x > (B->rect.x + B->rect.w);
-  bool AisToTheLeftOfB = (A->rect.x + A->rect.w) < B->rect.x;
-  bool AisAboveB = (A->rect.y + A->rect.h) < B->rect.y;
-  bool AisBelowB = A->rect.y > (B->rect.y + B->rect.h);
+  // declare the points so we can fill them with the appropriate data then
+  float xA, yA, wA, hA, xB, yB, wB, hB;
+  float innerPadding = 0;
+  switch (A->type){
+    case RUI_RECT:
+      xA = A->rect.x;
+      yA = A->rect.y;
+      wA = A->rect.w;
+      hA = A->rect.y;
+      break;
+    case RUI_INPUT_FIELD:
+      xA = A->input.x;
+      yA = A->input.y;
+      wA = A->input.w;
+      hA = A->input.y;
+      innerPadding = A->input.innerPadding;
+      break;
+    default:
+      SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid command (A) type passed to rui_AABBCollisionCheck.");
+  }
+
+  switch (B->type){
+    case RUI_RECT:
+      xB = B->rect.x;
+      yB = B->rect.y;
+      wB = B->rect.w;
+      hB = B->rect.y;
+      break;
+    case RUI_INPUT_FIELD:
+      xB = B->input.x;
+      yB = B->input.y;
+      wB = B->input.w;
+      hB = B->input.y;
+      innerPadding = B->input.innerPadding;
+      break;
+    default:
+      SET_ERROR_RETURN(ERR_INVALID_INPUT, "Invalid command (B) type passed to rui_AABBCollisionCheck.");
+  }
+
+  // for an input field, we wanna check collision with the inner field, not the border, so we have to take into account the innerPadding. (soon TM)
+  bool AisToTheRightOfB = xA > (xB + wB);
+  bool AisToTheLeftOfB = (xA + wA) < xB;
+  bool AisAboveB = (yA + hA) < yB;
+  bool AisBelowB = yA > (yB + hB);
 
   *collision = !(AisToTheRightOfB || AisToTheLeftOfB || AisAboveB || AisBelowB);
 

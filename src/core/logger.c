@@ -5,7 +5,7 @@
 #include <stdarg.h>
 
 #ifdef _WIN32
-#define NOGDI // prevent inclusion of many stuff, amongst them being the RL_ERROR macro
+#define NOGDI // prevent inclusion of many stuff, amongst them being the ERROR macro
 #include <windows.h>
 
 void rl_enableANSI(void){

@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 
 extern bool isXPiLabeled;
+extern bool isUiShown;
 
 /**
   @brief Processes input for the given GLFW window.

@@ -1,5 +1,17 @@
 # Changelog
 
+## Alpha v0.0.6.8
+
+### Added
+- input field rendering, with border and inner padding
+    - for now its internally calling `rui_RenderRect(...)` twice
+- made a macro for the initial text size
+- added on-click functionality for the input field - it changes the border color when pressed
+- now when selecting an input field you can type to "input" into it, although its only saved in the code and not rendered yet
+- debug messages to show the contents of the input fields
+- each input field has its own data
+- added a toggle to disable/enable UI
+
 ## Alpha v0.0.6.7.2
 
 ### Fixed

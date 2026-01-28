@@ -12,7 +12,8 @@
 
 enum rui_command_type_e {
   RUI_RECT,
-  RUI_TEXT
+  RUI_TEXT,
+  RUI_INPUT_FIELD
 };
 
 struct rui_command_rect_t {
@@ -24,12 +25,25 @@ struct rui_command_rect_t {
   void (*onClick)(struct rui_command_rect_t *); /**< what to do on click */
 };
 
+struct rui_command_input_field_t {
+  float x, y;
+  float w, h;
+  float borderSize;
+
+  float innerPadding;
+
+  struct rm_vec3_t borderColor;
+  struct rm_vec3_t color;
+
+  void (*onClick)(struct rui_command_input_field_t *); /**< what to do on click */
+};
+
 struct rui_command_t {
   enum rui_command_type_e type;
   int id;
   union {
     struct rui_command_rect_t rect;
-    // eventually text will go here too
+    struct rui_command_input_field_t input;
   };
 };
 

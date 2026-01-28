@@ -18,7 +18,7 @@
 #include "core/errorHandler.h"
 
 #define ASCII_CHAR_COUNT 128
-
+#define INITIAL_TEXT_SIZE 16
 #define VAR_SIZE 256
 
 #define DISPLAY_VAR(var, format, label) \

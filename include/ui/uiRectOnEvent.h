@@ -22,11 +22,11 @@
 RECT_ON_CLICK_COLOR(1.0f, 0.0f, 0.0f, Red);
 RECT_ON_CLICK_COLOR(0.0f, 1.0f, 0.0f, Green);
 RECT_ON_CLICK_COLOR(0.0f, 0.0f, 1.0f, Blue);
-RECT_ON_CLICK_COLOR(0.8f, 0.8f, 0.8f, Gray);
+RECT_ON_CLICK_COLOR(0.2f, 0.2f, 0.2f, Gray);
 
 RECT_ON_HOVER_COLOR(1.0f, 0.0f, 0.0f, Red);
 RECT_ON_HOVER_COLOR(0.0f, 1.0f, 0.0f, Green);
 RECT_ON_HOVER_COLOR(0.0f, 0.0f, 1.0f, Blue);
-RECT_ON_HOVER_COLOR(0.8f, 0.8f, 0.8f, Gray);
+RECT_ON_HOVER_COLOR(0.2f, 0.2f, 0.2f, Gray);
 
 #endif // RUI_RECT_ON_EVENT

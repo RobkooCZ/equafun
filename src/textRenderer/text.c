@@ -60,7 +60,7 @@ enum reh_error_code_e rtr_InitFtFace(FT_Library *library, FT_Face *face){
   }
 
   // SETTING FACE INFO
-  FT_Error setSizeErr = FT_Set_Pixel_Sizes(*face, 0, 16);
+  FT_Error setSizeErr = FT_Set_Pixel_Sizes(*face, 0, INITIAL_TEXT_SIZE);
 
   if (setSizeErr != FT_Err_Ok){
     SET_ERROR_RETURN(ERR_FT_FACE_FAILED_TO_SET_FONT_SIZE, "Failed to set font size: %s", ft_ErrCodeToStr(setSizeErr));
