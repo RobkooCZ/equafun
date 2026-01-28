@@ -20,17 +20,9 @@ int main(int argc, char** argv){
     rl_enableANSI();
   #endif
 
-  if (argc > 16 + 1){
-    rl_LogMsg(RL_FAILURE, "Too many arguments passed (%d). Max arguments: %d", argc - 1, 16);
-    return -1;
-  }
-
   // Initialize application context
   struct ra_app_context_t appContext;
   memset(&appContext, 0, sizeof appContext);
-
-  // initialize function manager and add some functions to test drawing
-  struct ree_function_manager_t functions;
 
   enum reh_error_code_e err = ree_InitFunctionManager(&functions);
   if (err != ERR_SUCCESS){
@@ -40,7 +32,6 @@ int main(int argc, char** argv){
 
   // based on arguments, dynamically add functions to the manager and render them
   if (argc >= 2){
-    int colorIterator = 0;
     for (int i = 1; i < argc; ++i){
       char* fnDef = argv[i];
       err = ree_AddFunction(&functions, fnDef, &functionColorArray[colorIterator]);
@@ -49,12 +40,11 @@ int main(int argc, char** argv){
         return -1;
       }
       // increment the color iterator, if its over the array length, put it back to zero
-      (colorIterator + 1 > functionColorArrayLength - 1) ? colorIterator = 0 : colorIterator++;
+      INCREMENT_COLOR_ITERATOR;
     }
   }
   else {
-    ra_AppShutdown(&appContext, "Please run the executable with a function definition as an argument.");
-    return -1;
+    rl_LogMsg(RL_WARNING, "No arguments passed. Use the input fields to input functions to render.");
   }
 
   // Initialize application

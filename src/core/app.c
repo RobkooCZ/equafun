@@ -202,10 +202,10 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
 
     rui_RenderRect(uiCtx, 10, 10, "a", 150, 500, (struct rm_vec3_t){1.0f, 1.0f, 1.0f}, rui_RectOnHoverGreen, rui_RectOnClickBlue);
     rui_RenderRect(uiCtx, 165, 10, "yo", 500, 100, (struct rm_vec3_t){1.0f, 1.0f, 1.0f}, rui_RectOnHoverRed, rui_RectOnClickGray);
-    rui_RenderRect(uiCtx, 70, 255, "square", 100, 100, (struct rm_vec3_t){0.0f, 0.0f, 1.0f}, rui_RectOnHoverGray, rui_RectOnClickGreen);
 
-    rui_RenderInputField(uiCtx, 100, 300, "f input", 300, 100, 5, 5, (struct rm_vec3_t){0.0f, 0.0f, 1.0f},(struct rm_vec3_t){1.0f, 0.0f, 0.0f}, rui_InputFieldOnClick);
-    rui_RenderInputField(uiCtx, 100, 100, "l input", 200, 100, 5, 5, (struct rm_vec3_t){0.0f, 0.0f, 1.0f},(struct rm_vec3_t){1.0f, 0.0f, 0.0f}, rui_InputFieldOnClick);
+    rui_RenderInputField(uiCtx, 20, 50, "Input one", 130, 40, 5, 5, (struct rm_vec3_t){0.0f, 0.0f, 1.0f},(struct rm_vec3_t){1.0f, 0.0f, 0.0f}, rui_InputFieldOnClick);
+    rui_RenderInputField(uiCtx, 20, 150, "Input two", 130, 40, 5, 5, (struct rm_vec3_t){0.0f, 0.0f, 1.0f},(struct rm_vec3_t){1.0f, 0.0f, 0.0f}, rui_InputFieldOnClick);
+    rui_RenderInputField(uiCtx, 20, 250, "Input three", 130, 40, 5, 5, (struct rm_vec3_t){0.0f, 0.0f, 1.0f},(struct rm_vec3_t){1.0f, 0.0f, 0.0f}, rui_InputFieldOnClick);
 
     int id;
     rui_AACursorCheck(&id);

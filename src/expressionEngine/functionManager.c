@@ -8,6 +8,9 @@
 struct rm_vec3_t functionColorArray[] = {RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK, GRAY, WHITE};
 const int functionColorArrayLength = sizeof(functionColorArray) / sizeof(functionColorArray[0]);
 
+struct ree_function_manager_t functions;
+int colorIterator = 0;
+
 enum reh_error_code_e ree_InitFunctionManager(struct ree_function_manager_t *manager){
   if (manager == nullptr){
     SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to manager passed to ree_InitFunctionManager is NULL.");

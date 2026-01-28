@@ -1,5 +1,25 @@
 # Changelog
 
+## Alpha v0.0.6.9
+
+### Added
+- input in input field functionality
+- by pressing enter in input field after entering a function it will attempt to parse it, add it to the function manager and thus render it
+    - if the parsing fails, for whatever reason, the error is shown in the console (for now). It doesn't crash the app.
+
+### Changed
+- now you don't need to pass (a) function(s) as a command line argument. The option is still there, but now you can input a function inside the app.
+
+### Fixed
+- incorrectly clearing inputText after mallocing memory for it
+    - this sometimes left garbage data inside the string and thus when you were typing in the field you'd see random characters pop up
+
+### Random notes
+> im aware my code is shit, but:
+1. i havent coded in a while
+2. i dont know how to do it better currently
+3. future me will surely learn better ways to optimize this and improve it so ill put the responsibility on future self
+
 ## Alpha v0.0.6.8
 
 ### Added

@@ -69,7 +69,7 @@ enum reh_error_code_e rui_RenderInputField(struct rui_context_t *uiCtx, float x,
   };
 
   if (inputField.inputText == nullptr) SET_ERROR_RETURN(ERR_OUT_OF_MEMORY, "Failed to allocate space for inputText");
-  strcpy(inputField.inputText, "");
+  memset(inputField.inputText, 0, INPUT_FIELD_CHAR_CAP);
 
   command->id = rgu_hash(label) ^ (int)x;
   command->type = RUI_INPUT_FIELD;

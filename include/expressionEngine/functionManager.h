@@ -25,8 +25,13 @@
 #define PINK   {1.0f, 0.41f, 0.71f}     // RGB: 255, 105, 180
 #define GRAY   {0.5f, 0.5f, 0.5f}       // RGB: 128, 128, 128
 
+#define INCREMENT_COLOR_ITERATOR (colorIterator + 1 > functionColorArrayLength - 1) ? colorIterator = 0 : colorIterator++
+
 extern struct rm_vec3_t functionColorArray[];
 extern const int functionColorArrayLength;
+
+extern struct ree_function_manager_t functions;
+extern int colorIterator;
 
 struct ree_function_t {
   char definition[REE_MAX_DEFINITION_LENGTH + 1];   /**< Function definition inputted by the user */
