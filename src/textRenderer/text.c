@@ -188,7 +188,7 @@ enum reh_error_code_e rtr_RenderText(GLuint program, GLuint VAO, GLuint VBO, con
     glBindTexture(GL_TEXTURE_2D, ch.textureID);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);

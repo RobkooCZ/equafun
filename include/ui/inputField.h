@@ -5,10 +5,12 @@
 #ifndef RUI_INPUT_FIELD_H
 #define RUI_INPUT_FIELD_H
 
+#include "core/appContext.h"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
 #include "core/errorHandler.h"
+#include "textRenderer/text.h"
 #include "ui/uiInternal.h"
 #include <stddef.h>
 
@@ -43,6 +45,7 @@ struct rui_input_fields_t {
 
 void rui_InputFieldOnClick(struct rui_command_input_field_t *command);
 enum reh_error_code_e rui_InputFieldInput(GLFWwindow *window);
+enum reh_error_code_e rui_RenderInputFieldText(struct rui_command_input_field_t *command, struct ra_app_context_t *ctx, struct rtr_character_t* characters, const char* fieldData);
 
 // not thread safe
 extern struct rui_global_input_field_data_t g_inputFieldData;
