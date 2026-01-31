@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #ifdef _WIN32
 #define NOGDI // prevent inclusion of many stuff, amongst them being the ERROR macro
@@ -24,6 +25,29 @@ void rl_enableANSI(void){
     rl_LogMsg(RL_ERROR, "Failed to set console mode!");
   }
 }
+#else
+  #include <execinfo.h>
+  #include <unistd.h>
+  #include <pthread.h>
+
+  void rl_PrintBacktrace(void){
+    void* backtraceArray[RL_BACKTRACE_COUNT];
+    size_t arraySize;
+
+    arraySize = backtrace(backtraceArray, RL_BACKTRACE_COUNT);
+    rl_LogMsg(RL_DEBUG, "Backtrace:");
+    backtrace_symbols_fd(backtraceArray, arraySize, fileno(stdout));
+  }
+
+  void rl_HandleSegfault(int signum, siginfo_t *info, void *context){
+    rl_LogMsg(RL_FAILURE, "SEGMENTATION FAULT:");
+    rl_LogMsg(RL_DEBUG, "Signal number: %d", signum);
+    rl_LogMsg(RL_DEBUG, "Faulting address: %p", info->si_addr);
+    rl_LogMsg(RL_DEBUG, "Thread ID: %lu", pthread_self());
+
+    rl_PrintBacktrace();
+    abort();
+  }
 
 #endif
 
@@ -73,3 +97,5 @@ void rl_LogError(const struct reh_error_context_t *ctx, enum rl_log_level_e seve
 void rl_LogLastError(enum rl_log_level_e severity){
   rl_LogError(reh_GetLastError(), severity);
 }
+
+

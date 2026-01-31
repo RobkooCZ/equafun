@@ -62,6 +62,6 @@ struct rui_context_t {
 };
 
 // not thread-safe
-extern struct rui_state_t ruiState;
+extern struct rui_state_t g_ruiState;
 
 #endif // RUI_INTERNAL_H

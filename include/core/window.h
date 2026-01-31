@@ -17,19 +17,19 @@
 #define TITLE "Equafun"
 
 // variables to hold the boundaries of the world space
-extern float worldXMin;
-extern float worldXMax;
-extern float worldYMin;
-extern float worldYMax;
+extern float g_worldXMin;
+extern float g_worldXMax;
+extern float g_worldYMin;
+extern float g_worldYMax;
 
 // variables to hold the current resolution of the window
-extern float windowWidth;
-extern float windowHeight;
+extern float g_windowWidth;
+extern float g_windowHeight;
 
 // flag to tell main if we should rebuild projection matrices
-extern bool rebuildProjection;
+extern bool g_rebuildProjection;
 // flag to tell main if we should redraw the window
-extern bool redrawWindow;
+extern bool g_redrawWindow;
 
 // OpenGL 3.3 due to compatibility
 #define GL_VER_MAJOR 3

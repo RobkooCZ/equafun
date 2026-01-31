@@ -13,18 +13,27 @@
 #include "ui/uiInternal.h"
 #include "utils/utilities.h"
 
+#ifdef __unix__
+#include <signal.h>
+#endif
+
 #include <string.h>
 
 int main(int argc, char** argv){
   #ifdef _WIN32
     rl_enableANSI();
+  #else
+    struct sigaction sa;
+    sa.sa_flags = SA_SIGINFO; // additional context
+    sa.sa_sigaction = rl_HandleSegfault;
+    sigaction(SIGSEGV, &sa, NULL);
   #endif
 
   // Initialize application context
   struct ra_app_context_t appContext;
   memset(&appContext, 0, sizeof appContext);
 
-  enum reh_error_code_e err = ree_InitFunctionManager(&functions);
+  enum reh_error_code_e err = ree_InitFunctionManager(&g_functions);
   if (err != ERR_SUCCESS){
     ra_AppShutdown(&appContext, "Function manager initialization failed.");
     return -1;
@@ -34,7 +43,7 @@ int main(int argc, char** argv){
   if (argc >= 2){
     for (int i = 1; i < argc; ++i){
       char* fnDef = argv[i];
-      err = ree_AddFunction(&functions, fnDef, &functionColorArray[colorIterator]);
+      err = ree_AddFunction(&g_functions, fnDef, &g_functionColorArray[g_colorIterator]);
       if (err != ERR_SUCCESS){
         ra_AppShutdown(&appContext, "Failed to add function f to the function manager.");
         return -1;
@@ -66,7 +75,7 @@ int main(int argc, char** argv){
   // Main render loop
   while (!glfwWindowShouldClose(appContext.window)){
     rih_ProcessInput(appContext.window);
-    err = ra_AppRenderFrame(&appContext, &uiCtx, characters, &functions);
+    err = ra_AppRenderFrame(&appContext, &g_uiCtx, characters, &g_functions);
     if (err != ERR_SUCCESS){
       ra_AppShutdown(&appContext, "Rendering failed.");
       return -1;

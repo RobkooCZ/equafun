@@ -52,12 +52,12 @@ enum reh_error_code_e rgr_SetupGraph(GLuint *program, GLuint *VAO, GLuint *VBO, 
 
   float vertices[] = {
     // x axis
-    worldXMin, 0.0f, 0.0f,
-    worldXMax, 0.0f, 0.0f,
+    g_worldXMin, 0.0f, 0.0f,
+    g_worldXMax, 0.0f, 0.0f,
 
     // y axis
-    0.0f, worldYMin, 0.0f,
-    0.0f, worldYMax, 0.0f
+    0.0f, g_worldYMin, 0.0f,
+    0.0f, g_worldYMax, 0.0f
   };
 
   GLuint indices[] = {
@@ -85,10 +85,10 @@ enum reh_error_code_e rgr_RenderGraph(GLuint *program, GLuint *VAO, GLuint *VBO,
 
   // get new graph vertices again as the resolution might've changed
   float vertices[] = {
-    worldXMin, 0.0f, 0.0f,
-    worldXMax, 0.0f, 0.0f,
-    0.0f,      worldYMin, 0.0f,
-    0.0f,      worldYMax, 0.0f
+    g_worldXMin, 0.0f, 0.0f,
+    g_worldXMax, 0.0f, 0.0f,
+    0.0f,      g_worldYMin, 0.0f,
+    0.0f,      g_worldYMax, 0.0f
   };
 
   glBindBuffer(GL_ARRAY_BUFFER, *VBO);
@@ -189,7 +189,7 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   }
 
   // set useful vars
-  float gridSpacingWorldX = (isXPiLabeled) ? PI/2 : GRID_SPACING_WORLD;
+  float gridSpacingWorldX = (g_isXPiLabeled) ? PI/2 : GRID_SPACING_WORLD;
   float gridSpacingWorldY = GRID_SPACING_WORLD;
   float pointMarkerHeight = POINT_MARKER_HEIGHT_WORLD;
 
@@ -198,10 +198,10 @@ enum reh_error_code_e rgr_RenderMarkers(GLuint *program, GLuint *VAO, GLuint *VB
   float verticalPadding   = pointMarkerHeight;
 
   // get the world coordinates with the padding
-  float leftEdge   = worldXMin + horizontalPadding;
-  float rightEdge  = worldXMax - horizontalPadding;
-  float bottomEdge = worldYMin + verticalPadding;
-  float topEdge    = worldYMax - verticalPadding;
+  float leftEdge   = g_worldXMin + horizontalPadding;
+  float rightEdge  = g_worldXMax - horizontalPadding;
+  float bottomEdge = g_worldYMin + verticalPadding;
+  float topEdge    = g_worldYMax - verticalPadding;
 
   // Count how many markers we need
   int xMarkerCount = 0;

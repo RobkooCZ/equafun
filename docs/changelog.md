@@ -1,5 +1,19 @@
 # Changelog
 
+## Alpha v0.0.6.10
+
+### Added
+- a SIGSEGV handler for Unix. It prints the backtrace and some other info useful for debugging
+
+### Changed
+- Drastically improved character input by making a callback function for `glfwSetCharCallback()`
+- updated `README.md` to fix incorrect/inaccurate information
+- added a prefix `g_` to all global variables
+- text is now centered in the input fields
+
+### Fixed
+- Fixed an out-of-bounds error caused by a `size_t` variable underflow in a for loops that caused a segmentation fault (`src/ui/ui.c:344`)
+
 ## Alpha v0.0.6.9
 
 ### Added

@@ -23,7 +23,7 @@
 
 #define DISPLAY_VAR(var, format, label) \
   do { \
-    topLeftY -= windowHeight * gap; \
+    topLeftY -= g_windowHeight * gap; \
     char buffer[VAR_SIZE]; \
     snprintf(buffer, VAR_SIZE, "%s: " format, label, var); \
     rtr_RenderText(program, VAO, VBO, buffer, characters, topLeftX, topLeftY, scale * fontScale , color); \
@@ -31,7 +31,7 @@
 
 #define DISPLAY_FUNCTION_DEFINITION(var, color) \
   do { \
-    topLeftY -= windowHeight * gap; \
+    topLeftY -= g_windowHeight * gap; \
     char buffer[VAR_SIZE]; \
     snprintf(buffer, VAR_SIZE, "%s", var); \
     rtr_RenderText(program, VAO, VBO, buffer, characters, topLeftX, topLeftY, scale * fontScale , color); \

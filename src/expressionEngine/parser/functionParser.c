@@ -37,7 +37,7 @@ enum reh_error_code_e ree_ImplicitMultiplication(struct ree_token_t **tokens, in
                        (*tokens)[i+1].token_type == TOKEN_PAREN_OPEN;
 
     bool leftIsFunction = ((*tokens)[i].token_type == TOKEN_IDENTIFIER) &&
-                      rgu_IsStrInArray(validFunctions, functionArrLength, (*tokens)[i].value);
+                      rgu_IsStrInArray(g_validFunctions, g_functionArrLength, (*tokens)[i].value);
 
     // bail out early if the left factor is a known function
     // if we kept it, sin(x) would turn into sin * (x) and thus break the parser

@@ -5,11 +5,11 @@
 #include <string.h>
 #include "core/logger.h"
 
-struct rm_vec3_t functionColorArray[] = {RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK, GRAY, WHITE};
-const int functionColorArrayLength = sizeof(functionColorArray) / sizeof(functionColorArray[0]);
+struct rm_vec3_t g_functionColorArray[] = {RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK, GRAY, WHITE};
+const int g_functionColorArrayLength = sizeof(g_functionColorArray) / sizeof(g_functionColorArray[0]);
 
-struct ree_function_manager_t functions;
-int colorIterator = 0;
+struct ree_function_manager_t g_functions;
+int g_colorIterator = 0;
 
 enum reh_error_code_e ree_InitFunctionManager(struct ree_function_manager_t *manager){
   if (manager == nullptr){
@@ -64,7 +64,7 @@ enum reh_error_code_e ree_AddFunction(struct ree_function_manager_t *manager, ch
   else if (functionColor == nullptr){
     rl_LogMsg(RL_WARNING, "No function color (NULL) provided to ree_AddFunction, assigning next available color.");
     // assign a color from the array based on the current function count
-    functionColor = &functionColorArray[manager->functionCount % functionColorArrayLength];
+    functionColor = &g_functionColorArray[manager->functionCount % g_functionColorArrayLength];
   }
 
   // copy the definition into the manager

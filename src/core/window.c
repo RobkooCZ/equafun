@@ -8,44 +8,44 @@
 static const float GRAPH_HALF_HEIGHT = 10.0f;
 
 // define the viewport and adjust it based on the aspect ratio so the axes match symmetrically
-float worldYMin = -GRAPH_HALF_HEIGHT;
-float worldYMax =  GRAPH_HALF_HEIGHT;
-float worldXMin = -GRAPH_HALF_HEIGHT * ASPECT_RATIO;
-float worldXMax =  GRAPH_HALF_HEIGHT * ASPECT_RATIO;
+float g_worldYMin = -GRAPH_HALF_HEIGHT;
+float g_worldYMax =  GRAPH_HALF_HEIGHT;
+float g_worldXMin = -GRAPH_HALF_HEIGHT * ASPECT_RATIO;
+float g_worldXMax =  GRAPH_HALF_HEIGHT * ASPECT_RATIO;
 
 // by default WIDTH,HEIGHT
-float windowWidth  = WIDTH;
-float windowHeight = HEIGHT;
+float g_windowWidth  = WIDTH;
+float g_windowHeight = HEIGHT;
 
 // flag to tell main if we should rebuild the projection matrices
-bool rebuildProjection = false;
+bool g_rebuildProjection = false;
 // flag to tell main if we should redraw the window
-bool redrawWindow = true;
+bool g_redrawWindow = true;
 
 static void recomputeWorldExtents(void){
-  if (windowHeight <= 0.0f){
-    windowHeight = 1.0f; // prevent division-by-zero; will be corrected by the next resize event
+  if (g_windowHeight <= 0.0f){
+    g_windowHeight = 1.0f; // prevent division-by-zero; will be corrected by the next resize event
   }
 
-  const float aspect = windowWidth / windowHeight;
+  const float aspect = g_windowWidth / g_windowHeight;
   const float halfSpanX = GRAPH_HALF_HEIGHT * aspect;
 
-  worldYMin = -GRAPH_HALF_HEIGHT;
-  worldYMax =  GRAPH_HALF_HEIGHT;
-  worldXMin = -halfSpanX;
-  worldXMax =  halfSpanX;
+  g_worldYMin = -GRAPH_HALF_HEIGHT;
+  g_worldYMax =  GRAPH_HALF_HEIGHT;
+  g_worldXMin = -halfSpanX;
+  g_worldXMax =  halfSpanX;
 }
 
 void rwh_FramebufferSizeCallback(GLFWwindow *window, int width, int height){
   (void)window;
   glViewport(0, 0, width, height);
 
-  windowWidth = (float)width;
-  windowHeight = (float)height;
+  g_windowWidth = (float)width;
+  g_windowHeight = (float)height;
 
   recomputeWorldExtents();
-  rebuildProjection = true;
-  redrawWindow = true;
+  g_rebuildProjection = true;
+  g_redrawWindow = true;
 
   rl_LogMsg(RL_DEBUG, "Changing window resolution to: %d, %d", width, height);
 }

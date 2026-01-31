@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-bool higherPrecisionRender = false;
+bool g_higherPrecisionRender = false;
 
 enum reh_error_code_e rfr_Init(struct ra_app_context_t *context){
   if (context == nullptr){
@@ -209,7 +209,7 @@ enum reh_error_code_e rfr_SampleFunction(struct ree_function_t *function, float 
   bool accepted = false;
   while (x < worldXRangeMax){
     // without using higher precision render, sampler acts odd (in stuff like x! or similar) but im lazy to try and fix this rn
-    if (higherPrecisionRender == true){
+    if (g_higherPrecisionRender == true){
       struct ree_variable_t variablesF0[] = {{function->parameter, x}};
       _err = ree_EvaluateRpn(function->rpn, (size_t)function->rpnCount, variablesF0, 1, &f0);
       RFR_CHECK_EVALUATOR_RETURN(_err, x);
@@ -319,7 +319,7 @@ enum reh_error_code_e rfr_Render(struct ra_app_context_t *context, struct ree_fu
     struct rfr_function_point_data_t pointData;
 
     // sample the function
-    enum reh_error_code_e _err = rfr_SampleFunction(function, worldXMin, worldXMax, 0.001f, &pointData);
+    enum reh_error_code_e _err = rfr_SampleFunction(function, g_worldXMin, g_worldXMax, 0.001f, &pointData);
     if (_err != ERR_SUCCESS){
       if (_err == ERR_SAMPLER_STEP_TOO_SMALL){
         reh_ClearError();

@@ -9,8 +9,8 @@
 #include <string.h>
 #include "core/logger.h"
 
-struct rui_context_t uiCtx;
-struct rui_state_t ruiState = {0, 0, 0, 0, 0};
+struct rui_context_t g_uiCtx;
+struct rui_state_t g_ruiState = {0, 0, 0, 0, 0};
 
 enum reh_error_code_e rui_Begin(struct rui_context_t *uiCtx){
   if (uiCtx == nullptr) SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to uiCtx passed to rui_Begin is NULL.");
@@ -28,7 +28,7 @@ enum reh_error_code_e rui_RenderRect(struct rui_context_t *uiCtx, float x, float
   if (h < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative h passed to rui_RenderRect.");
   if (label == nullptr) SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to label passed to rui_RenderRect is NULL.");
   if (uiCtx == nullptr) SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to uiCtx passed to rui_RenderRect is NULL.");
-  if (uiCtx->commandCount >= RUI_MAX_COMMANDS) SET_ERROR_RETURN(ERR_OUT_OF_BOUNDS, "Too many commands in uiCtx (passed to rui_RenderRect).");
+  if (uiCtx->commandCount >= RUI_MAX_COMMANDS) SET_ERROR_RETURN(ERR_OUT_OF_BOUNDS, "Too many commands in g_uiCtx (passed to rui_RenderRect).");
 
   struct rui_command_t *command = &uiCtx->commands[uiCtx->commandCount++];
 
@@ -53,7 +53,7 @@ enum reh_error_code_e rui_RenderInputField(struct rui_context_t *uiCtx, float x,
   if (h < 0) SET_ERROR_RETURN(ERR_INVALID_INPUT, "Negative h passed to rui_RenderRect.");
   if (label == nullptr) SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to label passed to rui_RenderRect is NULL.");
   if (uiCtx == nullptr) SET_ERROR_RETURN(ERR_INVALID_POINTER, "Pointer to uiCtx passed to rui_RenderRect is NULL.");
-  if (uiCtx->commandCount >= RUI_MAX_COMMANDS) SET_ERROR_RETURN(ERR_OUT_OF_BOUNDS, "Too many commands in uiCtx (passed to rui_RenderRect).");
+  if (uiCtx->commandCount >= RUI_MAX_COMMANDS) SET_ERROR_RETURN(ERR_OUT_OF_BOUNDS, "Too many commands in g_uiCtx (passed to rui_RenderRect).");
 
   struct rui_command_t *command = &uiCtx->commands[uiCtx->commandCount++];
 
@@ -99,8 +99,8 @@ enum reh_error_code_e rui_DrawRect(float x, float y, float w, float h, struct rm
   }
 
   // convert top left y (my ui lib)
-  extern float windowHeight;
-  float topYGL = windowHeight - y;
+  extern float g_windowHeight;
+  float topYGL = g_windowHeight - y;
   float bottomYGL = topYGL - h;
 
   // top left (converted)
@@ -338,12 +338,13 @@ enum reh_error_code_e rui_AABBCollisionCheck(struct rui_command_t *A, struct rui
 
 enum reh_error_code_e rui_AACursorCheck(int *id){
   // start at the end of the array to check widgets that could be on top of other widgets
-  for (size_t i = uiCtx.commandCount; i >= 0; --i){
-    struct rui_command_t *command = &uiCtx.commands[i];
-    bool isCursorInsideX = false, isCursorInsideY = false;
-    if (ruiState.mouseX > command->rect.x && ruiState.mouseX < command->rect.x + command->rect.w) isCursorInsideX = true;
+  for (size_t i = g_uiCtx.commandCount; i > 0; --i){
+    struct rui_command_t *command = &g_uiCtx.commands[i-1];
 
-    if (ruiState.mouseY > command->rect.y && ruiState.mouseY < command->rect.y + command->rect.h) isCursorInsideY = true;
+    bool isCursorInsideX = false, isCursorInsideY = false;
+    if (g_ruiState.mouseX > command->rect.x && g_ruiState.mouseX < command->rect.x + command->rect.w) isCursorInsideX = true;
+
+    if (g_ruiState.mouseY > command->rect.y && g_ruiState.mouseY < command->rect.y + command->rect.h) isCursorInsideY = true;
 
     if (isCursorInsideX && isCursorInsideY){
       *id = command->id;

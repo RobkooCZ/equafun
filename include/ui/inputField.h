@@ -43,6 +43,8 @@ struct rui_input_fields_t {
   struct rui_input_field_data_t data;
 };
 
+void charCallback(GLFWwindow *window, unsigned int codepoint);
+
 void rui_InputFieldOnClick(struct rui_command_input_field_t *command);
 enum reh_error_code_e rui_InputFieldInput(GLFWwindow *window);
 enum reh_error_code_e rui_RenderInputFieldText(struct rui_command_input_field_t *command, struct ra_app_context_t *ctx, struct rtr_character_t* characters, const char* fieldData);

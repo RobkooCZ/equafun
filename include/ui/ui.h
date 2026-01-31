@@ -21,7 +21,7 @@ struct rui_draw_data_t {
   size_t vertexCount;
 };
 
-extern struct rui_context_t uiCtx;
+extern struct rui_context_t g_uiCtx;
 
 /**
   @brief Clears uiCtx

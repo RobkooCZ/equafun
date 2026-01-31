@@ -24,8 +24,8 @@ struct ree_output_token_t {
   float value;                  /**< Numerical value for number tokens */
 };
 
-extern const char* validFunctions[];
-extern const int functionArrLength;
+extern const char* g_validFunctions[];
+extern const int g_functionArrLength;
 
 /**
   @brief Converts an output token type to its string representation

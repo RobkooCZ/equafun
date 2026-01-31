@@ -64,7 +64,7 @@ enum reh_error_code_e ra_AppInit(struct ra_app_context_t *ctx){
 
   // Setup projection matrix for the graph and markers
   struct rm_mat4_t graphProjection;
-  err = rm_Mat4Ortho(worldXMin, worldXMax, worldYMin, worldYMax, &graphProjection);
+  err = rm_Mat4Ortho(g_worldXMin, g_worldXMax, g_worldYMin, g_worldYMax, &graphProjection);
   if (err != ERR_SUCCESS) return err;
 
   float *graphProjectionPtr = nullptr;
@@ -146,9 +146,9 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
   enum reh_error_code_e err;
 
   // Rebuild projection matrices and redraw window if resolution changed
-  if (rebuildProjection == true){
+  if (g_rebuildProjection == true){
     struct rm_mat4_t graphProjection;
-    rm_Mat4Ortho(worldXMin, worldXMax, worldYMin, worldYMax, &graphProjection);
+    rm_Mat4Ortho(g_worldXMin, g_worldXMax, g_worldYMin, g_worldYMax, &graphProjection);
 
     float *graphProjectionPtr = nullptr;
     rm_Mat4ValuePtr(&graphProjection, &graphProjectionPtr);
@@ -156,13 +156,13 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
     rsu_GluSetMat4(ctx->fProgram, "functionProjection", graphProjectionPtr);
 
     struct rm_mat4_t textProjection;
-    rm_Mat4Ortho(0.0f, windowWidth, 0.0f, windowHeight, &textProjection);
+    rm_Mat4Ortho(0.0f, g_windowWidth, 0.0f, g_windowHeight, &textProjection);
 
     float* textProjectionPtr = nullptr;
     rm_Mat4ValuePtr(&textProjection, &textProjectionPtr);
     rsu_GluSetMat4(ctx->textProgram, "textProjection", textProjectionPtr);
 
-    rebuildProjection = false;
+    g_rebuildProjection = false;
   }
 
   // Clear buffers
@@ -172,7 +172,7 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
   // Get current projection matrix
   float *graphProjectionPtr = nullptr;
   struct rm_mat4_t graphProjection;
-  rm_Mat4Ortho(worldXMin, worldXMax, worldYMin, worldYMax, &graphProjection);
+  rm_Mat4Ortho(g_worldXMin, g_worldXMax, g_worldYMin, g_worldYMax, &graphProjection);
   rm_Mat4ValuePtr(&graphProjection, &graphProjectionPtr);
 
   // Render graph
@@ -197,7 +197,7 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
   if (err != ERR_SUCCESS) return err;
   err = rtr_RenderDebugInfo(ctx->textProgram, ctx->textVAO, ctx->textVBO, chars, 1.0f, textColor, functions);
 
-  if (isUiShown){
+  if (g_isUiShown){
     rui_Begin(uiCtx);
 
     rui_RenderRect(uiCtx, 10, 10, "a", 150, 500, (struct rm_vec3_t){1.0f, 1.0f, 1.0f}, rui_RectOnHoverGreen, rui_RectOnClickBlue);
@@ -220,17 +220,17 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
       }
     }
 
-    if (ruiState.mouseDown){
-      ruiState.activeItem = id;
+    if (g_ruiState.mouseDown){
+      g_ruiState.activeItem = id;
       for (size_t i = 0; i < uiCtx->commandCount; i++){
         struct rui_command_t *currentCommand = &uiCtx->commands[i];
 
         switch (currentCommand->type){
           case RUI_RECT:
-            if (ruiState.activeItem == currentCommand->id) currentCommand->rect.onClick(&currentCommand->rect);
+            if (g_ruiState.activeItem == currentCommand->id) currentCommand->rect.onClick(&currentCommand->rect);
             break;
           case RUI_INPUT_FIELD:
-            if (ruiState.activeItem == currentCommand->id){
+            if (g_ruiState.activeItem == currentCommand->id){
               currentCommand->input.onClick(&currentCommand->input);
               g_inputFieldData.activeId = currentCommand->id;
             }
@@ -240,14 +240,14 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
       }
     }
     else {
-      ruiState.hotItem = id;
+      g_ruiState.hotItem = id;
 
       for (size_t i = 0; i < uiCtx->commandCount; i++){
         struct rui_command_t *currentCommand = &uiCtx->commands[i];
 
         switch (currentCommand->type){
           case RUI_RECT: 
-            if (ruiState.hotItem == currentCommand->id) currentCommand->rect.onHover(&currentCommand->rect);
+            if (g_ruiState.hotItem == currentCommand->id) currentCommand->rect.onHover(&currentCommand->rect);
             break;
           default:
             break;
@@ -257,13 +257,13 @@ enum reh_error_code_e ra_AppRenderFrame(struct ra_app_context_t *ctx, struct rui
   }
 
   struct rm_mat4_t textProjection;
-  rm_Mat4Ortho(0.0f, windowWidth, 0.0f, windowHeight, &textProjection);
+  rm_Mat4Ortho(0.0f, g_windowWidth, 0.0f, g_windowHeight, &textProjection);
 
   float* textProjectionPtr = nullptr;
   rm_Mat4ValuePtr(&textProjection, &textProjectionPtr);
   rsu_GluSetMat4(ctx->textProgram, "textProjection", textProjectionPtr);
 
-  if (isUiShown){
+  if (g_isUiShown){
     // first render the ui
     rui_End(uiCtx, &ctx->uiProgram, &ctx->uiVAO, &ctx->uiVBO, &ctx->uiEBO, &textProjectionPtr);
 

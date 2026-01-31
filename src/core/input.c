@@ -9,8 +9,8 @@
 #include "ui/uiInternal.h"
 #include "utils/utilities.h"
 
-bool isXPiLabeled = false;
-bool isUiShown = true;
+bool g_isXPiLabeled = false;
+bool g_isUiShown = true;
 
 void rih_ProcessInput(GLFWwindow *window){
   if (window == nullptr){
@@ -19,13 +19,13 @@ void rih_ProcessInput(GLFWwindow *window){
   }
 
   // get mouse info
-  glfwGetCursorPos(window, &ruiState.mouseX, &ruiState.mouseY);
+  glfwGetCursorPos(window, &g_ruiState.mouseX, &g_ruiState.mouseY);
   int leftMouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
   if (leftMouseButton == GLFW_PRESS){
-    ruiState.mouseDown = 1;
+    g_ruiState.mouseDown = 1;
   }
-  if (leftMouseButton == GLFW_RELEASE) ruiState.mouseDown = 0;
+  if (leftMouseButton == GLFW_RELEASE) g_ruiState.mouseDown = 0;
 
 
   if (g_inputFieldData.isAnyPressed == false){
@@ -36,19 +36,19 @@ void rih_ProcessInput(GLFWwindow *window){
     }
     else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS){
       rl_LogMsg(RL_DEBUG, "P key pressed, changing x-axis labels.");
-      isXPiLabeled = !isXPiLabeled;
-      redrawWindow = true;
+      g_isXPiLabeled = !g_isXPiLabeled;
+      g_redrawWindow = true;
       rgu_msleep(150);
     }
     else if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
       rl_LogMsg(RL_DEBUG, "R key pressed, changing precision.");
-      higherPrecisionRender = !higherPrecisionRender;
-      redrawWindow = true;
+      g_higherPrecisionRender = !g_higherPrecisionRender;
+      g_redrawWindow = true;
       rgu_msleep(150);
     }
     else if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS){
-      isUiShown = !isUiShown;
-      redrawWindow = true;
+      g_isUiShown = !g_isUiShown;
+      g_redrawWindow = true;
       rl_LogMsg(RL_DEBUG, "U key pressed, toggling UI...");
       rgu_msleep(150);
     }

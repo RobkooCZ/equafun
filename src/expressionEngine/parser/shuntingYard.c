@@ -7,8 +7,8 @@
 #include <string.h>
 #include <ctype.h>
 
-const char* validFunctions[] = {"sin", "cos", "tan", "sqrt", "abs", "ln", "log"};
-const int functionArrLength = sizeof(validFunctions) / sizeof(validFunctions[0]);
+const char* g_validFunctions[] = {"sin", "cos", "tan", "sqrt", "abs", "ln", "log"};
+const int g_functionArrLength = sizeof(g_validFunctions) / sizeof(g_validFunctions[0]);
 
 const char* ree_OutputTokenToStr(enum ree_output_type_e outputToken){
   switch (outputToken){
@@ -177,9 +177,9 @@ enum reh_error_code_e ree_ParseToPostfix(struct ree_token_t *tokens, const int t
       outputQueue[*outputCount] = outputToken;
       (*outputCount)++;
     }
-    else if (currentToken.token_type == TOKEN_IDENTIFIER){ 
-      // check if the identifier matches any of the supported functions 
-      if (rgu_IsStrInArray(validFunctions, functionArrLength, currentToken.value) == true){
+    else if (currentToken.token_type == TOKEN_IDENTIFIER){
+      // check if the identifier matches any of the supported functions
+      if (rgu_IsStrInArray(g_validFunctions, g_functionArrLength, currentToken.value) == true){
         stack[operatorStackPointer++] = currentToken;
       }
       // check if its a parameter

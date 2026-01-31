@@ -337,19 +337,19 @@ enum reh_error_code_e rtr_FormatMarkerValue(float value, char *buffer, const int
 }
 
 float rtr_NdcToPixelX(float ndcX){
-  return ((ndcX + 1.0f) / 2.0f) * windowWidth;
+  return ((ndcX + 1.0f) / 2.0f) * g_windowWidth;
 }
 
 float rtr_NdcToPixelY(float ndcY){
-  return ((ndcY + 1.0f) / 2.0f) * windowHeight;
+  return ((ndcY + 1.0f) / 2.0f) * g_windowHeight;
 }
 
 float rtr_WorldToPixelX(float worldX){
-  return ((worldX - worldXMin) / (worldXMax - worldXMin)) * windowWidth;
+  return ((worldX - g_worldXMin) / (g_worldXMax - g_worldXMin)) * g_windowWidth;
 }
 
 float rtr_WorldToPixelY(float worldY){
-  return ((worldY - worldYMin) / (worldYMax - worldYMin)) * windowHeight;
+  return ((worldY - g_worldYMin) / (g_worldYMax - g_worldYMin)) * g_windowHeight;
 }
 
 enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color){
@@ -362,12 +362,12 @@ enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VB
 
   // prevent rendering glitches which makes labels (from my experience, on the y-axis) lifted to the viewport edge
   // by adding padding
-  float usableXMin = worldXMin + POINT_MARKER_HEIGHT_WORLD;
-  float usableXMax = worldXMax - POINT_MARKER_HEIGHT_WORLD;
-  float usableYMin = worldYMin + POINT_MARKER_HEIGHT_WORLD;
-  float usableYMax = worldYMax - POINT_MARKER_HEIGHT_WORLD;
+  float usableXMin = g_worldXMin + POINT_MARKER_HEIGHT_WORLD;
+  float usableXMax = g_worldXMax - POINT_MARKER_HEIGHT_WORLD;
+  float usableYMin = g_worldYMin + POINT_MARKER_HEIGHT_WORLD;
+  float usableYMax = g_worldYMax - POINT_MARKER_HEIGHT_WORLD;
 
-  float gridSpacingWorldX = (isXPiLabeled) ? PI/2 : GRID_SPACING_WORLD;
+  float gridSpacingWorldX = (g_isXPiLabeled) ? PI/2 : GRID_SPACING_WORLD;
   float gridSpacingWorldY = GRID_SPACING_WORLD;
 
   // positive x axis labels
@@ -457,19 +457,19 @@ enum reh_error_code_e rtr_RenderAxisLabels(GLuint program, GLuint VAO, GLuint VB
 
 enum reh_error_code_e rtr_RenderDebugInfo(GLuint program, GLuint VAO, GLuint VBO, struct rtr_character_t *characters, float scale, struct rm_vec3_t color, struct ree_function_manager_t *manager){
   // get dimensions of where to place the text
-  float topLeftX = windowWidth * 0.7f; // 70% from the left
-  float topLeftY = windowHeight - (windowHeight * 0.05f); // 5% from the top
+  float topLeftX = g_windowWidth * 0.7f; // 70% from the left
+  float topLeftY = g_windowHeight - (g_windowHeight * 0.05f); // 5% from the top
 
   // scale text size accordingly
-  float aspectRatio = windowWidth / windowHeight;
+  float aspectRatio = g_windowWidth / g_windowHeight;
   float fontScale = sqrtf(aspectRatio) * 0.75f;
 
   float gap = (0.03f) * aspectRatio;
 
-  DISPLAY_VAR(windowHeight, "%.0f", "Height");
-  DISPLAY_VAR(windowWidth, "%.0f", "Width");
+  DISPLAY_VAR(g_windowHeight, "%.0f", "Height");
+  DISPLAY_VAR(g_windowWidth, "%.0f", "Width");
 
-  // display the functions' definitions
+  // display the g_functions' definitions
   for (size_t i = 0; i < manager->functionCount; ++i){
     DISPLAY_FUNCTION_DEFINITION(manager->functions[i].definition, manager->functions[i].color);
   }
@@ -484,9 +484,9 @@ enum reh_error_code_e rtr_RenderDebugInfo(GLuint program, GLuint VAO, GLuint VBO
   DISPLAY_VAR(gap, "%f", "gap");
 
   // mouse state
-  DISPLAY_VAR(ruiState.mouseDown, "%d", "Mouse Down");
-  DISPLAY_VAR(ruiState.mouseX, "%f", "Mouse X");
-  DISPLAY_VAR(ruiState.mouseY, "%f", "Mouse Y");
+  DISPLAY_VAR(g_ruiState.mouseDown, "%d", "Mouse Down");
+  DISPLAY_VAR(g_ruiState.mouseX, "%f", "Mouse X");
+  DISPLAY_VAR(g_ruiState.mouseY, "%f", "Mouse Y");
 
   return ERR_SUCCESS;
 }

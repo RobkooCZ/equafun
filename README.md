@@ -1,10 +1,12 @@
-# Equafun (Alpha v0.0.6)
+# Equafun (Alpha v0.0.6.10)
 
 ## Features
 - Graph render with labeled markers
 - Full fledged lexer, parser and evaluator for function definition handling
 - Function rendering
 - Adjusting the window size dynamically grows/shrinks the graph and values still match
+- Functional input fields
+- Basic UI
 
 ## Changelog
 - The full changelog for the project can be found [here](docs/changelog.md).
@@ -13,10 +15,11 @@
 - Support for **Linux** and **Windows** as of `Alpha v0.0.6`.
 
 ## How to build from the beginning & run
-- **IMPORTANT: ** you *have* to pass the functions you want to be rendered as arguments, as shown in the example here: 
-    - `./build/equafun "f(x) = x" "g(x) = x^2"` (running the executable on Linux)
+- **IMPORTANT: ** you NO longer have to pass the functions you want to be rendered as arguments.
+    - `./build/equafun "f(x) = x^2" "y = tan(x)"` (running the executable on Linux)
+        - the option for passing arguments in the CLI is still there, but it isn't required
     - (function identifiers don't have to be the same as in the example, but they have to be unique)
-- **The resulting binary is in `build`** 
+- **The resulting binary is in `build`**
 - To run the project, either:
     1. Go to *build* and run the executable there (*equafun(.exe)*)
     2. Run the executable from the root directory using *./build/equafun(.exe)*
@@ -29,21 +32,21 @@
 - **OpenGL version 3.3 or above**
 
 #### Build Using Make
-1. Simply run `./build.sh make` in the root directory of the project. The script runs `make clean` followed by `make` which compiles the project.
+1. Simply run `./build.sh -u make` in the root directory of the project. The script runs `make clean` followed by `make` which compiles the project.
 
 #### Build Using Make + Bear
 1. **Additional prerequisite:** *bear*
-2. Simply run `./build.sh make -b` in the root directory of the project. The script runs `make clean`, followed by `bear -- make` to compile the project while also generating `compile_commands.json`.
+2. Simply run `./build.sh -u make -b` in the root directory of the project. The script runs `make clean`, followed by `bear -- make` to compile the project while also generating `compile_commands.json`.
 
 #### Build Using CMake
 1. **Additional prerequisite:** *vcpkg*
-    > installed in ~/vcpkg (ill change it soon)
-2. Simply run `./build.sh cmake` in the root directory of the project. The script removes the build directory and compiles the project from the beginning.
+    > installed in /opt/vcpkg
+2. Simply run `./build.sh` (or `./build.sh -u cmake`) in the root directory of the project. The script removes the build directory and compiles the project from the beginning.
 
 #### Build using CMake + Bear
 1. **Additional prerequisite:** *vcpkg, bear*
     > installed in ~/vcpkg (ill change it soon)
-2. Simply run `./build.sh cmake -b` in the root directory of the project. The script removes the build directory and compiles the project from the beginning.
+2. Simply run `./build.sh -b` (or `./build.sh -u cmake`) in the root directory of the project. The script removes the build directory and compiles the project from the beginning.
 
 #### **Repeated build**
 - after building it for the first time with one of the above commands, you can use either

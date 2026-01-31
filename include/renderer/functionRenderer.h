@@ -17,7 +17,7 @@ struct rfr_function_point_data_t {
 };
 
 
-extern bool higherPrecisionRender;
+extern bool g_higherPrecisionRender;
 
 #define RFR_ABSOLUTE_TOLERANCE 1e-2
 #define RFR_RELATIVE_TOLERANCE 1e-3

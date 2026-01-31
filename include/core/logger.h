@@ -7,6 +7,10 @@
 
 #include "core/errorHandler.h"
 
+#ifdef __unix__
+  #include <bits/types/siginfo_t.h>
+#endif
+
 // ASCII codes for colors for the different levels
 #ifdef __linux__
   #define RL_DEBUG_COLOR     "\x1B[1;36m"
@@ -15,6 +19,19 @@
   #define RL_ERROR_COLOR     "\x1B[1;31m"
   #define RL_FAILURE_COLOR   "\x1B[1;37m\x1B[41m"
   #define RL_END           "\x1B[0m"
+
+  // SIGSEGV printing/handling functions for Linux. Windows is a tad more complicated, so i couldnt care less rn.
+
+  /**
+    @brief Prints the backtrace using rl_LogMsg.
+  */
+  void rl_PrintBacktrace(void);
+
+  /**
+    @brief Handles segfault by printing all the available info and then dumping the core.
+  */
+  void rl_HandleSegfault(int signum, siginfo_t *info, void *context);
+
 #endif
 
 #ifdef _WIN32
@@ -30,6 +47,7 @@
 #endif
 
 #define _DEBUG_ENABLE
+#define RL_BACKTRACE_COUNT 10
 
 enum rl_log_level_e {
   RL_DEBUG = -1, // every little detail
@@ -53,5 +71,6 @@ void rl_LogError(const struct reh_error_context_t *ctx, enum rl_log_level_e seve
   @brief Logs the last error context to the console with a given severity.
 */
 void rl_LogLastError(enum rl_log_level_e severity);
+
 
 #endif // LOGGER_H
